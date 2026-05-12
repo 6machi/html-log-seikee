@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CoCログ縦書きメーカー 軽量版 GitHub ver8 安定ロールバック版</title>
+<title>CoCログ縦書きメーカー 軽量版 GitHub ver9 安定ロールバック版</title>
 <style>
 :root{
   --bg1:#fff8fb;
@@ -43,7 +43,13 @@ header{
 h1{margin:4px 0 0;font-size:23px;letter-spacing:.04em}.badge{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;color:var(--muted);font-size:12px;white-space:nowrap}
 main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var(--card);border:1px solid rgba(255,255,255,.94);box-shadow:var(--shadow);border-radius:24px;padding:16px;margin-bottom:14px}.lead{margin:0;color:var(--muted);font-size:13px;line-height:1.75}h2{font-size:17px;margin:0 0 10px}.grid{display:grid;grid-template-columns:1fr 1.55fr 1.05fr;gap:12px}.box{border:1px solid var(--line);background:rgba(255,255,255,.62);border-radius:18px;padding:13px}label{display:block;margin:0 0 6px;color:var(--muted);font-size:12px;font-weight:800}input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:10px 11px;font:inherit;font-size:14px}textarea{min-height:300px;height:42vh;line-height:1.7;resize:vertical;background:#fffefb}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px}.check{display:flex;align-items:center;gap:8px;margin:0;color:#414755;font-size:13px;font-weight:500}.check input{width:auto}.settings-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:10px}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}button{min-height:38px;border:0;border-radius:999px;background:#252b3a;color:#fff;padding:9px 14px;font:inherit;font-weight:900;cursor:pointer}button.secondary{background:#fff;color:#252b3a;border:1px solid var(--line)}button.warn{background:var(--accent)}button.small{min-height:27px;padding:3px 8px;font-size:11px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.stat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px}.stat b{display:block;font-size:18px}.stat span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.names{display:grid;gap:7px;max-height:330px;overflow:auto}.chip{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;border:1px solid var(--line);background:#fff;border-radius:14px;padding:9px}.chip-title{display:flex;align-items:center;gap:7px;min-width:0}.dot{width:10px;height:10px;border-radius:999px;background:var(--c,#888);flex:0 0 auto}.chip b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chip small{display:block;color:var(--muted);font-size:11px;margin:4px 0 6px}.role{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 7px;font-weight:900}.role.pc{background:#252b3a;color:#fff}.role.kp{background:#f6efe1;color:#5b4b32}.role.off{background:#f4f4f4;color:#999}.role-buttons{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.notice{background:#fff8e8;border:1px solid #ead7aa;color:#6c5730;border-radius:14px;padding:10px 12px;font-size:12px;line-height:1.65;margin-bottom:10px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px}.toolbar .buttons{margin:0}.preview-shell{height:76vh;min-height:680px;overflow:auto;padding:18px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(90deg, rgba(210,216,228,.35) 1px, transparent 1px) 0 0/28px 28px,var(--paper);box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}.page{min-width:max-content;width:max-content;height:100%;padding:0 24px;writing-mode:vertical-rl;text-orientation:mixed;font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;font-size:var(--preview-font);line-height:1.9;letter-spacing:.03em;color:#171410}.pc-group{display:inline-flex;flex-direction:row-reverse;align-items:flex-start;vertical-align:top;writing-mode:horizontal-tb;gap:var(--turn-gap);margin-left:1.15em;break-inside:avoid}.pc-turn{display:inline-flex;flex-direction:column;align-items:flex-end;justify-content:flex-start;flex:0 0 auto;min-width:max-content;break-inside:avoid}.pc-speaker{display:block;writing-mode:vertical-rl;text-orientation:mixed;font-weight:900;font-size:var(--speaker-font);line-height:1.55;letter-spacing:.08em;min-height:var(--speaker-height);min-width:1.65em;width:max-content;margin:0 0 .42em;padding:0;text-align:start}.pc-body{display:block;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;line-height:1.9;min-width:1.85em;width:max-content;height:var(--body-height);max-height:var(--body-height);padding:.42em 0 0;border-top:1.6px solid rgba(35,31,27,.48);overflow-wrap:anywhere;word-break:normal}.narration{display:inline-block;vertical-align:top;writing-mode:vertical-rl;text-orientation:mixed;margin-left:1.05em;line-height:1.9;white-space:pre-wrap;break-inside:avoid}.narration strong{font-weight:900}.narration .mark{color:#8d7444;font-size:.72em;font-weight:900}.dice{display:inline-flex;vertical-align:top;writing-mode:vertical-rl;text-orientation:mixed;align-items:flex-start;justify-content:flex-start;margin-left:1.1em;padding:.45em .28em;border-radius:8px;background:#f4f0ea;color:#6f675d;font-size:.9em;white-space:pre-wrap;break-inside:avoid}.dice-name{font-weight:900;color:#4f463c;margin-bottom:.25em}.horizontal{writing-mode:horizontal-tb!important;min-width:auto;width:auto;height:auto}.horizontal .pc-group,.horizontal .pc-turn,.horizontal .pc-speaker,.horizontal .pc-body,.horizontal .narration,.horizontal .dice{display:block!important;writing-mode:horizontal-tb!important;min-width:0!important;width:auto!important;height:auto!important;max-height:none!important}.horizontal .pc-group{margin:0 0 1em!important}.horizontal .pc-turn{margin:0 0 1.1em!important}.horizontal .pc-speaker{min-height:0!important;border-bottom:1px solid #e1d7c9;margin:0 0 .3em!important;padding:0 0 .25em!important}.horizontal .pc-body{border-top:0!important;border-left:3px solid #ddd;padding:.1em 0 .1em .8em!important}.horizontal .narration,.horizontal .dice{margin:0 0 1em!important}.raw{max-height:220px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px}.raw-item{border-bottom:1px solid #eee6d8;padding:8px 0}.raw-meta{display:flex;gap:6px;flex-wrap:wrap;color:var(--muted);margin-bottom:4px}.raw-body{white-space:pre-wrap;line-height:1.6}@media(max-width:980px){.grid{grid-template-columns:1fr}.settings-row,.checks{grid-template-columns:1fr 1fr}.preview-shell{min-height:610px}}@media(max-width:640px){main{padding:12px}.header-inner{display:block}h1{font-size:20px}.badge{display:inline-block;margin-top:8px}.settings-row,.checks,.stats{grid-template-columns:1fr}.buttons button{width:100%}}
 
-.find-panel{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin:10px 0}.find-panel .find-buttons{display:flex;gap:6px;flex-wrap:wrap}.find-panel button{min-height:34px;padding:7px 10px}.find-note{color:var(--muted);font-size:12px;line-height:1.5;margin-top:4px}@media(max-width:760px){.find-panel{grid-template-columns:1fr}.find-panel .find-buttons button{width:100%}}
+.find-panel{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin:10px 0}.find-panel .find-buttons{display:flex;gap:6px;flex-wrap:wrap}.find-panel button{min-height:34px;padding:7px 10px}.find-note{color:var(--muted);font-size:12px;line-height:1.5;margin-top:4px}
+/* v9: dialogue rule behavior */
+.pc-turn.speaker-continued .pc-speaker{visibility:hidden;}
+.pc-turn.speaker-change{margin-left:.42em;}
+.pc-turn.dialogue-connect .pc-body{margin-left:-.46em;padding-left:.46em;}
+.pc-turn.speaker-change.dialogue-connect .pc-body{margin-left:-.88em;padding-left:.88em;}
+@media(max-width:760px){.find-panel{grid-template-columns:1fr}.find-panel .find-buttons button{width:100%}}
 #measureHost{position:absolute!important;left:-100000px!important;top:0!important;display:block!important;visibility:hidden!important;background:#fff!important;pointer-events:none!important;z-index:-1!important}
 #printHost .print-page,#measureHost .print-page{box-sizing:border-box;width:118mm;height:178mm;margin:0;padding:0;overflow:hidden;background:#fff;page-break-after:always;break-after:page}
 #printHost .print-page:last-child,#measureHost .print-page:last-child{page-break-after:auto;break-after:auto}
@@ -397,9 +403,9 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver8</h1></div><span class="badge">A5安定ロールバック / GitHub ver8</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver9</h1></div><span class="badge">A5安定ロールバック / GitHub ver9</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver8ではGitHub ver8の安定レイアウトへロールバックし、実験的なボックステキスト分割を外しています。A5基準で文字欠けを避ける版です。</p></section>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver9ではGitHub ver9の安定レイアウトへロールバックし、実験的なボックステキスト分割を外しています。A5基準で文字欠けを避ける版です。</p></section>
 <section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>整形設定</h2><div class="checks"><label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label><label class="check"><input id="skipDice" type="checkbox">ダイス結果を除外</label><label class="check"><input id="skipSystem" type="checkbox">system発言を除外</label><label class="check"><input id="mergeSameSpeaker" type="checkbox" checked>同じ発言者の連続発言をまとめる</label><label class="check"><input id="scenarioAsNarration" type="checkbox" checked>シナリオ描写を本文扱いにする</label><label class="check"><input id="fullWidthPunctuation" type="checkbox" checked>記号を縦書き向けに整える</label></div><div class="settings-row"><div><label for="fontSize">文字サイズ</label><select id="fontSize"><option value="13px">小さめ</option><option value="15px" selected>標準</option><option value="17px">大きめ</option></select></div><div><label for="speakerHeight">話者名エリア</label><select id="speakerHeight"><option value="5.2em">短め</option><option value="7.2em" selected>標準</option><option value="9em">長め</option><option value="11em">かなり長め</option></select></div><div><label for="speakerFont">話者名サイズ</label><select id="speakerFont"><option value=".78em">小さめ</option><option value=".86em" selected>標準</option><option value=".94em">大きめ</option></select></div><div><label for="bodyHeight">会話本文の高さ</label><select id="bodyHeight"><option value="22em">短め</option><option value="30em" selected>標準</option><option value="38em">長め</option><option value="auto">制限なし</option></select></div><div><label for="turnGap">会話間隔</label><select id="turnGap"><option value=".5em">詰める</option><option value="1.1em" selected>標準</option><option value="1.7em">広め</option></select></div><div><label for="pdfSize">PDFサイズ</label><select id="pdfSize"><option value="A5" selected>A5（安定基準）</option><option value="B5">B5（後で調整）</option><option value="B6">B6（後で調整）</option><option value="BUNKO">文庫本（後で調整）</option><option value="A6">A6（後で調整）</option></select></div><div><label for="pdfLines">PDF 1列の文字数</label><select id="pdfLines"><option value="tight">詰める</option><option value="normal">標準</option><option value="safe" selected>安全</option><option value="safer">かなり安全</option></select></div><div><label for="pdfPcChars">PDF セリフ1列の文字数</label><input id="pdfPcChars" type="number" min="10" max="48" value="37" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfMaxCols">PDF 1ページの最大列数</label><input id="pdfMaxCols" type="number" min="3" max="30" value="14" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeLeft">左安全余白 mm</label><input id="pdfSafeLeft" type="number" min="0" max="12" step="0.5" value="2.5" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeRight">右安全余白 mm</label><input id="pdfSafeRight" type="number" min="0" max="12" step="0.5" value="2" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeBottom">下安全余白 mm</label><input id="pdfSafeBottom" type="number" min="0" max="16" step="0.5" value="2.5" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div></div><div class="print-size-help">まずA5安定基準で調整します。ver8はver7のボックステキスト実験を外した安定ロールバック版です。ページ数を減らす場合は「PDF セリフ1列の文字数」を34→36→37の順で少しずつ上げて確認してください。39文字は文字欠けが出たため非推奨です。</div><div style="margin-top:10px"><label for="scenarioNames">シナリオ描写扱いにする名前（カンマ区切り）</label><input id="scenarioNames" type="text" value="部屋説明,START画面,導入,探索可能箇所,プロローグ,お話,ノイズ,決断,ENDA,ニュース,SNS,まとめ,アニメ,手を伸ばす,▼"></div><div class="buttons"><button id="rerenderBtn">再変換</button><button class="secondary" id="previewBtn">プレビュー更新</button></div></div><div class="box"><h2>話者設定</h2><div id="nameList" class="names"></div><div class="buttons"><button class="secondary" id="copyBtn">編集テキストコピー</button><button class="secondary" id="txtBtn">TXT保存</button><button class="secondary" id="htmlBtn">HTML保存</button><button class="secondary" id="printHtmlBtn">PDF用HTML保存</button><button class="warn" id="printBtn">印刷/PDF</button></div></div></div></section>
 <section class="panel editor"><div class="toolbar"><h2>編集テキスト</h2><div class="buttons"><button class="secondary" id="fromLogBtn">元ログから再生成</button></div></div><div class="notice">ここは直接編集できます。PCに設定した話者は会話ブロック、KP/描写に設定した話者は本文流しになります。見出しにしたい行は「■ 見出し」、ダイス表示にしたい行は「【名前】ダイス結果」の形にしてください。</div><div class="find-panel upgraded"><div><label for="findText">検索する言葉</label><input id="findText" type="text" placeholder="例：成功 失敗のパネル"></div><div><label for="replaceText">置き換え後 / 空欄なら削除</label><input id="replaceText" type="text" placeholder="例：成功/失敗パネル"></div><div class="find-buttons"><button class="secondary" id="findBtn" type="button">検索</button><button class="secondary" id="prevHitBtn" type="button">↑ 前</button><button class="secondary" id="nextHitBtn" type="button">↓ 次</button><button class="secondary" id="replaceOneBtn" type="button">現在を置換</button><button class="secondary" id="replaceAllBtn" type="button">全置換</button><button class="secondary" id="deleteAllBtn" type="button">全削除</button></div></div><div class="find-status-row"><span id="findCounter" class="find-counter">0 / 0</span><span class="find-note" id="findNote">検索ボタンで確定検索します。入力途中では検索しません。</span></div><div id="findResults" class="find-results" aria-label="検索結果"></div><textarea id="textEditor" placeholder="HTMLログを読み込むとここに整形テキストが入ります。"></textarea><details style="margin-top:10px"><summary>抽出ログを見る</summary><div id="rawPreview" class="raw"></div></details></section>
 <section class="panel"><div class="toolbar preview-toolbar"><h2>全文縦書きプレビュー</h2><div class="buttons"><button class="secondary" id="startBtn">右端（先頭）へ</button><button class="secondary" id="directionBtn">横書き確認</button></div></div><p class="preview-edit-hint">プレビュー内の本文・セリフをクリックすると、その場で編集できます。編集後にフォーカスを外すと編集テキストへ反映します。</p><div class="preview-shell" id="previewShell"><div id="verticalPage" class="page"></div></div></section>
@@ -462,7 +468,7 @@ function renderBlocks(blocks){
   }
   return out.join('')
 }
-function renderPcGroup(group){return `<section class="pc-group">${group.map(b=>`<div class="pc-turn" data-block="${b.__idx}"><span class="pc-speaker">${escapeHtml(displayNames.get(b.name)||b.name)}</span><span class="pc-body preview-editable" contenteditable="true" spellcheck="false" data-block="${b.__idx}" data-field="body">${escapeHtml(b.body||'　')}</span></div>`).join('')}</section>`}
+function renderPcGroup(group){return `<section class="pc-group">${group.map((b,i)=>{const prev=group[i-1];const next=group[i+1];const samePrev=prev&&prev.name===b.name;const sameNext=next&&next.name===b.name;const cls=['pc-turn'];if(samePrev)cls.push('speaker-continued');if(prev&&prev.name!==b.name)cls.push('speaker-change');if(next)cls.push('dialogue-connect');return `<div class="${cls.join(' ')}" data-block="${b.__idx}"><span class="pc-speaker">${escapeHtml(samePrev?'':(displayNames.get(b.name)||b.name))}</span><span class="pc-body preview-editable" contenteditable="true" spellcheck="false" data-block="${b.__idx}" data-field="body">${escapeHtml(b.body||'　')}</span></div>`}).join('')}</section>`}
 function renderCallout(b){
   const label=`【${b.name||'system'}】`;
   const raw=cleanText(b.body||'');
@@ -693,21 +699,64 @@ function pushCalloutUnits(units,b,spec){
   const chunks=roll ? splitRollFrameText(full,spec) : splitFrameText(full, Math.max(22, spec.diceChars||22));
   chunks.forEach((chunk,i)=>units.push({type:'dice',text:chunk,continued:i>0,roll}));
 }
+function pushPcRunFromBodies(units,name,bodyList,spec,meta={}){
+  const display=displayNames.get(name)||name||'';
+  const joined=bodyList.map(x=>normalizeStoryVerticalText(x||'　')).filter(Boolean).join('\n');
+  const chunks=splitByVerticalCapacity(joined||'　',spec.pcChars).filter(Boolean);
+  const maxCols=Math.max(1, Math.floor(spec.pageColCap || spec.colsPerPage));
+  for(let i=0;i<chunks.length;i+=maxCols){
+    const bodies=chunks.slice(i,i+maxCols);
+    units.push({
+      type:'pcRun',
+      name:display,
+      bodies,
+      continued:i>0,
+      dialogue:!!meta.dialogue,
+      dialogueStart:!!meta.dialogueStart && i===0,
+      dialogueEnd:!!meta.dialogueEnd && i+maxCols>=chunks.length,
+      speakerChange:!!meta.speakerChange && i===0
+    });
+  }
+}
+function flushPcDialogue(units,dialogue,spec){
+  if(!dialogue.length) return;
+  const runs=[];
+  for(const b of dialogue){
+    const last=runs[runs.length-1];
+    if(last && last.name===b.name){
+      last.bodies.push(b.body||'　');
+    }else{
+      runs.push({name:b.name,bodies:[b.body||'　']});
+    }
+  }
+  runs.forEach((r,i)=>pushPcRunFromBodies(units,r.name,r.bodies,spec,{
+    dialogue:true,
+    dialogueStart:i===0,
+    dialogueEnd:i===runs.length-1,
+    speakerChange:i>0
+  }));
+}
 function blocksToPrintUnits(blocks,spec){
   const units=[];
+  let dialogue=[];
+  const flush=()=>{flushPcDialogue(units,dialogue,spec);dialogue=[];};
   for(const b of blocks){
+    if(b.type==='speech'&&pcNames.has(b.name)){
+      dialogue.push(b);
+      continue;
+    }
+    flush();
     if(b.type==='heading'){
       const title=normalizeStoryVerticalText(b.title);
       const body=normalizeStoryVerticalText(b.body);
       pushNarrationUnits(units,[title?`◆ ${title}`:'',body].filter(Boolean).join('\n'),spec,{heading:true});
     }else if(b.type==='callout'||b.type==='dice'){
       pushCalloutUnits(units,b,spec);
-    }else if(b.type==='speech'&&pcNames.has(b.name)){
-      pushPcUnits(units,b,spec);
     }else if(b.type==='speech'){
       pushNarrationUnits(units,b.body,spec);
     }
   }
+  flush();
   return units;
 }
 function unitColumnWidth(u){
@@ -769,12 +818,14 @@ function splitPcRunToFit(u,cur,pages,spec){
       const seg={...u,bodies:bodies.slice(idx,idx+take),continued:!!(u.continued||idx>0)};
       // ページをまたぐ続きでも話者名は再表示する。
       seg.name=u.name||seg.name||'';
+      if(idx>0) seg.dialogueStart=true;
+      if(idx+take<bodies.length) seg.dialogueEnd=false;
       if(pageFitsUnits(cur.concat([seg]),spec)){chosen=seg;break;}
     }
     if(chosen){cur.push(chosen); idx+=chosen.bodies.length; continue;}
     if(cur.length){pages.push(cur.slice()); cur.length=0; continue;}
     // 1列でも入らない場合は、無限ループ回避のため1列だけ置く。
-    const forced={...u,bodies:bodies.slice(idx,idx+1),continued:!!(u.continued||idx>0),name:u.name||''};
+    const forced={...u,bodies:bodies.slice(idx,idx+1),continued:!!(u.continued||idx>0),name:u.name||'',dialogueStart:idx>0?true:u.dialogueStart,dialogueEnd:idx+1>=bodies.length?u.dialogueEnd:false};
     cur.push(forced); idx+=1;
   }
 }
@@ -810,9 +861,14 @@ function paginateBlocksByEstimate(blocks){
 function renderPrintUnit(u){
   if(u.type==='spacer') return `<section class="print-spacer"></section>`;
   if(u.type==='pcRun'){
-    const cont=u.continued?' continued':'';
+    const classes=['print-pc-run'];
+    if(u.continued) classes.push('continued');
+    if(u.dialogue) classes.push('dialogue');
+    if(u.dialogueStart) classes.push('dialogue-start');
+    if(u.dialogueEnd) classes.push('dialogue-end');
+    if(u.speakerChange) classes.push('speaker-change');
     const bodies=(u.bodies||[]).map(body=>`<span class="print-pc-col"><span class="print-body-col">${escapeHtml(normalizeStoryVerticalText(body||'　'))}</span></span>`).join('');
-    return `<section class="print-pc-run${cont}"><span class="print-speaker print-speaker-run">${escapeHtml(u.name||'　')}</span><span class="print-run-rule"></span><span class="print-bodies">${bodies}</span></section>`;
+    return `<section class="${classes.join(' ')}"><span class="print-speaker print-speaker-run">${escapeHtml(u.name||'　')}</span><span class="print-run-rule"></span><span class="print-bodies">${bodies}</span></section>`;
   }
   if(u.type==='pc'){
     const empty=u.name?'':' empty';
@@ -845,8 +901,13 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .print-pc::after{content:"";position:absolute;left:0;right:0;top:${spec.speakerEm+.18}em;border-top:1.35px solid rgba(35,31,27,.55);}
 .print-pc-run{height:100%;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;writing-mode:horizontal-tb;flex:0 0 auto;box-sizing:border-box;break-inside:avoid;page-break-inside:avoid;margin-left:.18em;position:relative;width:max-content;max-width:100%;}
 .print-pc-run.continued{margin-right:0;}
+.print-pc-run.speaker-change{margin-left:.54em;}
 .print-speaker-run{align-self:flex-end;}
 .print-run-rule{display:block;align-self:stretch;width:100%;height:0;border-top:1.35px solid rgba(35,31,27,.55);margin:.16em 0 .34em;box-sizing:border-box;}
+.print-pc-run.dialogue:not(.dialogue-start) .print-run-rule{margin-right:-.58em;width:calc(100% + .58em);}
+.print-pc-run.dialogue:not(.dialogue-end) .print-run-rule{margin-left:-.58em;width:calc(100% + .58em);}
+.print-pc-run.dialogue:not(.dialogue-start):not(.dialogue-end) .print-run-rule{width:calc(100% + 1.16em);}
+.print-pc-run.speaker-change .print-run-rule{margin-right:-1.05em;}
 .print-bodies{display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;gap:0;writing-mode:horizontal-tb;width:max-content;}
 .print-pc-col{height:100%;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;writing-mode:horizontal-tb;flex:0 0 auto;box-sizing:border-box;margin:0;}
 .print-body-col{display:block;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;line-height:1.62;font-size:${spec.pt}pt;width:1.75em;min-width:1.75em;height:calc(100% - ${spec.speakerEm+1.25}em);max-height:calc(100% - ${spec.speakerEm+1.25}em);margin:0;padding:.16em 0 0;box-sizing:border-box;border-top:0;overflow:hidden;overflow-wrap:anywhere;word-break:normal;}
