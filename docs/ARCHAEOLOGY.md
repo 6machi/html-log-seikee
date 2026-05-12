@@ -43,3 +43,9 @@
 - A5箱組み改良版。
 - セリフ1列を39文字相当まで攻めつつ、実際の縦書きボックスに入らない場合は自動で次列へ送る処理を追加。
 - 本文・セリフとも、DOM実測だけでなく視覚文字数上限も併用し、overflow hiddenで文字が消える事故を抑える。
+
+
+## GitHub ver7
+- ver5/6で出た `candidateFitsBox is not defined` を回避。
+- ボックス判定を `splitTextForBoxColumns` 内のローカル関数へ移動し、グローバル未定義でPDF書き出しが止まらないようにした。
+- ヘッダー表記を GitHub ver7 に更新。

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CoCログ縦書きメーカー 軽量版 v70 GitHub ver4 A5箱組み改良版</title>
+<title>CoCログ縦書きメーカー 軽量版 v70 GitHub ver7 A5箱組み改良版</title>
 <style>
 :root{
   --bg1:#fff8fb;
@@ -397,7 +397,7 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver5</h1></div><span class="badge">A5箱組み改良 / GitHub ver5</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver7</h1></div><span class="badge">A5箱組み改良 / GitHub ver7</span></div></header>
 <main>
 <section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver4ではA5安定化を基準にしつつ、縦書きプレビュー上でブロックを直接クリック編集できるようにしています。</p></section>
 <section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>整形設定</h2><div class="checks"><label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label><label class="check"><input id="skipDice" type="checkbox">ダイス結果を除外</label><label class="check"><input id="skipSystem" type="checkbox">system発言を除外</label><label class="check"><input id="mergeSameSpeaker" type="checkbox" checked>同じ発言者の連続発言をまとめる</label><label class="check"><input id="scenarioAsNarration" type="checkbox" checked>シナリオ描写を本文扱いにする</label><label class="check"><input id="fullWidthPunctuation" type="checkbox" checked>記号を縦書き向けに整える</label></div><div class="settings-row"><div><label for="fontSize">文字サイズ</label><select id="fontSize"><option value="13px">小さめ</option><option value="15px" selected>標準</option><option value="17px">大きめ</option></select></div><div><label for="speakerHeight">話者名エリア</label><select id="speakerHeight"><option value="5.2em">短め</option><option value="7.2em" selected>標準</option><option value="9em">長め</option><option value="11em">かなり長め</option></select></div><div><label for="speakerFont">話者名サイズ</label><select id="speakerFont"><option value=".78em">小さめ</option><option value=".86em" selected>標準</option><option value=".94em">大きめ</option></select></div><div><label for="bodyHeight">会話本文の高さ</label><select id="bodyHeight"><option value="22em">短め</option><option value="30em" selected>標準</option><option value="38em">長め</option><option value="auto">制限なし</option></select></div><div><label for="turnGap">会話間隔</label><select id="turnGap"><option value=".5em">詰める</option><option value="1.1em" selected>標準</option><option value="1.7em">広め</option></select></div><div><label for="pdfSize">PDFサイズ</label><select id="pdfSize"><option value="A5" selected>A5（安定基準）</option><option value="B5">B5（後で調整）</option><option value="B6">B6（後で調整）</option><option value="BUNKO">文庫本（後で調整）</option><option value="A6">A6（後で調整）</option></select></div><div><label for="pdfLines">PDF 1列の文字数</label><select id="pdfLines"><option value="tight">詰める</option><option value="normal">標準</option><option value="safe" selected>安全</option><option value="safer">かなり安全</option></select></div><div><label for="pdfPcChars">PDF セリフ1列の文字数</label><input id="pdfPcChars" type="number" min="10" max="60" value="39" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfMaxCols">PDF 1ページの最大列数</label><input id="pdfMaxCols" type="number" min="3" max="30" value="14" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeLeft">左安全余白 mm</label><input id="pdfSafeLeft" type="number" min="0" max="12" step="0.5" value="2.5" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeRight">右安全余白 mm</label><input id="pdfSafeRight" type="number" min="0" max="12" step="0.5" value="2" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeBottom">下安全余白 mm</label><input id="pdfSafeBottom" type="number" min="0" max="16" step="0.5" value="2.5" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div></div><div class="print-size-help">まずA5安定基準・自動箱組みで調整します。ページ数を減らす場合は「PDF セリフ1列の文字数」は39を初期値にしつつ、実際の箱に入りきらない場合は自動で次列へ送ります。本文欠けが出る場合は「PDF 1列の文字数」を安全側に戻します。</div><div style="margin-top:10px"><label for="scenarioNames">シナリオ描写扱いにする名前（カンマ区切り）</label><input id="scenarioNames" type="text" value="部屋説明,START画面,導入,探索可能箇所,プロローグ,お話,ノイズ,決断,ENDA,ニュース,SNS,まとめ,アニメ,手を伸ばす,▼"></div><div class="buttons"><button id="rerenderBtn">再変換</button><button class="secondary" id="previewBtn">プレビュー更新</button></div></div><div class="box"><h2>話者設定</h2><div id="nameList" class="names"></div><div class="buttons"><button class="secondary" id="copyBtn">編集テキストコピー</button><button class="secondary" id="txtBtn">TXT保存</button><button class="secondary" id="htmlBtn">HTML保存</button><button class="secondary" id="printHtmlBtn">PDF用HTML保存</button><button class="warn" id="printBtn">印刷/PDF</button></div></div></div></section>
@@ -411,6 +411,8 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 let entries=[];let excludedNames=new Set();let pcNames=new Set();let displayNames=new Map();let isHorizontal=false;let updateTimer=null;let previewBlocks=[];
 const $=id=>document.getElementById(id);
 const els={fileInput:$('fileInput'),nameList:$('nameList'),textEditor:$('textEditor'),verticalPage:$('verticalPage'),previewShell:$('previewShell'),rawPreview:$('rawPreview')};
+window.__CCFOLIA_GITHUB_VERSION='ver7';
+console.info('[CoCログ縦書きメーカー] GitHub ver7 loaded');
 function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
 function cleanText(v){return String(v??'').replace(/\u00a0/g,' ').replace(/\r/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
 function htmlToText(html){const d=document.createElement('div');d.innerHTML=String(html).replace(/<br\s*\/?\s*>/gi,'\n').replace(/<\/p>/gi,'\n');return cleanText(d.textContent||'')}
@@ -1196,6 +1198,36 @@ function measureColumnFits(text,spec,kind='narr'){
   // 縦書きでは、縦方向に入りきらない文字は横方向の次列として溢れるため scrollWidth を見る。
   return el.scrollWidth <= el.clientWidth + 1 && el.scrollHeight <= el.clientHeight + 1;
 }
+
+function columnVisualLimit(spec,kind='narr'){
+  // 実測DOMが使えない/一時的に不安定な場合の上限ガイド。
+  // ここを超えた候補は二分探索の対象から外し、過剰に長い列を作らない。
+  if(kind==='pc') return Math.max(18, Math.min(44, (spec.pcChars||39)));
+  if(kind==='dice') return Math.max(18, Math.min(120, (spec.rollDiceChars||spec.diceChars||60)));
+  return Math.max(18, Math.min(40, (spec.narrChars||34)));
+}
+function maxIndexByVisualLimit(text,limit){
+  const s=String(text||'');
+  const max=Math.max(1, Number(limit)||30);
+  let units=0;
+  let idx=0;
+  for(let i=0;i<s.length;i++){
+    const ch=s[i];
+    if(ch==='\r') continue;
+    units += (ch==='\n') ? 2.65 : (/[ 　\t]/.test(ch) ? .55 : (/[、。，．・：；！？!?,.]/.test(ch) ? .82 : (/[「」『』（）［］【】＜＞《》〈〉“”\[\]()]/.test(ch) ? .92 : 1)));
+    if(units>max) break;
+    idx=i+1;
+  }
+  return Math.max(1, idx||1);
+}
+function candidateFitsBox(text,spec,kind='narr'){
+  const src=String(text||'');
+  if(!src.trim()) return true;
+  // まず軽い概算で明らかに長すぎる候補を落として、次に実DOMで確認する。
+  const visualLimit=columnVisualLimit(spec,kind);
+  if(visualColumnUnits(src) > visualLimit + 1.4) return false;
+  return measureColumnFits(src,spec,kind);
+}
 function findNaturalCutWithin(text,maxIndex,minIndex=0){
   const s=String(text||'');
   let best=-1, bestScore=-1;
@@ -1216,17 +1248,26 @@ function findNaturalCutWithin(text,maxIndex,minIndex=0){
   return best;
 }
 function splitTextForBoxColumns(text,spec,kind='narr'){
+  // GitHub ver7: candidateFitsBox のグローバル参照で止まらないよう、
+  // 判定関数をこの関数内に閉じ込める。これで ver5/6 の未定義事故を回避する。
+  const fitsBoxLocal=(candidate)=>{
+    const src=String(candidate||'');
+    if(!src.trim()) return true;
+    const visualLimit=columnVisualLimit(spec,kind);
+    if(visualColumnUnits(src) > visualLimit + 1.4) return false;
+    return measureColumnFits(src,spec,kind);
+  };
   const chunks=[];
   let rest=normalizeVerticalText(text);
   if(!rest) return [];
   let guard=0;
-  while(rest && !candidateFitsBox(rest,spec,kind)){
+  while(rest && !fitsBoxLocal(rest)){
     const visualHi=maxIndexByVisualLimit(rest,columnVisualLimit(spec,kind));
     let lo=1, hi=Math.max(1,Math.min(rest.length, visualHi)), best=1;
     while(lo<=hi){
       const mid=(lo+hi)>>1;
       const candidate=rest.slice(0,mid).trimEnd();
-      if(candidate && candidateFitsBox(candidate,spec,kind)){
+      if(candidate && fitsBoxLocal(candidate)){
         best=mid; lo=mid+1;
       }else{
         hi=mid-1;
@@ -1234,7 +1275,7 @@ function splitTextForBoxColumns(text,spec,kind='narr'){
     }
     const minCut=Math.max(1,Math.floor(best*.55));
     let cut=findNaturalCutWithin(rest,best-1,minCut);
-    if(cut<minCut || !candidateFitsBox(rest.slice(0,cut+1).trimEnd(),spec,kind)) cut=best-1;
+    if(cut<minCut || !fitsBoxLocal(rest.slice(0,cut+1).trimEnd())) cut=best-1;
     let head=rest.slice(0,cut+1).trim();
     if(!head){
       head=rest.slice(0,Math.max(1,best)).trim();
