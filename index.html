@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CoCログ縦書きメーカー 軽量版 GitHub ver1</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div>
+      <p class="eyebrow">GitHub Pages edition</p>
+      <h1>CoCログ縦書きメーカー 軽量版 <span>ver1</span></h1>
+      <p class="lead">ココフォリアHTMLログを読み込んで、縦書きプレビューと印刷用ページを作るための整理版です。</p>
+    </div>
+    <div class="version-card">
+      <strong>GitHub ver1</strong>
+      <small>単体HTML試作群を分割整理</small>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel control-panel">
+      <div class="panel-head">
+        <h2>1. HTMLログ読み込み</h2>
+        <p>ココフォリアから書き出したHTMLログを選んでください。</p>
+      </div>
+      <div class="control-grid">
+        <label class="file-box">
+          <span>HTMLファイルを選択</span>
+          <input id="fileInput" type="file" accept=".html,.htm,text/html">
+        </label>
+        <button id="loadSampleBtn" type="button" class="secondary">サンプルを読み込む</button>
+        <button id="clearBtn" type="button" class="ghost">クリア</button>
+      </div>
+      <div id="status" class="status">まだ読み込まれていません。</div>
+    </section>
+
+    <section class="panel settings-panel">
+      <div class="panel-head">
+        <h2>2. 設定</h2>
+        <p>まずは初期値のままで確認してください。崩れる時だけ調整します。</p>
+      </div>
+      <div class="settings-grid">
+        <label>PDFサイズ
+          <select id="paperSize">
+            <option value="A5" selected>A5</option>
+            <option value="B5">B5</option>
+            <option value="B6">B6</option>
+            <option value="A6">A6 / 文庫本寄り</option>
+          </select>
+        </label>
+        <label>1ページ最大列数
+          <input id="maxCols" type="number" min="6" max="24" value="14">
+        </label>
+        <label>本文1列の文字数
+          <input id="narrChars" type="number" min="16" max="44" value="30">
+        </label>
+        <label>会話1列の文字数
+          <input id="speechChars" type="number" min="16" max="48" value="30">
+        </label>
+        <label>ダイス1枠の文字数
+          <input id="diceChars" type="number" min="24" max="90" value="70">
+        </label>
+        <label>文字サイズ
+          <input id="fontPt" type="number" min="7" max="13" step="0.2" value="9.8">
+        </label>
+      </div>
+      <div class="check-row">
+        <label><input id="mergeSameSpeaker" type="checkbox" checked> 同じ話者の連続発言をまとめる</label>
+        <label><input id="fullwidthAscii" type="checkbox" checked> 半角英数字・記号を事前に全角化</label>
+        <label><input id="skipEmpty" type="checkbox" checked> 空ログを除外</label>
+      </div>
+      <div class="button-row">
+        <button id="applyBtn" type="button">再変換</button>
+        <button id="printBtn" type="button" class="accent">印刷 / PDF保存</button>
+      </div>
+    </section>
+
+    <section class="panel editor-panel">
+      <div class="panel-head sticky-head">
+        <div>
+          <h2>3. 編集テキスト</h2>
+          <p>読み込み後、ここで検索・置換できます。</p>
+        </div>
+        <div class="search-box">
+          <input id="findText" type="search" placeholder="検索語">
+          <input id="replaceText" type="text" placeholder="置換後">
+          <button id="findBtn" type="button" class="secondary">検索</button>
+          <button id="replaceAllBtn" type="button" class="secondary">全置換</button>
+        </div>
+      </div>
+      <div id="findInfo" class="find-info">検索結果なし</div>
+      <div id="findResults" class="find-results"></div>
+      <textarea id="editor" spellcheck="false" placeholder="HTMLログを読み込むとここに整形テキストが入ります。"></textarea>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="panel-head">
+        <h2>4. 縦書きプレビュー</h2>
+        <p>ページ単位の見た目を確認します。</p>
+      </div>
+      <div class="preview-toolbar">
+        <button id="prevPageBtn" type="button" class="secondary">前ページ</button>
+        <span id="pageInfo">0 / 0</span>
+        <button id="nextPageBtn" type="button" class="secondary">次ページ</button>
+      </div>
+      <div id="pagePreview" class="page-preview" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div id="printRoot" aria-hidden="true"></div>
+
+  <script src="js/normalize.js"></script>
+  <script src="js/parser.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
