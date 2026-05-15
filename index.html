@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CoCログ縦書きメーカー 軽量版 GitHub ver16 安定ロールバック版</title>
+<title>CoCログ縦書きメーカー 軽量版 GitHub ver17 英字横倒し調整版</title>
 <style>
 :root{
   --bg1:#fff8fb;
@@ -403,9 +403,9 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver16</h1></div><span class="badge">A5安定ロールバック / GitHub ver16</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver17</h1></div><span class="badge">A5安定＋英字横倒し / GitHub ver17</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver16ではGitHub ver16の安定レイアウトへロールバックし、実験的なボックステキスト分割を外しています。A5基準で文字欠けを避ける版です。</p></section>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver17ではver16の安定レイアウトを維持しつつ、英字だけを半角のまま縦書き内で横倒し表示しやすい形に調整しています。</p></section>
 <section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>整形設定</h2><div class="checks"><label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label><label class="check"><input id="skipDice" type="checkbox">ダイス結果を除外</label><label class="check"><input id="skipSystem" type="checkbox">system発言を除外</label><label class="check"><input id="mergeSameSpeaker" type="checkbox" checked>同じ発言者の連続発言をまとめる</label><label class="check"><input id="scenarioAsNarration" type="checkbox" checked>シナリオ描写を本文扱いにする</label><label class="check"><input id="fullWidthPunctuation" type="checkbox" checked>記号を縦書き向けに整える</label></div><div class="settings-row"><div><label for="fontSize">文字サイズ</label><select id="fontSize"><option value="13px">小さめ</option><option value="15px" selected>標準</option><option value="17px">大きめ</option></select></div><div><label for="speakerHeight">話者名エリア</label><select id="speakerHeight"><option value="5.2em">短め</option><option value="7.2em" selected>標準</option><option value="9em">長め</option><option value="11em">かなり長め</option></select></div><div><label for="speakerFont">話者名サイズ</label><select id="speakerFont"><option value=".78em">小さめ</option><option value=".86em" selected>標準</option><option value=".94em">大きめ</option></select></div><div><label for="bodyHeight">会話本文の高さ</label><select id="bodyHeight"><option value="22em">短め</option><option value="30em" selected>標準</option><option value="38em">長め</option><option value="auto">制限なし</option></select></div><div><label for="turnGap">会話間隔</label><select id="turnGap"><option value=".5em">詰める</option><option value="1.1em" selected>標準</option><option value="1.7em">広め</option></select></div><div><label for="pdfSize">PDFサイズ</label><select id="pdfSize"><option value="A5" selected>A5（安定基準）</option><option value="B5">B5（後で調整）</option><option value="B6">B6（後で調整）</option><option value="BUNKO">文庫本（後で調整）</option><option value="A6">A6（後で調整）</option></select></div><div><label for="pdfLines">PDF 1列の文字数</label><select id="pdfLines"><option value="tight">詰める</option><option value="normal">標準</option><option value="safe" selected>安全</option><option value="safer">かなり安全</option></select></div><div><label for="pdfPcChars">PDF セリフ1列の文字数</label><input id="pdfPcChars" type="number" min="10" max="48" value="37" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfMaxCols">PDF 1ページの最大列数</label><input id="pdfMaxCols" type="number" min="3" max="30" value="14" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeLeft">左安全余白 mm</label><input id="pdfSafeLeft" type="number" min="0" max="12" step="0.5" value="2.5" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeRight">右安全余白 mm</label><input id="pdfSafeRight" type="number" min="0" max="12" step="0.5" value="2" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeBottom">下安全余白 mm</label><input id="pdfSafeBottom" type="number" min="0" max="16" step="0.5" value="2.5" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div></div><div class="print-size-help">まずA5安定基準で調整します。ver8はver7のボックステキスト実験を外した安定ロールバック版です。ページ数を減らす場合は「PDF セリフ1列の文字数」を34→36→37の順で少しずつ上げて確認してください。39文字は文字欠けが出たため非推奨です。</div><div style="margin-top:10px"><label for="scenarioNames">シナリオ描写扱いにする名前（カンマ区切り）</label><input id="scenarioNames" type="text" value="部屋説明,START画面,導入,探索可能箇所,プロローグ,お話,ノイズ,決断,ENDA,ニュース,SNS,まとめ,アニメ,手を伸ばす,▼"></div><div class="buttons"><button id="rerenderBtn">再変換</button><button class="secondary" id="previewBtn">プレビュー更新</button></div></div><div class="box"><h2>話者設定</h2><div id="nameList" class="names"></div><div class="buttons"><button class="secondary" id="copyBtn">編集テキストコピー</button><button class="secondary" id="txtBtn">TXT保存</button><button class="secondary" id="htmlBtn">HTML保存</button><button class="secondary" id="printHtmlBtn">PDF用HTML保存</button><button class="warn" id="printBtn">印刷/PDF</button></div></div></div></section>
 <section class="panel editor"><div class="toolbar"><h2>編集テキスト</h2><div class="buttons"><button class="secondary" id="fromLogBtn">元ログから再生成</button></div></div><div class="notice">ここは直接編集できます。PCに設定した話者は会話ブロック、KP/描写に設定した話者は本文流しになります。見出しにしたい行は「■ 見出し」、ダイス表示にしたい行は「【名前】ダイス結果」の形にしてください。</div><div class="find-panel upgraded"><div><label for="findText">検索する言葉</label><input id="findText" type="text" placeholder="例：成功 失敗のパネル"></div><div><label for="replaceText">置き換え後 / 空欄なら削除</label><input id="replaceText" type="text" placeholder="例：成功/失敗パネル"></div><div class="find-buttons"><button class="secondary" id="findBtn" type="button">検索</button><button class="secondary" id="prevHitBtn" type="button">↑ 前</button><button class="secondary" id="nextHitBtn" type="button">↓ 次</button><button class="secondary" id="replaceOneBtn" type="button">現在を置換</button><button class="secondary" id="replaceAllBtn" type="button">全置換</button><button class="secondary" id="deleteAllBtn" type="button">全削除</button></div></div><div class="find-status-row"><span id="findCounter" class="find-counter">0 / 0</span><span class="find-note" id="findNote">検索ボタンで確定検索します。入力途中では検索しません。</span></div><div id="findResults" class="find-results" aria-label="検索結果"></div><textarea id="textEditor" placeholder="HTMLログを読み込むとここに整形テキストが入ります。"></textarea><details style="margin-top:10px"><summary>抽出ログを見る</summary><div id="rawPreview" class="raw"></div></details></section>
 <section class="panel"><div class="toolbar preview-toolbar"><h2>全文縦書きプレビュー</h2><div class="buttons"><button class="secondary" id="startBtn">右端（先頭）へ</button><button class="secondary" id="directionBtn">横書き確認</button></div></div><p class="preview-edit-hint">プレビュー内の本文・セリフをクリックすると、その場で編集できます。編集後にフォーカスを外すと編集テキストへ反映します。</p><div class="preview-shell" id="previewShell"><div id="verticalPage" class="page"></div></div></section>
@@ -422,7 +422,7 @@ function cleanText(v){return String(v??'').replace(/\u00a0/g,' ').replace(/\r/g,
 function htmlToText(html){const d=document.createElement('div');d.innerHTML=String(html).replace(/<br\s*\/?\s*>/gi,'\n').replace(/<\/p>/gi,'\n');return cleanText(d.textContent||'')}
 function colorFromStyle(style){const m=String(style||'').match(/color\s*:\s*([^;]+)/i);return m?m[1].trim():'#888888'}
 function isDiceText(text){const t=String(text||'').trim();if(!t)return false;const formula=/\b(CCB|CC|C)\s*[<＜=≦]/i.test(t)||/\b\d+\s*[dD]\s*\d+\b/.test(t)||/正気度ロール|SAN\s*(チェック|ck|値|減少|ロール)/i.test(t);if(!formula)return false;return /成功|失敗|スペシャル|クリティカル|ファンブル|決定的成功|致命的失敗/.test(t)||/[＞>]\s*\d+|[＜<]\s*\d+|=\s*\d+/.test(t)||/→|⇒/.test(t)||formula}
-function processBody(body){let t=toFullWidthAscii(cleanText(body));if($('fullWidthPunctuation').checked){t=t.replace(/\.{3,}/g,'……').replace(/…{3,}/g,'……').replace(/!/g,'！').replace(/\?/g,'？').replace(/:/g,'：')}return t}
+function processBody(body){let t=toFullWidthAsciiExceptLetters(cleanText(body));if($('fullWidthPunctuation').checked){t=t.replace(/\.{3,}/g,'……').replace(/…{3,}/g,'……').replace(/!/g,'！').replace(/\?/g,'？').replace(/:/g,'：')}return t}
 function parseCcfoliaHtml(html){const doc=new DOMParser().parseFromString(html,'text/html');const ps=[...doc.querySelectorAll('p')];return ps.map((p,i)=>{const spans=[...p.querySelectorAll(':scope > span')];const tab=cleanText(spans[0]?.textContent||'').replace(/^\[|\]$/g,'');const name=cleanText(spans[1]?.textContent||'');const bodySpan=spans[2]||p;const body=htmlToText(bodySpan.innerHTML);const color=colorFromStyle(p.getAttribute('style')||'');return {id:i,tab,name,body,color,isDice:isDiceText(body),isSystem:name.toLowerCase()==='system',isEmpty:body.trim().length===0}}).filter(e=>e.name||e.body)}
 async function parseSelectedFile(){const file=els.fileInput.files?.[0];if(!file){alert('HTMLファイルを選んでください');return}const html=await file.text();entries=parseCcfoliaHtml(html);excludedNames=new Set();displayNames=new Map([...new Set(entries.map(e=>e.name).filter(Boolean))].map(n=>[n,n]));pcNames=new Set(entries.filter(e=>e.name&&!e.isSystem&&e.color.toLowerCase()!=='#888888').map(e=>e.name));renderNameList();renderAll(false)}
 function scenarioKeys(){return $('scenarioNames').value.split(',').map(s=>s.trim()).filter(Boolean)}
@@ -588,9 +588,20 @@ function normalizeVerticalText(text){
     .trim();
 }
 function toFullWidthAscii(str){
-  // 縦書きで横倒れしやすい半角ASCIIを、読み込み時点で全部全角へ寄せる。
-  // 対象：英数字だけでなく < > ( ) / : . - なども含む。
+  // ダイスなど、英数字も含めて完全に全角へ寄せたい場面用。
   return String(str||'').replace(/[!-~]/g,function(ch){return String.fromCharCode(ch.charCodeAt(0)+0xFEE0);});
+}
+function toFullWidthAsciiExceptLetters(str){
+  // ver17: 本文・セリフでは英字だけ半角のまま残す。
+  // 縦書きCSS上で英字語句が横倒しのまとまりとして出やすくなり、
+  // Call of Cthulhu などが C / . / all... のように割れるのを防ぐ。
+  return String(str||'').replace(/[!-~]/g,function(ch){
+    return /[A-Za-z]/.test(ch) ? ch : String.fromCharCode(ch.charCodeAt(0)+0xFEE0);
+  });
+}
+function halfWidthLatinLetters(str){
+  // 旧版で全角化済みの編集テキストを読み込んでも、英字だけ半角へ戻す。
+  return String(str||'').replace(/[Ａ-Ｚａ-ｚ]/g,function(ch){return String.fromCharCode(ch.charCodeAt(0)-0xFEE0);});
 }
 function toFullWidthDigits(str){
   return String(str||'').replace(/[0-9]/g,function(d){return String.fromCharCode(d.charCodeAt(0)+0xFEE0);});
@@ -603,9 +614,9 @@ function toVerticalSafeSymbols(str){
     .replace(/\{/g,'｛').replace(/\}/g,'｝');
 }
 function normalizeStoryVerticalText(text){
-  // 英数字は事前に全角化する。表示側は text-orientation:mixed にして、
-  // 全角英数字は縦、括弧や＜＞などの記号は縦書き用グリフで自然に出す。
-  return toVerticalSafeSymbols(toFullWidthAscii(normalizeVerticalText(text)));
+  // ver17: 数字・記号は縦書き安全用に全角、英字だけ半角へ戻す。
+  // 「Call of Cthulhu」「BGM」「SNS」などの英字語句は横倒しのまとまりとして扱いやすくする。
+  return halfWidthLatinLetters(toVerticalSafeSymbols(toFullWidthAsciiExceptLetters(normalizeVerticalText(text))));
 }
 function normalizeDiceVerticalText(text){
   return toVerticalSafeSymbols(toFullWidthAscii(String(text||'')))
@@ -1451,7 +1462,7 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'ccfolia_vertical_print_only_v16_no_inner_newlines.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'ccfolia_vertical_print_only_v17_latin_sideways.html','text/html;charset=utf-8');
 }
 
 
