@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CoCログ縦書きメーカー 軽量版 GitHub ver17 英字横倒し調整版</title>
+<title>CoCログ縦書きメーカー 軽量版 GitHub ver18 A5固定UI版</title>
 <style>
 :root{
   --bg1:#fff8fb;
@@ -400,13 +400,43 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 .preview-editable:focus{background:rgba(255,248,230,.95);box-shadow:0 0 0 2px rgba(176,140,82,.38) inset;}
 .preview-editable[contenteditable="true"]{caret-color:#6f4a18;}
 .preview-edit-hint{font-size:12px;color:#7a6b5c;margin:6px 0 0;}
+
+.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver17</h1></div><span class="badge">A5安定＋英字横倒し / GitHub ver17</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver18</h1></div><span class="badge">A5安定＋英字横倒し / GitHub ver18</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver17ではver16の安定レイアウトを維持しつつ、英字だけを半角のまま縦書き内で横倒し表示しやすい形に調整しています。</p></section>
-<section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>整形設定</h2><div class="checks"><label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label><label class="check"><input id="skipDice" type="checkbox">ダイス結果を除外</label><label class="check"><input id="skipSystem" type="checkbox">system発言を除外</label><label class="check"><input id="mergeSameSpeaker" type="checkbox" checked>同じ発言者の連続発言をまとめる</label><label class="check"><input id="scenarioAsNarration" type="checkbox" checked>シナリオ描写を本文扱いにする</label><label class="check"><input id="fullWidthPunctuation" type="checkbox" checked>記号を縦書き向けに整える</label></div><div class="settings-row"><div><label for="fontSize">文字サイズ</label><select id="fontSize"><option value="13px">小さめ</option><option value="15px" selected>標準</option><option value="17px">大きめ</option></select></div><div><label for="speakerHeight">話者名エリア</label><select id="speakerHeight"><option value="5.2em">短め</option><option value="7.2em" selected>標準</option><option value="9em">長め</option><option value="11em">かなり長め</option></select></div><div><label for="speakerFont">話者名サイズ</label><select id="speakerFont"><option value=".78em">小さめ</option><option value=".86em" selected>標準</option><option value=".94em">大きめ</option></select></div><div><label for="bodyHeight">会話本文の高さ</label><select id="bodyHeight"><option value="22em">短め</option><option value="30em" selected>標準</option><option value="38em">長め</option><option value="auto">制限なし</option></select></div><div><label for="turnGap">会話間隔</label><select id="turnGap"><option value=".5em">詰める</option><option value="1.1em" selected>標準</option><option value="1.7em">広め</option></select></div><div><label for="pdfSize">PDFサイズ</label><select id="pdfSize"><option value="A5" selected>A5（安定基準）</option><option value="B5">B5（後で調整）</option><option value="B6">B6（後で調整）</option><option value="BUNKO">文庫本（後で調整）</option><option value="A6">A6（後で調整）</option></select></div><div><label for="pdfLines">PDF 1列の文字数</label><select id="pdfLines"><option value="tight">詰める</option><option value="normal">標準</option><option value="safe" selected>安全</option><option value="safer">かなり安全</option></select></div><div><label for="pdfPcChars">PDF セリフ1列の文字数</label><input id="pdfPcChars" type="number" min="10" max="48" value="37" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfMaxCols">PDF 1ページの最大列数</label><input id="pdfMaxCols" type="number" min="3" max="30" value="14" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeLeft">左安全余白 mm</label><input id="pdfSafeLeft" type="number" min="0" max="12" step="0.5" value="2.5" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeRight">右安全余白 mm</label><input id="pdfSafeRight" type="number" min="0" max="12" step="0.5" value="2" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div><div><label for="pdfSafeBottom">下安全余白 mm</label><input id="pdfSafeBottom" type="number" min="0" max="16" step="0.5" value="2.5" style="width:100%;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);padding:10px 11px;font:inherit;font-size:14px;"></div></div><div class="print-size-help">まずA5安定基準で調整します。ver8はver7のボックステキスト実験を外した安定ロールバック版です。ページ数を減らす場合は「PDF セリフ1列の文字数」を34→36→37の順で少しずつ上げて確認してください。39文字は文字欠けが出たため非推奨です。</div><div style="margin-top:10px"><label for="scenarioNames">シナリオ描写扱いにする名前（カンマ区切り）</label><input id="scenarioNames" type="text" value="部屋説明,START画面,導入,探索可能箇所,プロローグ,お話,ノイズ,決断,ENDA,ニュース,SNS,まとめ,アニメ,手を伸ばす,▼"></div><div class="buttons"><button id="rerenderBtn">再変換</button><button class="secondary" id="previewBtn">プレビュー更新</button></div></div><div class="box"><h2>話者設定</h2><div id="nameList" class="names"></div><div class="buttons"><button class="secondary" id="copyBtn">編集テキストコピー</button><button class="secondary" id="txtBtn">TXT保存</button><button class="secondary" id="htmlBtn">HTML保存</button><button class="secondary" id="printHtmlBtn">PDF用HTML保存</button><button class="warn" id="printBtn">印刷/PDF</button></div></div></div></section>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver18ではver16の安定レイアウトを維持しつつ、英字だけを半角のまま縦書き内で横倒し表示しやすい形に調整しています。</p></section>
+<section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box settings-simple"><h2>整形設定</h2>
+  <div class="preset-card">
+    <b>A5固定プリセット</b>
+    <p>現在の安定版では、A5書き出し用の文字数・列数・余白を固定しています。ここを触って崩れる事故を防ぐため、詳細設定は画面から隠しています。</p>
+    <p class="mini">固定値：セリフ37字 / 最大14列 / 左2.5mm / 右2mm / 下2.5mm</p>
+  </div>
+  <div class="hidden-settings" style="display:none">
+    <label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label>
+    <label class="check"><input id="skipDice" type="checkbox">ダイス結果を除外</label>
+    <label class="check"><input id="skipSystem" type="checkbox">system発言を除外</label>
+    <label class="check"><input id="mergeSameSpeaker" type="checkbox" checked>同じ発言者の連続発言をまとめる</label>
+    <label class="check"><input id="scenarioAsNarration" type="checkbox" checked>シナリオ描写を本文扱いにする</label>
+    <label class="check"><input id="fullWidthPunctuation" type="checkbox" checked>記号を縦書き向けに整える</label>
+    <select id="fontSize"><option value="15px" selected>標準</option></select>
+    <select id="speakerHeight"><option value="7.2em" selected>標準</option></select>
+    <select id="speakerFont"><option value=".86em" selected>標準</option></select>
+    <select id="bodyHeight"><option value="30em" selected>標準</option></select>
+    <select id="turnGap"><option value="1.1em" selected>標準</option></select>
+    <select id="pdfSize"><option value="A5" selected>A5（固定）</option></select>
+    <select id="pdfLines"><option value="safe" selected>安全</option></select>
+    <input id="pdfPcChars" type="number" value="37">
+    <input id="pdfMaxCols" type="number" value="14">
+    <input id="pdfSafeLeft" type="number" value="2.5">
+    <input id="pdfSafeRight" type="number" value="2">
+    <input id="pdfSafeBottom" type="number" value="2.5">
+  </div>
+  <div style="margin-top:10px"><label for="scenarioNames">シナリオ描写扱いにする名前</label><input id="scenarioNames" type="text" value="部屋説明,START画面,導入,探索可能箇所,プロローグ,お話,ノイズ,決断,ENDA,ニュース,SNS,まとめ,アニメ,手を伸ばす,▼"></div>
+  <div class="buttons"><button id="rerenderBtn">再変換</button><button class="secondary" id="previewBtn">プレビュー更新</button></div>
+</div><div class="box"><h2>話者設定</h2><div id="nameList" class="names"></div><div class="buttons"><button class="secondary" id="copyBtn">編集テキストコピー</button><button class="secondary" id="txtBtn">TXT保存</button><button class="secondary" id="htmlBtn">HTML保存</button><button class="secondary" id="printHtmlBtn">PDF用HTML保存</button><button class="warn" id="printBtn">印刷/PDF</button></div></div></div></section>
 <section class="panel editor"><div class="toolbar"><h2>編集テキスト</h2><div class="buttons"><button class="secondary" id="fromLogBtn">元ログから再生成</button></div></div><div class="notice">ここは直接編集できます。PCに設定した話者は会話ブロック、KP/描写に設定した話者は本文流しになります。見出しにしたい行は「■ 見出し」、ダイス表示にしたい行は「【名前】ダイス結果」の形にしてください。</div><div class="find-panel upgraded"><div><label for="findText">検索する言葉</label><input id="findText" type="text" placeholder="例：成功 失敗のパネル"></div><div><label for="replaceText">置き換え後 / 空欄なら削除</label><input id="replaceText" type="text" placeholder="例：成功/失敗パネル"></div><div class="find-buttons"><button class="secondary" id="findBtn" type="button">検索</button><button class="secondary" id="prevHitBtn" type="button">↑ 前</button><button class="secondary" id="nextHitBtn" type="button">↓ 次</button><button class="secondary" id="replaceOneBtn" type="button">現在を置換</button><button class="secondary" id="replaceAllBtn" type="button">全置換</button><button class="secondary" id="deleteAllBtn" type="button">全削除</button></div></div><div class="find-status-row"><span id="findCounter" class="find-counter">0 / 0</span><span class="find-note" id="findNote">検索ボタンで確定検索します。入力途中では検索しません。</span></div><div id="findResults" class="find-results" aria-label="検索結果"></div><textarea id="textEditor" placeholder="HTMLログを読み込むとここに整形テキストが入ります。"></textarea><details style="margin-top:10px"><summary>抽出ログを見る</summary><div id="rawPreview" class="raw"></div></details></section>
 <section class="panel"><div class="toolbar preview-toolbar"><h2>全文縦書きプレビュー</h2><div class="buttons"><button class="secondary" id="startBtn">右端（先頭）へ</button><button class="secondary" id="directionBtn">横書き確認</button></div></div><p class="preview-edit-hint">プレビュー内の本文・セリフをクリックすると、その場で編集できます。編集後にフォーカスを外すと編集テキストへ反映します。</p><div class="preview-shell" id="previewShell"><div id="verticalPage" class="page"></div></div></section>
 <section class="panel print-preview-panel"><div class="toolbar preview-toolbar"><h2>印刷用ページプレビュー</h2><div class="buttons"><button class="secondary" id="printPreviewBtn" type="button">印刷用プレビュー更新</button><button class="secondary" id="prevPrintPageBtn" type="button">前ページ</button><button class="secondary" id="nextPrintPageBtn" type="button">次ページ</button><span id="printPreviewStatus" class="print-preview-status">未生成</span></div></div><div class="notice">ここでA5などの1ページ単位の収まりを確認してからPDF保存します。PDFを毎回保存しなくても、余白・列数・文字数の調整を画面上で確認できます。</div><div class="print-preview-wrap"><iframe id="printPreviewFrame" title="印刷用ページプレビュー"></iframe></div></section>
@@ -532,7 +562,9 @@ function showDemo(){entries=[];excludedNames=new Set();pcNames=new Set(['皇 政
 function downloadBlob(content,filename,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url)}
 async function copyEditor(){await navigator.clipboard.writeText(els.textEditor.value);alert('コピーしました')}
 function downloadText(){downloadBlob(els.textEditor.value,'ccfolia_vertical_edit.txt','text/plain;charset=utf-8')}
-function downloadHtml(){const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');const html=`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>縦書きログ</title><style>${css}\nbody{background:#fff}.page{height:240mm}</style></head><body><main><section class="preview-shell"><div class="page">${els.verticalPage.innerHTML}</div></section></main></body></html>`;downloadBlob(html,'ccfolia_vertical_book.html','text/html;charset=utf-8')}
+function downloadHtml(){const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');const html=`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>縦書きログ</title><style>${css}\nbody{background:#fff}.page{height:240mm}
+.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
+</style></head><body><main><section class="preview-shell"><div class="page">${els.verticalPage.innerHTML}</div></section></main></body></html>`;downloadBlob(html,'ccfolia_vertical_book.html','text/html;charset=utf-8')}
 
 
 
@@ -592,7 +624,7 @@ function toFullWidthAscii(str){
   return String(str||'').replace(/[!-~]/g,function(ch){return String.fromCharCode(ch.charCodeAt(0)+0xFEE0);});
 }
 function toFullWidthAsciiExceptLetters(str){
-  // ver17: 本文・セリフでは英字だけ半角のまま残す。
+  // ver18: 未使用。本文・セリフは normalizeStoryVerticalText で全角化します。
   // 縦書きCSS上で英字語句が横倒しのまとまりとして出やすくなり、
   // Call of Cthulhu などが C / . / all... のように割れるのを防ぐ。
   return String(str||'').replace(/[!-~]/g,function(ch){
@@ -614,9 +646,9 @@ function toVerticalSafeSymbols(str){
     .replace(/\{/g,'｛').replace(/\}/g,'｝');
 }
 function normalizeStoryVerticalText(text){
-  // ver17: 数字・記号は縦書き安全用に全角、英字だけ半角へ戻す。
-  // 「Call of Cthulhu」「BGM」「SNS」などの英字語句は横倒しのまとまりとして扱いやすくする。
-  return halfWidthLatinLetters(toVerticalSafeSymbols(toFullWidthAsciiExceptLetters(normalizeVerticalText(text))));
+  // ver18: 英字も数字も記号も全角へ寄せる。
+  // 1d10 の d だけ半角で横倒しになる事故を避け、全体を縦書きで統一する。
+  return toVerticalSafeSymbols(toFullWidthAscii(normalizeVerticalText(text)));
 }
 function normalizeDiceVerticalText(text){
   return toVerticalSafeSymbols(toFullWidthAscii(String(text||'')))
@@ -797,7 +829,9 @@ function ensureMeasureCss(spec){
   const doc=iframe.contentDocument||iframe.contentWindow.document;
   const css=printCss(spec).replace(/@page\{[^}]*\}/,'');
   doc.open();
-  doc.write(`<!doctype html><html><head><meta charset="UTF-8"><style>${css} .print-page{page-break-after:auto!important;break-after:auto!important;}</style></head><body></body></html>`);
+  doc.write(`<!doctype html><html><head><meta charset="UTF-8"><style>${css} .print-page{page-break-after:auto!important;break-after:auto!important;}
+.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
+</style></head><body></body></html>`);
   doc.close();
 }
 function makeMeasurePage(units,spec){
@@ -954,7 +988,9 @@ html,body{background:#d9d9d9!important;}
 body{padding:18px!important;box-sizing:border-box;}
 .print-page{margin:0 auto 18px!important;box-shadow:0 6px 22px rgba(0,0,0,.18);page-break-after:auto!important;break-after:auto!important;}
 ` : '';
-  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title></title><style>${printCss(spec)}${screenCss}</style></head><body>${buildPrintPagesHtml(pages)}</body></html>`;
+  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title></title><style>${printCss(spec)}${screenCss}
+.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
+</style></head><body>${buildPrintPagesHtml(pages)}</body></html>`;
 }
 function printPdf(){
   const {pages,spec}=preparePrintHost();
@@ -1421,7 +1457,9 @@ function makeAbsPages(){
   return {pages,spec};
 }
 function makePrintDocument(pages,spec){
-  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title></title><style>${absPrintCss(spec)}</style></head><body>${buildAbsPagesHtml(pages,spec)}</body></html>`;
+  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title></title><style>${absPrintCss(spec)}
+.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
+</style></head><body>${buildAbsPagesHtml(pages,spec)}</body></html>`;
 }
 function preparePrintHost(){
   const {pages,spec}=makeAbsPages();
