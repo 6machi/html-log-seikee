@@ -1,10 +1,10 @@
-import { $, esc, occurrenceLabel, addDays, diffDays, fmtDate, minutesFromTime, fullClock } from './utils.js?v=75';
-import { state } from './state.js?v=75';
-import { saveTree } from './setup.js?v=75';
-import { updateMyProfile, loadMembers } from './auth.js?v=75';
-import { createTask, updateTask, deleteTask } from './tasks.js?v=75';
-import { refreshAll, showView } from './app.js?v=75';
-import { renderUnavailableList, isUnavailableTask } from './calendar.js?v=75';
+import { $, esc, occurrenceLabel, addDays, diffDays, fmtDate, minutesFromTime, fullClock } from './utils.js?v=76';
+import { state } from './state.js?v=76';
+import { saveTree } from './setup.js?v=76';
+import { updateMyProfile, loadMembers } from './auth.js?v=76';
+import { createTask, updateTask, deleteTask } from './tasks.js?v=76';
+import { refreshAll, showView } from './app.js?v=76';
+import { renderUnavailableList, isUnavailableTask } from './calendar.js?v=76';
 
 let draggingCategoryIndex = null;
 const ACHIEVEMENT_EXCLUDE = '[[achievement_excluded]]';

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>タスクかんりシート</title>
-  <link rel="stylesheet" href="style.css?v=75" />
+  <link rel="stylesheet" href="style.css?v=76" />
 </head>
 <body>
   <header>
@@ -61,16 +61,16 @@
             </div>
             <section class="quickToolPanel organizeTool">
               <div class="toolHeader">
-                <h3>未完了タスクを今から入れ直す</h3>
+                <h3>タスクを振り直す</h3>
                 <button class="infoDot" type="button" data-info="対象は、単発・持ち越し・分割タスク・過去に残った未完了タスクです。毎日/毎週/毎月の繰り返しタスク、睡眠、稼働不可、仕事時間は入れ直し対象にしません。">i</button>
               </div>
               <div class="organizeBox">
                 <div class="reflowRuleCard">
                   <div class="miniSectionTitle">振り直しルール</div>
-                  <label class="checkLine organizeOption alwaysVisible"><input type="checkbox" id="avoidWorkForNonWork" checked><span>仕事以外のタスクを仕事時間に入れない</span></label>
+                  <label class="checkLine organizeOption alwaysVisible"><input type="checkbox" id="avoidWorkForNonWork" checked><span>仕事以外のタスクを仕事時間に振り分けない</span></label>
                   <div id="organizeWorkStatus" class="organizeStatus muted"></div>
                 </div>
-                <button class="primary" type="button" id="reflowFromTodayBtn">未完了タスクを今から入れ直す</button>
+                <button class="primary wideAction" type="button" id="reflowFromTodayBtn">未完了タスクを今から入れ直す</button>
                 <div id="organizeMsg" class="notice hidden"></div>
               </div>
             </section>
@@ -271,6 +271,6 @@
   </template>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="js/app.js?v=75"></script>
+  <script type="module" src="js/app.js?v=76"></script>
 </body>
 </html>

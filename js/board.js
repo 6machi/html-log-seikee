@@ -1,9 +1,9 @@
-import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=75';
-import { state } from './state.js?v=75';
-import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=75';
-import { refreshAll, showView } from './app.js?v=75';
-import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=75';
-import { updateMyProfile, loadMembers } from './auth.js?v=75';
+import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=76';
+import { state } from './state.js?v=76';
+import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=76';
+import { refreshAll, showView } from './app.js?v=76';
+import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=76';
+import { updateMyProfile, loadMembers } from './auth.js?v=76';
 
 const SLOT_MINUTES = 10;
 const PX_PER_MINUTE = 1.15; // 10分刻み / 60分 = 約69px
@@ -564,7 +564,7 @@ function renderOrganizeWorkStatus(){
     return;
   }
   if(checkbox) checkbox.disabled = false;
-  el.textContent = `仕事時間ルールON：${w.start}〜${w.end} / 仕事カテゴリ：${w.category} / ${isOn ? '仕事以外のタスクは仕事時間に入れません' : '仕事以外も空いていれば仕事時間に入ります'}`;
+  el.textContent = `仕事時間ルールON：${w.start}〜${w.end} / 仕事カテゴリ：${w.category} / ${isOn ? '仕事以外のタスクは仕事時間に振り分けません' : '仕事以外のタスクも空いていれば仕事時間に入ります'}`;
   el.className = 'organizeStatus muted';
 }
 
@@ -634,7 +634,7 @@ async function reflowTasksAvoidingUnavailable(){
       if(isWorkTask(t, ownerId)) workMoved++; else freeMoved++;
     }
   }
-  const detail = moved ? `（仕事 ${workMoved}件 / 自由 ${freeMoved}件${shouldAvoidWorkForNonWork() ? ' / 仕事以外は仕事時間に入れずに配置' : ' / 仕事時間も使用可'}）` : '';
+  const detail = moved ? `（仕事 ${workMoved}件 / 自由 ${freeMoved}件${shouldAvoidWorkForNonWork() ? ' / 仕事以外は仕事時間に振り分けずに配置' : ' / 仕事時間も使用可'}）` : '';
   showOrganizeMessage(`${moved}件を今から先の空き時間へ入れ直しました。${detail}${skipped ? ` ${skipped}件は空き枠が見つかりませんでした。` : ''}`, !!skipped);
   await refreshAll();
 }
