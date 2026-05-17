@@ -1,9 +1,9 @@
-import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=68';
-import { state } from './state.js?v=68';
-import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=68';
-import { refreshAll, showView } from './app.js?v=68';
-import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=68';
-import { updateMyProfile, loadMembers } from './auth.js?v=68';
+import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=69';
+import { state } from './state.js?v=69';
+import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=69';
+import { refreshAll, showView } from './app.js?v=69';
+import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=69';
+import { updateMyProfile, loadMembers } from './auth.js?v=69';
 
 const SLOT_MINUTES = 10;
 const PX_PER_MINUTE = 1.15; // 10分刻み / 60分 = 約69px
@@ -491,6 +491,25 @@ function fixedBusyIntervals(dateIso, memberId, excludeIds){
     .map((t,i)=>({ start:taskStartMinutes(t,i), end:taskStartMinutes(t,i)+taskDuration(t) }));
   return mergeIntervals([...blocks, ...tasks]);
 }
+function fixedBusyIntervalsForTask(dateIso, memberId, excludeIds, taskForPlacement){
+  const base = fixedBusyIntervals(dateIso, memberId, excludeIds);
+  // 仕事時間は、仕事カテゴリのタスクだけが使える専用枠として扱う。
+  // 仕事以外のタスクを振り直す時は、仕事時間を埋まっている時間として扱う。
+  if(taskForPlacement && !isWorkTask(taskForPlacement, memberId)){
+    const workBlocks = memberWorkIntervals(dateIso, memberId).map(b=>({ start:b.start, end:b.end }));
+    return mergeIntervals([...base, ...workBlocks]);
+  }
+  return base;
+}
+function preferredStartForTask(dateIso, task, currentMin, startDate, originalDate, memberId){
+  if(dateIso === startDate) return currentMin;
+  if(dateIso === originalDate && diffDays(originalDate, startDate) > 0) return taskStartMinutes(task, 0);
+  if(isWorkTask(task, memberId)){
+    const work = memberWorkIntervals(dateIso, memberId);
+    if(work.length) return work[0].start;
+  }
+  return minutesFromTime(memberSleep().end || '09:00');
+}
 function findSlotWithBusy(preferred, duration, busy){
   duration = snapDuration(duration);
   const start = snapMinutes(preferred);
@@ -522,6 +541,10 @@ async function reflowTasksAvoidingUnavailable(){
     // 前日以前に置き去りになった未完了タスクも必ず回収する。
     .filter(t=>diffDays(effectiveTaskDate(t), endDate) <= 0)
     .sort((a,b)=>{
+      // 仕事カテゴリのタスクは、仕事時間へ優先的に入れたいので先に配置する。
+      const aw = isWorkTask(a, ownerId) ? 0 : 1;
+      const bw = isWorkTask(b, ownerId) ? 0 : 1;
+      if(aw !== bw) return aw - bw;
       const da = effectiveTaskDate(a), db = effectiveTaskDate(b);
       if(da!==db) return da.localeCompare(db);
       return taskStartMinutes(a,0)-taskStartMinutes(b,0);
@@ -529,11 +552,13 @@ async function reflowTasksAvoidingUnavailable(){
   if(!movable.length){ showOrganizeMessage('今から入れ直す未完了タスクはありません。'); return; }
   const excludeIds = movable.map(t=>t.id);
   const busyByDate = new Map();
-  function busyFor(date){
-    if(!busyByDate.has(date)) busyByDate.set(date, fixedBusyIntervals(date, ownerId, excludeIds));
-    return busyByDate.get(date);
+  function busyFor(date, task){
+    const key = `${date}:${isWorkTask(task, ownerId) ? 'work' : 'free'}`;
+    if(!busyByDate.has(key)) busyByDate.set(key, fixedBusyIntervalsForTask(date, ownerId, excludeIds, task));
+    return busyByDate.get(key);
   }
   let moved=0, skipped=0;
+  let workMoved=0, freeMoved=0;
   for(const t of movable){
     const duration = taskDuration(t);
     const original = effectiveTaskDate(t);
@@ -542,8 +567,8 @@ async function reflowTasksAvoidingUnavailable(){
     let placed = null;
     for(const date of dateRangeInclusive(searchStart, due)){
       if(isWholeDayBlocked(date, ownerId)) continue;
-      const busy = busyFor(date);
-      const preferred = date===startDate ? currentMin : (date===original && diffDays(original,startDate)>0 ? taskStartMinutes(t,0) : minutesFromTime(memberSleep().end || '09:00'));
+      const busy = busyFor(date, t);
+      const preferred = preferredStartForTask(date, t, currentMin, startDate, original, ownerId);
       const slot = findSlotWithBusy(preferred, duration, busy);
       if(slot !== null){
         placed = { date, start:slot };
@@ -557,9 +582,11 @@ async function reflowTasksAvoidingUnavailable(){
     if(t.schedule_date!==patch.schedule_date || t.carryover_date || t.start_time!==patch.start_time){
       await updateTask(t.id, patch);
       moved++;
+      if(isWorkTask(t, ownerId)) workMoved++; else freeMoved++;
     }
   }
-  showOrganizeMessage(`${moved}件を今から先の空き時間へ入れ直しました。${skipped ? ` ${skipped}件は空き枠が見つかりませんでした。` : ''}`, !!skipped);
+  const detail = moved ? `（仕事 ${workMoved}件 / 自由 ${freeMoved}件）` : '';
+  showOrganizeMessage(`${moved}件を今から先の空き時間へ入れ直しました。${detail}${skipped ? ` ${skipped}件は空き枠が見つかりませんでした。` : ''}`, !!skipped);
   await refreshAll();
 }
 async function redistributeDailyTasksFromToday(){
