@@ -1,9 +1,9 @@
-import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=70';
-import { state } from './state.js?v=70';
-import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=70';
-import { refreshAll, showView } from './app.js?v=70';
-import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=70';
-import { updateMyProfile, loadMembers } from './auth.js?v=70';
+import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=71';
+import { state } from './state.js?v=71';
+import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=71';
+import { refreshAll, showView } from './app.js?v=71';
+import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=71';
+import { updateMyProfile, loadMembers } from './auth.js?v=71';
 
 const SLOT_MINUTES = 10;
 const PX_PER_MINUTE = 1.15; // 10分刻み / 60分 = 約69px
@@ -514,13 +514,30 @@ function preferredStartForTask(dateIso, task, currentMin, startDate, originalDat
   }
   return minutesFromTime(memberSleep().end || '09:00');
 }
-function findSlotWithBusy(preferred, duration, busy){
+function findSlotWithBusy(preferred, duration, busy, options={}){
   duration = snapDuration(duration);
   const start = snapMinutes(preferred);
+  const noWrap = !!options.noWrap;
+  const windows = Array.isArray(options.windows) ? options.windows.filter(w=>Number.isFinite(w.start)&&Number.isFinite(w.end)&&w.end>w.start) : null;
   const candidates=[];
-  for(let m=start; m<=DAY_MINUTES-duration; m+=SLOT_MINUTES) candidates.push(m);
-  for(let m=0; m<start; m+=SLOT_MINUTES) candidates.push(m);
+  function pushRange(from, to){
+    const a = Math.max(0, snapMinutes(from));
+    const b = Math.min(DAY_MINUTES, snapMinutes(to));
+    for(let m=a; m<=b-duration; m+=SLOT_MINUTES) candidates.push(m);
+  }
+  if(windows && windows.length){
+    windows.forEach(w=>pushRange(Math.max(start, w.start), w.end));
+    if(!noWrap) windows.forEach(w=>{ if(w.start < start) pushRange(w.start, Math.min(start, w.end)); });
+  }else{
+    pushRange(start, DAY_MINUTES);
+    if(!noWrap) pushRange(0, start);
+  }
   return candidates.find(m=>!busy.some(b=>intervalsOverlap(m,m+duration,b.start,b.end))) ?? null;
+}
+function workWindowsForTask(dateIso, task, memberId){
+  if(!isWorkTask(task, memberId)) return null;
+  const work = memberWorkIntervals(dateIso, memberId).map(b=>({ start:b.start, end:b.end }));
+  return work.length ? work : null;
 }
 function getCategoryColorByName(name){
   const cat = (state.tree || []).find(c=>c.name===name);
@@ -573,7 +590,10 @@ async function reflowTasksAvoidingUnavailable(){
       if(isWholeDayBlocked(date, ownerId)) continue;
       const busy = busyFor(date, t);
       const preferred = preferredStartForTask(date, t, currentMin, startDate, original, ownerId);
-      const slot = findSlotWithBusy(preferred, duration, busy);
+      const slot = findSlotWithBusy(preferred, duration, busy, {
+        noWrap: date === startDate,
+        windows: workWindowsForTask(date, t, ownerId)
+      });
       if(slot !== null){
         placed = { date, start:slot };
         busy.push({ start:slot, end:slot+duration });
@@ -589,7 +609,7 @@ async function reflowTasksAvoidingUnavailable(){
       if(isWorkTask(t, ownerId)) workMoved++; else freeMoved++;
     }
   }
-  const detail = moved ? `（仕事 ${workMoved}件 / 自由 ${freeMoved}件${shouldAvoidWorkForNonWork() ? ' / 仕事以外は仕事外に配置' : ' / 仕事時間も使用可'}）` : '';
+  const detail = moved ? `（仕事 ${workMoved}件 / 自由 ${freeMoved}件${shouldAvoidWorkForNonWork() ? ' / 仕事以外は仕事時間を避けて配置' : ' / 仕事時間も使用可'}）` : '';
   showOrganizeMessage(`${moved}件を今から先の空き時間へ入れ直しました。${detail}${skipped ? ` ${skipped}件は空き枠が見つかりませんでした。` : ''}`, !!skipped);
   await refreshAll();
 }
