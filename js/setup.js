@@ -1,5 +1,5 @@
-import { supabase } from './supabase-client.js?v=71';
-import { DEFAULT_TREE } from './utils.js?v=71';
+import { supabase } from './supabase-client.js?v=72';
+import { DEFAULT_TREE } from './utils.js?v=72';
 
 export async function loadTree(teamId, ownerId){
   const { data, error } = await supabase

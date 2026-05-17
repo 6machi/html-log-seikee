@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>タスクかんりシート</title>
-  <link rel="stylesheet" href="style.css?v=71" />
+  <link rel="stylesheet" href="style.css?v=72" />
 </head>
 <body>
   <header>
@@ -59,16 +59,17 @@
               <span class="scheduleTitle" id="scheduleTitle">今日のスケジュール</span>
               <button class="scheduleMove" id="scheduleNext" title="次の日へ">&gt;&gt;</button>
             </div>
-            <details class="panelDetails compactTool organizeTool">
-              <summary>未完了タスクを今から入れ直す <button class="infoDot" type="button" data-info="対象は、単発・持ち越し・分割タスク・過去に残った未完了タスクです。毎日/毎週/毎月の繰り返しタスク、睡眠、稼働不可、仕事時間は入れ直し対象にしません。">i</button></summary>
+            <section class="quickToolPanel organizeTool">
+              <div class="toolHeader">
+                <h3>未完了タスクを今から入れ直す</h3>
+                <button class="infoDot" type="button" data-info="対象は、単発・持ち越し・分割タスク・過去に残った未完了タスクです。毎日/毎週/毎月の繰り返しタスク、睡眠、稼働不可、仕事時間は入れ直し対象にしません。">i</button>
+              </div>
               <div class="organizeBox">
                 <label class="checkLine organizeOption"><input type="checkbox" id="avoidWorkForNonWork" checked>仕事以外のタスクは仕事時間を避ける</label>
-                <div class="organizeActions">
-                  <button class="primary" type="button" id="reflowFromTodayBtn">未完了タスクを今から入れ直す</button>
-                </div>
+                <button class="primary" type="button" id="reflowFromTodayBtn">未完了タスクを今から入れ直す</button>
                 <div id="organizeMsg" class="notice hidden"></div>
               </div>
-            </details>
+            </section>
             <details class="panelDetails compactTool sleepTool" open>
               <summary>睡眠時間 <button class="infoDot" type="button" data-info="寝る時間・起きる時間を一時的にずらしたいときに使います。タイムライン上では灰色のすいみん予定として表示されます。">i</button></summary>
               <div class="form two compactForm">
@@ -265,6 +266,6 @@
   </template>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="js/app.js?v=71"></script>
+  <script type="module" src="js/app.js?v=72"></script>
 </body>
 </html>
