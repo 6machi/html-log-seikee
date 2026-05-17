@@ -1,9 +1,9 @@
-import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=72';
-import { state } from './state.js?v=72';
-import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=72';
-import { refreshAll, showView } from './app.js?v=72';
-import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=72';
-import { updateMyProfile, loadMembers } from './auth.js?v=72';
+import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=74';
+import { state } from './state.js?v=74';
+import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=74';
+import { refreshAll, showView } from './app.js?v=74';
+import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=74';
+import { updateMyProfile, loadMembers } from './auth.js?v=74';
 
 const SLOT_MINUTES = 10;
 const PX_PER_MINUTE = 1.15; // 10分刻み / 60分 = 約69px
@@ -543,6 +543,31 @@ function getCategoryColorByName(name){
   const cat = (state.tree || []).find(c=>c.name===name);
   return cat?.color || '#9aa4b6';
 }
+
+function renderOrganizeWorkStatus(){
+  const el = $('organizeWorkStatus');
+  if(!el) return;
+  const checkbox = $('avoidWorkForNonWork');
+  const w = memberWorkSettings(state.selectedMemberId || state.user?.id);
+  const mine = isEditable();
+  const isOn = !!checkbox?.checked;
+  if(!mine){
+    if(checkbox) checkbox.disabled = true;
+    el.textContent = '他メンバー表示中のため、自分のタスク振り直し設定は使えません。';
+    el.className = 'organizeStatus muted warn';
+    return;
+  }
+  if(!w.enabled){
+    if(checkbox) checkbox.disabled = true;
+    el.textContent = '仕事時間ルールがOFFです。OFFの時は「仕事時間」という制限を使わないため、仕事以外のタスクも空いている時間に入ります。避けたい場合は、右上の自分の名前 → 基本的な仕事時間の設定でONにしてください。';
+    el.className = 'organizeStatus muted warn';
+    return;
+  }
+  if(checkbox) checkbox.disabled = false;
+  el.textContent = `仕事時間ルールON：${w.start}〜${w.end} / 仕事カテゴリ：${w.category} / ${isOn ? '仕事以外のタスクは仕事時間に入れません' : '仕事以外も空いていれば仕事時間に入ります'}`;
+  el.className = 'organizeStatus muted';
+}
+
 function showOrganizeMessage(text, error=false){
   const el = $('organizeMsg');
   if(!el) return;
@@ -609,7 +634,7 @@ async function reflowTasksAvoidingUnavailable(){
       if(isWorkTask(t, ownerId)) workMoved++; else freeMoved++;
     }
   }
-  const detail = moved ? `（仕事 ${workMoved}件 / 自由 ${freeMoved}件${shouldAvoidWorkForNonWork() ? ' / 仕事以外は仕事時間を避けて配置' : ' / 仕事時間も使用可'}）` : '';
+  const detail = moved ? `（仕事 ${workMoved}件 / 自由 ${freeMoved}件${shouldAvoidWorkForNonWork() ? ' / 仕事以外は仕事時間に入れずに配置' : ' / 仕事時間も使用可'}）` : '';
   showOrganizeMessage(`${moved}件を今から先の空き時間へ入れ直しました。${detail}${skipped ? ` ${skipped}件は空き枠が見つかりませんでした。` : ''}`, !!skipped);
   await refreshAll();
 }
@@ -1195,6 +1220,7 @@ export function renderBoard(){
 
     try{ renderActivitySummary(); }catch(e){ console.warn('activity summary skipped', e); }
     try{ renderWorkStartStatus(); }catch(e){ console.warn('work start status skipped', e); }
+    try{ renderOrganizeWorkStatus(); }catch(e){ console.warn('organize work status skipped', e); }
     try{ renderBoardSleepSettings(); }catch(e){ console.warn('sleep settings skipped', e); }
     try{ renderTimeline(); }catch(e){ console.error('timeline render failed', e); renderTimelineFallback(e); }
     try{ renderCarryList(); }catch(e){ console.warn('carry list skipped', e); }

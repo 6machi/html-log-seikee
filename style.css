@@ -715,3 +715,9 @@ input[type="time"], input[type="date"]{min-height:42px}
 .quickToolPanel .organizeBox{gap:8px}
 .quickToolPanel .organizeOption{margin:0}
 .quickToolPanel #reflowFromTodayBtn{width:100%;justify-content:center;text-align:center}
+
+.organizeStatus{margin:-2px 0 8px;padding:8px 10px;border-radius:12px;background:#f7f8fc;border:1px solid var(--line);line-height:1.5}
+.organizeStatus.warn{background:#fff8e9;border-color:#f2c982;color:#8b5b00}
+
+.workRuleHelp{margin:6px 0 10px;line-height:1.6}
+.organizeOption input:disabled + span{opacity:.5}
