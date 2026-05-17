@@ -1,28 +1,69 @@
-# CoCログ縦書きメーカー 軽量版 GitHub ver18
+# タスクかんりシート Supabase版 v26 v11
 
-A5安定ロールバック版です。ver18のボックステキスト実験でページ数が暴増したため、ver18の安定レイアウトをベースに戻しています。
+GitHub Pages + Supabase Auth + Supabase Database/RLS で使う分割版です。
 
-- PDFセリフ1列の初期値: 37
-- 実験的なボックステキスト分割: 無効
-- 縦書きプレビュー編集: 維持
-- A5基準: 維持
+## ファイル構成
 
-GitHub Pagesでは、このフォルダの中身をリポジトリ直下に上書きアップロードしてください。
+```text
+index.html
+style.css
+config.example.js
+config.js
+js/
+  app.js
+  auth.js
+  board.js
+  calendar.js
+  setup-view.js
+  setup.js
+  state.js
+  supabase-client.js
+  tasks.js
+  utils.js
+sql/
+  supabase_setup.sql
+```
+
+## 重要
+
+- GitHubに入れていいのは `anon key` または `publishable key` だけです。
+- `service_role key` / `secret key` / Database password は絶対にGitHubへ入れないでください。
+- SQLは `sql/supabase_setup.sql` の1本だけを使ってください。
+
+## Supabase設定の流れ
+
+1. Supabaseで新規プロジェクトを作る
+2. SQL Editorで `sql/supabase_setup.sql` を実行する
+3. Authentication > Providers > Email を有効にする
+4. Project URL と anon/publishable key を `config.js` に貼る
+5. このフォルダをGitHubへアップする
+6. GitHub Pagesで公開する
+7. サイト上で新規登録/ログインする
+
+## 初回ログイン時
+
+初回ログイン時に、自動で以下が作られます。
+
+- profiles の自分の行
+- teams の「個人ボード」
+- team_members の自分の管理者行
+- category_trees の初期カテゴリ候補
 
 
-## GitHub ver18
 
-地の文・セリフ内の改行をPDFカラム内部に残さず、事前に行単位へ分解して文頭欠けを防ぐ検証版。
-
-
-## ver18
-
-- ver18の1P文頭欠け修正を維持。
-- 本文・セリフの英字だけ半角に戻し、縦書き内で横倒し表示されやすいように調整。
-- 数字・記号・ダイスは従来通り全角寄せを維持。
+## v18
+- カレンダーの過去日はグレーアウトします。
+- タスク追加の発生タイプに「毎週」「毎月」を追加しました。
+- 既存Supabaseに反映する場合は `sql/supabase_patch_v18_occurrence.sql` をSQL Editorで1回実行してください。
 
 
-## ver18
-- 英字横倒し実験を撤回し、本文・セリフの英数字を全角化して縦書きで統一。
-- A5書き出し設定を固定プリセット化し、詳細設定を画面から非表示化。
-- ver16由来の1P文頭欠け対策は維持。
+## v22
+- 見積もり時間と納期から逆算して、毎日のタスクに分けて追加できます。
+
+
+## v34
+- calendar.js の構文エラー対策とキャッシュ回避を追加。
+
+
+## v66
+- 今日のタイムライン開始時刻は、睡眠/仕事設定より現在時刻の時台を優先します。

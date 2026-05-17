@@ -1,1515 +1,269 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CoCログ縦書きメーカー 軽量版 GitHub ver18 A5固定UI版</title>
-<style>
-:root{
-  --bg1:#fff8fb;
-  --bg2:#f6f1ff;
-  --bg3:#eef6ff;
-  --card:rgba(255,255,255,.84);
-  --paper:#fffdf8;
-  --ink:#242833;
-  --muted:#81899a;
-  --line:#dfe5f0;
-  --accent:#b60f1d;
-  --shadow:0 18px 44px rgba(75,82,115,.13);
-  --preview-font:15px;
-  --speaker-height:7.2em;
-  --speaker-font:.86em;
-  --body-height:30em;
-  --turn-gap:1.1em;
-}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%}
-body{
-  color:var(--ink);
-  font-family:"Hiragino Sans","Yu Gothic",system-ui,sans-serif;
-  background:
-    radial-gradient(circle at 8% 0%, rgba(255,255,255,.95), transparent 30%),
-    radial-gradient(circle at 100% 12%, rgba(207,225,255,.58), transparent 34%),
-    linear-gradient(135deg,var(--bg1),var(--bg2) 52%,var(--bg3));
-}
-header{
-  position:sticky;top:0;z-index:10;
-  background:rgba(255,255,255,.78);
-  backdrop-filter:blur(16px);
-  border-bottom:1px solid rgba(223,229,240,.9);
-}
-.header-inner{max-width:1280px;margin:0 auto;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;gap:14px}
-.kicker{color:var(--muted);font-size:12px;font-weight:900;letter-spacing:.06em}.kicker::before{content:"✦ ";color:var(--accent)}
-h1{margin:4px 0 0;font-size:23px;letter-spacing:.04em}.badge{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 10px;color:var(--muted);font-size:12px;white-space:nowrap}
-main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var(--card);border:1px solid rgba(255,255,255,.94);box-shadow:var(--shadow);border-radius:24px;padding:16px;margin-bottom:14px}.lead{margin:0;color:var(--muted);font-size:13px;line-height:1.75}h2{font-size:17px;margin:0 0 10px}.grid{display:grid;grid-template-columns:1fr 1.55fr 1.05fr;gap:12px}.box{border:1px solid var(--line);background:rgba(255,255,255,.62);border-radius:18px;padding:13px}label{display:block;margin:0 0 6px;color:var(--muted);font-size:12px;font-weight:800}input,select,textarea{width:100%;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:12px;padding:10px 11px;font:inherit;font-size:14px}textarea{min-height:300px;height:42vh;line-height:1.7;resize:vertical;background:#fffefb}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px}.check{display:flex;align-items:center;gap:8px;margin:0;color:#414755;font-size:13px;font-weight:500}.check input{width:auto}.settings-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:10px}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}button{min-height:38px;border:0;border-radius:999px;background:#252b3a;color:#fff;padding:9px 14px;font:inherit;font-weight:900;cursor:pointer}button.secondary{background:#fff;color:#252b3a;border:1px solid var(--line)}button.warn{background:var(--accent)}button.small{min-height:27px;padding:3px 8px;font-size:11px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.stat{background:#fff;border:1px solid var(--line);border-radius:13px;padding:9px}.stat b{display:block;font-size:18px}.stat span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.names{display:grid;gap:7px;max-height:330px;overflow:auto}.chip{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start;border:1px solid var(--line);background:#fff;border-radius:14px;padding:9px}.chip-title{display:flex;align-items:center;gap:7px;min-width:0}.dot{width:10px;height:10px;border-radius:999px;background:var(--c,#888);flex:0 0 auto}.chip b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chip small{display:block;color:var(--muted);font-size:11px;margin:4px 0 6px}.role{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:1px 7px;font-weight:900}.role.pc{background:#252b3a;color:#fff}.role.kp{background:#f6efe1;color:#5b4b32}.role.off{background:#f4f4f4;color:#999}.role-buttons{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.notice{background:#fff8e8;border:1px solid #ead7aa;color:#6c5730;border-radius:14px;padding:10px 12px;font-size:12px;line-height:1.65;margin-bottom:10px}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px}.toolbar .buttons{margin:0}.preview-shell{height:76vh;min-height:680px;overflow:auto;padding:18px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(90deg, rgba(210,216,228,.35) 1px, transparent 1px) 0 0/28px 28px,var(--paper);box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}.page{min-width:max-content;width:max-content;height:100%;padding:0 24px;writing-mode:vertical-rl;text-orientation:mixed;font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;font-size:var(--preview-font);line-height:1.9;letter-spacing:.03em;color:#171410}.pc-group{display:inline-flex;flex-direction:row-reverse;align-items:flex-start;vertical-align:top;writing-mode:horizontal-tb;gap:var(--turn-gap);margin-left:1.15em;break-inside:avoid}.pc-turn{display:inline-flex;flex-direction:column;align-items:flex-end;justify-content:flex-start;flex:0 0 auto;min-width:max-content;break-inside:avoid}.pc-speaker{display:block;writing-mode:vertical-rl;text-orientation:mixed;font-weight:900;font-size:var(--speaker-font);line-height:1.55;letter-spacing:.08em;min-height:var(--speaker-height);min-width:1.65em;width:max-content;margin:0 0 .42em;padding:0;text-align:start}.pc-body{display:block;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;line-height:1.9;min-width:1.85em;width:max-content;height:var(--body-height);max-height:var(--body-height);padding:.42em 0 0;border-top:1.6px solid rgba(35,31,27,.48);overflow-wrap:anywhere;word-break:normal}.narration{display:inline-block;vertical-align:top;writing-mode:vertical-rl;text-orientation:mixed;margin-left:1.05em;line-height:1.9;white-space:pre-wrap;break-inside:avoid}.narration strong{font-weight:900}.narration .mark{color:#8d7444;font-size:.72em;font-weight:900}.dice{display:inline-flex;vertical-align:top;writing-mode:vertical-rl;text-orientation:mixed;align-items:flex-start;justify-content:flex-start;margin-left:1.1em;padding:.45em .28em;border-radius:8px;background:#f4f0ea;color:#6f675d;font-size:.9em;white-space:pre-wrap;break-inside:avoid}.dice-name{font-weight:900;color:#4f463c;margin-bottom:.25em}.horizontal{writing-mode:horizontal-tb!important;min-width:auto;width:auto;height:auto}.horizontal .pc-group,.horizontal .pc-turn,.horizontal .pc-speaker,.horizontal .pc-body,.horizontal .narration,.horizontal .dice{display:block!important;writing-mode:horizontal-tb!important;min-width:0!important;width:auto!important;height:auto!important;max-height:none!important}.horizontal .pc-group{margin:0 0 1em!important}.horizontal .pc-turn{margin:0 0 1.1em!important}.horizontal .pc-speaker{min-height:0!important;border-bottom:1px solid #e1d7c9;margin:0 0 .3em!important;padding:0 0 .25em!important}.horizontal .pc-body{border-top:0!important;border-left:3px solid #ddd;padding:.1em 0 .1em .8em!important}.horizontal .narration,.horizontal .dice{margin:0 0 1em!important}.raw{max-height:220px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px}.raw-item{border-bottom:1px solid #eee6d8;padding:8px 0}.raw-meta{display:flex;gap:6px;flex-wrap:wrap;color:var(--muted);margin-bottom:4px}.raw-body{white-space:pre-wrap;line-height:1.6}@media(max-width:980px){.grid{grid-template-columns:1fr}.settings-row,.checks{grid-template-columns:1fr 1fr}.preview-shell{min-height:610px}}@media(max-width:640px){main{padding:12px}.header-inner{display:block}h1{font-size:20px}.badge{display:inline-block;margin-top:8px}.settings-row,.checks,.stats{grid-template-columns:1fr}.buttons button{width:100%}}
-
-.find-panel{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin:10px 0}.find-panel .find-buttons{display:flex;gap:6px;flex-wrap:wrap}.find-panel button{min-height:34px;padding:7px 10px}.find-note{color:var(--muted);font-size:12px;line-height:1.5;margin-top:4px}
-/* v9: dialogue rule behavior */
-.pc-turn.speaker-continued .pc-speaker{visibility:hidden;}
-.pc-turn.speaker-change{margin-left:.42em;}
-.pc-turn.dialogue-connect .pc-body{margin-left:-.46em;padding-left:.46em;}
-.pc-turn.speaker-change.dialogue-connect .pc-body{margin-left:-.88em;padding-left:.88em;}
-@media(max-width:760px){.find-panel{grid-template-columns:1fr}.find-panel .find-buttons button{width:100%}}
-#measureHost{position:absolute!important;left:-100000px!important;top:0!important;display:block!important;visibility:hidden!important;background:#fff!important;pointer-events:none!important;z-index:-1!important}
-#printHost .print-page,#measureHost .print-page{box-sizing:border-box;width:118mm;height:178mm;margin:0;padding:0;overflow:hidden;background:#fff;page-break-after:always;break-after:page}
-#printHost .print-page:last-child,#measureHost .print-page:last-child{page-break-after:auto;break-after:auto}
-#printHost .print-content,#measureHost .print-content{display:block;box-sizing:border-box;width:100%;height:100%;padding-left:3mm;writing-mode:vertical-rl;text-orientation:mixed;font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;font-size:10.2pt;line-height:1.78;letter-spacing:.025em;color:#171410;background:#fff;overflow:hidden}
-#printHost .pc-group,#measureHost .pc-group{display:inline-flex;flex-direction:row-reverse;align-items:flex-start;vertical-align:top;writing-mode:horizontal-tb;gap:.75em;margin-left:.85em;break-inside:avoid;page-break-inside:avoid}
-#printHost .pc-turn,#measureHost .pc-turn{display:inline-flex;flex-direction:column;align-items:flex-end;justify-content:flex-start;flex:0 0 auto;min-width:max-content;margin:0;padding:0;break-inside:avoid;page-break-inside:avoid}
-#printHost .pc-speaker,#measureHost .pc-speaker{display:block;writing-mode:vertical-rl;text-orientation:mixed;font-weight:900;font-size:.8em;line-height:1.5;letter-spacing:.07em;min-height:6.2em;min-width:1.6em;width:max-content;margin:0 0 .32em;padding:0;text-align:start;box-sizing:border-box}
-#printHost .pc-body,#measureHost .pc-body{display:block;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;line-height:1.78;min-width:1.75em;width:max-content;height:var(--pdf-body-height,34em);max-height:var(--pdf-body-height,34em);margin:0;padding:.32em 0 0;box-sizing:border-box;border-top:1.35px solid rgba(35,31,27,.52);overflow-wrap:anywhere;word-break:normal;overflow:visible}
-#printHost .narration,#measureHost .narration{display:inline-block;vertical-align:top;writing-mode:vertical-rl;text-orientation:mixed;margin-left:.85em;line-height:1.78;white-space:pre-wrap;break-inside:avoid;page-break-inside:avoid}
-#printHost .narration strong,#measureHost .narration strong{font-weight:900}
-#printHost .narration .mark,#measureHost .narration .mark{color:#8d7444;font-size:.72em;font-weight:900}
-#printHost .dice,#measureHost .dice{display:inline-block;vertical-align:top;writing-mode:vertical-rl;text-orientation:mixed;margin-left:.85em;padding:.45em .35em;border-radius:8px;background:#fff;color:#4f463c;border:1.2px solid rgba(95,86,74,.7);font-size:.86em;font-weight:700;line-height:1.62;white-space:pre-wrap;break-inside:avoid;page-break-inside:avoid;box-sizing:border-box;overflow:visible;overflow-wrap:anywhere;word-break:normal;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-#printHost .dice-name,#measureHost .dice-name{font-weight:900;color:#4f463c;margin-bottom:.25em}
-
-#printHost{display:none}
-@media print{
-  @page{size:A5;margin:16mm 14mm}
-  html,body{margin:0!important;padding:0!important;background:#fff!important;min-height:0!important}
-  body > *:not(#printHost){display:none!important}
-  #printHost{
-    display:block!important;
-    margin:0!important;
-    padding:0!important;
-    background:#fff!important;
-    color:#171410!important;
-  }
-  #printHost .print-page{
-    display:block!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif!important;
-    font-size:10.5pt!important;
-    line-height:1.85!important;
-    letter-spacing:.03em!important;
-    color:#171410!important;
-    background:#fff!important;
-    height:240mm!important;
-    width:max-content!important;
-    min-width:max-content!important;
-    overflow:visible!important;
-    padding:0!important;
-    margin:0!important;
-  }
-  #printHost .pc-group{
-    display:inline-flex!important;
-    flex-direction:row-reverse!important;
-    align-items:flex-start!important;
-    vertical-align:top!important;
-    writing-mode:horizontal-tb!important;
-    gap:1.05em!important;
-    margin-left:1.1em!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  #printHost .pc-turn{
-    display:inline-flex!important;
-    flex-direction:column!important;
-    align-items:flex-end!important;
-    flex:0 0 auto!important;
-    min-width:max-content!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  #printHost .pc-speaker{
-    display:block!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    font-weight:900!important;
-    font-size:.82em!important;
-    line-height:1.55!important;
-    letter-spacing:.08em!important;
-    min-height:7.2em!important;
-    min-width:1.65em!important;
-    width:max-content!important;
-    margin:0 0 .38em!important;
-    padding:0!important;
-  }
-  #printHost .pc-body{
-    display:block!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    white-space:pre-wrap!important;
-    line-height:1.85!important;
-    min-width:1.85em!important;
-    width:max-content!important;
-    height:30em!important;
-    max-height:30em!important;
-    padding:.38em 0 0!important;
-    border-top:1.4px solid rgba(35,31,27,.48)!important;
-    overflow-wrap:anywhere!important;
-  }
-  #printHost .narration{
-    display:inline-block!important;
-    vertical-align:top!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    margin-left:1.05em!important;
-    line-height:1.85!important;
-    white-space:pre-wrap!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  #printHost .dice{
-    display:inline-flex!important;
-    vertical-align:top!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    margin-left:1.1em!important;
-    padding:.42em .25em!important;
-    border-radius:8px!important;
-    background:#f4f0ea!important;
-    color:#6f675d!important;
-    font-size:.9em!important;
-    white-space:pre-wrap!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-}
-
-
-/* v5: PDF safety mode + PC dialogue rule preservation.
-   Print pages are still generated manually, but each page keeps the same
-   PC structure as the preview: speaker row / separator rule / body row. */
-@media print{
-  @page{size:A5;margin:14mm 12mm}
-  html,body{margin:0!important;padding:0!important;background:#fff!important;width:auto!important;height:auto!important;min-height:0!important;overflow:visible!important}
-  body > *:not(#printHost){display:none!important}
-  #printHost{display:block!important;margin:0!important;padding:0!important;background:#fff!important;color:#171410!important;overflow:visible!important}
-  #printHost .print-page{
-    display:block!important;
-    box-sizing:border-box!important;
-    width:124mm!important;
-    height:182mm!important;
-    min-width:0!important;
-    max-width:124mm!important;
-    min-height:0!important;
-    max-height:182mm!important;
-    margin:0!important;
-    padding:0!important;
-    overflow:hidden!important;
-    background:#fff!important;
-    page-break-after:always!important;
-    break-after:page!important;
-  }
-  #printHost .print-page:last-child{page-break-after:auto!important;break-after:auto!important}
-  #printHost .print-content{
-    display:block!important;
-    width:100%!important;
-    height:100%!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif!important;
-    font-size:10.5pt!important;
-    line-height:1.85!important;
-    letter-spacing:.03em!important;
-    color:#171410!important;
-    overflow:hidden!important;
-  }
-  #printHost .pc-group{
-    display:inline-flex!important;
-    flex-direction:row-reverse!important;
-    align-items:flex-start!important;
-    vertical-align:top!important;
-    writing-mode:horizontal-tb!important;
-    gap:.9em!important;
-    margin-left:1em!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  #printHost .pc-turn{
-    display:inline-flex!important;
-    flex-direction:column!important;
-    align-items:flex-end!important;
-    justify-content:flex-start!important;
-    flex:0 0 auto!important;
-    width:auto!important;
-    min-width:max-content!important;
-    margin:0!important;
-    padding:0!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  #printHost .pc-speaker{
-    display:block!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    font-weight:900!important;
-    font-size:.82em!important;
-    line-height:1.55!important;
-    letter-spacing:.08em!important;
-    min-height:7.2em!important;
-    min-width:1.65em!important;
-    width:max-content!important;
-    margin:0 0 .38em 0!important;
-    padding:0!important;
-    text-align:start!important;
-  }
-  #printHost .pc-body{
-    display:block!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    white-space:pre-wrap!important;
-    line-height:1.85!important;
-    min-width:1.85em!important;
-    width:max-content!important;
-    height:26em!important;
-    max-height:26em!important;
-    margin:0!important;
-    padding:.38em 0 0!important;
-    box-sizing:border-box!important;
-    border-top:1.45px solid rgba(35,31,27,.52)!important;
-    overflow-wrap:anywhere!important;
-    word-break:normal!important;
-  }
-  #printHost .narration{
-    display:inline-block!important;
-    vertical-align:top!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    margin-left:1em!important;
-    line-height:1.85!important;
-    white-space:pre-wrap!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  #printHost .narration strong{font-weight:900!important}
-  #printHost .narration .mark{color:#8d7444!important;font-size:.72em!important;font-weight:900!important}
-  #printHost .dice{
-    display:inline-flex!important;
-    vertical-align:top!important;
-    writing-mode:vertical-rl!important;
-    text-orientation:mixed!important;
-    margin-left:1em!important;
-    padding:.42em .25em!important;
-    border-radius:8px!important;
-    background:#f4f0ea!important;
-    color:#6f675d!important;
-    font-size:.9em!important;
-    white-space:pre-wrap!important;
-    break-inside:avoid!important;
-    page-break-inside:avoid!important;
-  }
-  #printHost .dice-name{font-weight:900!important;color:#4f463c!important;margin-bottom:.25em!important}
-}
-
-
-
-/* v7: PDF callout border + fuller pages */
-@media print{
-  #printHost, #printHost *{
-    -webkit-print-color-adjust:exact!important;
-    print-color-adjust:exact!important;
-  }
-  #printHost .print-content{
-    font-size:10.5pt!important;
-    line-height:1.78!important;
-  }
-  #printHost .pc-group{
-    gap:.78em!important;
-    margin-left:.9em!important;
-  }
-  #printHost .pc-speaker{
-    min-height:6.6em!important;
-    margin-bottom:.34em!important;
-  }
-  #printHost .pc-body{
-    height:38em!important;
-    max-height:38em!important;
-    border-top:1.55px solid rgba(35,31,27,.62)!important;
-    padding-top:.36em!important;
-  }
-  #printHost .dice{
-    display:inline-block!important;
-    border:1px solid rgba(95,86,74,.55)!important;
-    background:#fff!important;
-    color:#4f463c!important;
-    padding:.5em .35em!important;
-    border-radius:8px!important;
-    font-weight:700!important;
-    line-height:1.7!important;
-    box-decoration-break:clone!important;
-    -webkit-box-decoration-break:clone!important;
-  }
-  #printHost .callout{
-    border:1.2px solid rgba(95,86,74,.68)!important;
-  }
-  #printHost .narration{
-    margin-left:.92em!important;
-  }
-}
-
-
-
-/* v9: PDF header/footer-safe page, page number, find result navigator, callout overflow fix */
-.find-panel.upgraded{grid-template-columns:1fr 1fr 2fr;align-items:end}.find-status-row{display:flex;align-items:center;gap:10px;margin:6px 0 8px}.find-counter{display:inline-flex;align-items:center;justify-content:center;min-width:68px;border:1px solid var(--line);border-radius:999px;background:#fff;padding:4px 10px;font-weight:900;color:#252b3a;font-size:12px}.find-results{display:flex;gap:6px;overflow-x:auto;padding:6px 0 2px;margin-bottom:8px}.find-result{display:flex;align-items:center;gap:6px;min-width:210px;max-width:310px;min-height:32px;border:1px solid var(--line);border-radius:12px;background:#fff;color:#252b3a;padding:6px 8px;text-align:left;font-size:12px;font-weight:600}.find-result b{flex:0 0 auto;color:var(--muted)}.find-result span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.find-result mark{background:#fff2a8;border-radius:4px;padding:0 2px}.find-result.active{border-color:#252b3a;box-shadow:0 0 0 2px rgba(37,43,58,.12)}
-@media(max-width:760px){.find-panel.upgraded{grid-template-columns:1fr}.find-status-row{align-items:flex-start;flex-direction:column}.find-results{display:grid;grid-template-columns:1fr}.find-result{max-width:none;width:100%}}
-
-#printHost .print-page,#measureHost .print-page{width:148mm!important;height:210mm!important;padding:13mm 12mm 15mm 12mm!important;margin:0!important;position:relative!important;overflow:hidden!important;background:#fff!important;box-sizing:border-box!important;page-break-after:always!important;break-after:page!important;}
-#printHost .print-content,#measureHost .print-content{width:100%!important;height:100%!important;padding:0 2mm 4mm 0!important;box-sizing:border-box!important;overflow:hidden!important;background:#fff!important;}
-#printHost .page-mark,#measureHost .page-mark{position:absolute;left:0;right:0;bottom:5mm;text-align:center;font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb!important;}
-#printHost .dice,#measureHost .dice{display:inline-block!important;max-height:156mm!important;min-width:1.8em!important;line-height:1.52!important;font-size:8.8pt!important;padding:.38em .32em!important;border:1.25px solid rgba(95,86,74,.75)!important;border-radius:7px!important;background:#fff!important;overflow:hidden!important;box-sizing:border-box!important;}
-#printHost .dice-text,#measureHost .dice-text{display:block!important;writing-mode:vertical-rl!important;text-orientation:mixed!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:normal!important;}
-#printHost .after-callout,#measureHost .after-callout{margin-left:.95em!important;}
-@media print{ @page{size:A5;margin:0!important} html,body{width:148mm!important;min-height:210mm!important;margin:0!important;padding:0!important;background:#fff!important} body > *:not(#printHost){display:none!important} #printHost{display:block!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important} #printHost .print-page{width:148mm!important;height:210mm!important;padding:13mm 12mm 15mm 12mm!important;margin:0!important;position:relative!important;overflow:hidden!important;page-break-after:always!important;break-after:page!important;box-shadow:none!important} #printHost .print-page:last-child{page-break-after:auto!important;break-after:auto!important} #printHost .print-content{width:100%!important;height:100%!important;padding:0 2mm 4mm 0!important;overflow:hidden!important} #printHost .page-mark{position:absolute!important;left:0!important;right:0!important;bottom:5mm!important;text-align:center!important;writing-mode:horizontal-tb!important;font-size:9pt!important} }
-
-
-
-/* v10: manual search, print size selector, safer PDF margins */
-.find-results{display:none!important}
-.find-panel.upgraded{grid-template-columns:1fr 1fr 2fr!important}
-#findCounter{min-width:78px}
-.print-size-help{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.5}
-#printHost .print-page,#measureHost .print-page{padding:0!important}
-#printHost .print-content,#measureHost .print-content{padding:0!important}
-@media print{
-  @page{margin:0!important}
-}
-
-
-
-/* v10 final PDF overrides */
-#printHost .pc-body,#measureHost .pc-body{height:var(--pdf-body-height,34em)!important;max-height:var(--pdf-body-height,34em)!important;}
-#printHost .dice,#measureHost .dice{max-height:var(--pdf-dice-max,170mm)!important;overflow:hidden!important;}
-#printHost .narration,#measureHost .narration{margin-left:.78em!important;}
-#printHost .pc-group,#measureHost .pc-group{margin-left:.78em!important;gap:.68em!important;}
-
-
-/* v13: ダイス枠の直後に本文が詰まって見えないように余白を強める */
-.after-callout{margin-left:2.6em!important;vertical-align:top!important;}
-
-/* v40: PDF前プレビュー */
-.print-preview-panel{position:relative}
-.print-preview-status{display:inline-flex;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--muted);font-size:12px;font-weight:800}
-.print-preview-wrap{height:78vh;min-height:640px;border:1px solid var(--line);border-radius:18px;background:#ddd;overflow:auto;padding:18px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
-#printPreviewFrame{display:block;width:100%;height:100%;border:0;background:#ddd;border-radius:12px}
-@media(max-width:800px){.print-preview-wrap{height:70vh;min-height:520px;padding:10px}.print-preview-panel .buttons{gap:6px}}
-
-.find-panel.upgraded{position:sticky;top:8px;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:16px;padding:10px;box-shadow:0 8px 20px rgba(40,45,60,.08)}
-.find-status-row{position:sticky;top:104px;z-index:19;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:12px;padding:7px 9px;margin:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.find-results{position:sticky;top:150px;z-index:18;max-height:120px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:12px;margin:8px 0 10px;padding:6px;box-shadow:0 8px 18px rgba(40,45,60,.06)}
-.find-results:empty{display:none}
-.find-hit{display:block;width:100%;text-align:left;border:1px solid #ece2d1;background:#fffaf2;color:#252b3a;border-radius:10px;padding:6px 8px;margin:4px 0;font-size:12px;line-height:1.45;min-height:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.find-hit.active{background:#252b3a;color:#fff;border-color:#252b3a}
-.find-context{font-weight:800}
-
-.preview-editable{outline:0;border-radius:8px;transition:background .12s, box-shadow .12s;}
-.preview-editable:hover{background:rgba(176,140,82,.10);box-shadow:0 0 0 1px rgba(176,140,82,.22) inset;}
-.preview-editable:focus{background:rgba(255,248,230,.95);box-shadow:0 0 0 2px rgba(176,140,82,.38) inset;}
-.preview-editable[contenteditable="true"]{caret-color:#6f4a18;}
-.preview-edit-hint{font-size:12px;color:#7a6b5c;margin:6px 0 0;}
-
-.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>タスクかんりシート</title>
+  <link rel="stylesheet" href="style.css?v=68" />
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver18</h1></div><span class="badge">A5安定＋英字横倒し / GitHub ver18</span></div></header>
-<main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver18ではver16の安定レイアウトを維持しつつ、英字だけを半角のまま縦書き内で横倒し表示しやすい形に調整しています。</p></section>
-<section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box settings-simple"><h2>整形設定</h2>
-  <div class="preset-card">
-    <b>A5固定プリセット</b>
-    <p>現在の安定版では、A5書き出し用の文字数・列数・余白を固定しています。ここを触って崩れる事故を防ぐため、詳細設定は画面から隠しています。</p>
-    <p class="mini">固定値：セリフ37字 / 最大14列 / 左2.5mm / 右2mm / 下2.5mm</p>
-  </div>
-  <div class="hidden-settings" style="display:none">
-    <label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label>
-    <label class="check"><input id="skipDice" type="checkbox">ダイス結果を除外</label>
-    <label class="check"><input id="skipSystem" type="checkbox">system発言を除外</label>
-    <label class="check"><input id="mergeSameSpeaker" type="checkbox" checked>同じ発言者の連続発言をまとめる</label>
-    <label class="check"><input id="scenarioAsNarration" type="checkbox" checked>シナリオ描写を本文扱いにする</label>
-    <label class="check"><input id="fullWidthPunctuation" type="checkbox" checked>記号を縦書き向けに整える</label>
-    <select id="fontSize"><option value="15px" selected>標準</option></select>
-    <select id="speakerHeight"><option value="7.2em" selected>標準</option></select>
-    <select id="speakerFont"><option value=".86em" selected>標準</option></select>
-    <select id="bodyHeight"><option value="30em" selected>標準</option></select>
-    <select id="turnGap"><option value="1.1em" selected>標準</option></select>
-    <select id="pdfSize"><option value="A5" selected>A5（固定）</option></select>
-    <select id="pdfLines"><option value="safe" selected>安全</option></select>
-    <input id="pdfPcChars" type="number" value="37">
-    <input id="pdfMaxCols" type="number" value="14">
-    <input id="pdfSafeLeft" type="number" value="2.5">
-    <input id="pdfSafeRight" type="number" value="2">
-    <input id="pdfSafeBottom" type="number" value="2.5">
-  </div>
-  <div style="margin-top:10px"><label for="scenarioNames">シナリオ描写扱いにする名前</label><input id="scenarioNames" type="text" value="部屋説明,START画面,導入,探索可能箇所,プロローグ,お話,ノイズ,決断,ENDA,ニュース,SNS,まとめ,アニメ,手を伸ばす,▼"></div>
-  <div class="buttons"><button id="rerenderBtn">再変換</button><button class="secondary" id="previewBtn">プレビュー更新</button></div>
-</div><div class="box"><h2>話者設定</h2><div id="nameList" class="names"></div><div class="buttons"><button class="secondary" id="copyBtn">編集テキストコピー</button><button class="secondary" id="txtBtn">TXT保存</button><button class="secondary" id="htmlBtn">HTML保存</button><button class="secondary" id="printHtmlBtn">PDF用HTML保存</button><button class="warn" id="printBtn">印刷/PDF</button></div></div></div></section>
-<section class="panel editor"><div class="toolbar"><h2>編集テキスト</h2><div class="buttons"><button class="secondary" id="fromLogBtn">元ログから再生成</button></div></div><div class="notice">ここは直接編集できます。PCに設定した話者は会話ブロック、KP/描写に設定した話者は本文流しになります。見出しにしたい行は「■ 見出し」、ダイス表示にしたい行は「【名前】ダイス結果」の形にしてください。</div><div class="find-panel upgraded"><div><label for="findText">検索する言葉</label><input id="findText" type="text" placeholder="例：成功 失敗のパネル"></div><div><label for="replaceText">置き換え後 / 空欄なら削除</label><input id="replaceText" type="text" placeholder="例：成功/失敗パネル"></div><div class="find-buttons"><button class="secondary" id="findBtn" type="button">検索</button><button class="secondary" id="prevHitBtn" type="button">↑ 前</button><button class="secondary" id="nextHitBtn" type="button">↓ 次</button><button class="secondary" id="replaceOneBtn" type="button">現在を置換</button><button class="secondary" id="replaceAllBtn" type="button">全置換</button><button class="secondary" id="deleteAllBtn" type="button">全削除</button></div></div><div class="find-status-row"><span id="findCounter" class="find-counter">0 / 0</span><span class="find-note" id="findNote">検索ボタンで確定検索します。入力途中では検索しません。</span></div><div id="findResults" class="find-results" aria-label="検索結果"></div><textarea id="textEditor" placeholder="HTMLログを読み込むとここに整形テキストが入ります。"></textarea><details style="margin-top:10px"><summary>抽出ログを見る</summary><div id="rawPreview" class="raw"></div></details></section>
-<section class="panel"><div class="toolbar preview-toolbar"><h2>全文縦書きプレビュー</h2><div class="buttons"><button class="secondary" id="startBtn">右端（先頭）へ</button><button class="secondary" id="directionBtn">横書き確認</button></div></div><p class="preview-edit-hint">プレビュー内の本文・セリフをクリックすると、その場で編集できます。編集後にフォーカスを外すと編集テキストへ反映します。</p><div class="preview-shell" id="previewShell"><div id="verticalPage" class="page"></div></div></section>
-<section class="panel print-preview-panel"><div class="toolbar preview-toolbar"><h2>印刷用ページプレビュー</h2><div class="buttons"><button class="secondary" id="printPreviewBtn" type="button">印刷用プレビュー更新</button><button class="secondary" id="prevPrintPageBtn" type="button">前ページ</button><button class="secondary" id="nextPrintPageBtn" type="button">次ページ</button><span id="printPreviewStatus" class="print-preview-status">未生成</span></div></div><div class="notice">ここでA5などの1ページ単位の収まりを確認してからPDF保存します。PDFを毎回保存しなくても、余白・列数・文字数の調整を画面上で確認できます。</div><div class="print-preview-wrap"><iframe id="printPreviewFrame" title="印刷用ページプレビュー"></iframe></div></section>
-</main>
-<div id="printHost" aria-hidden="true"></div><div id="measureHost" aria-hidden="true"></div>
-<script>
-'use strict';
-let entries=[];let excludedNames=new Set();let pcNames=new Set();let displayNames=new Map();let isHorizontal=false;let updateTimer=null;let previewBlocks=[];
-const $=id=>document.getElementById(id);
-const els={fileInput:$('fileInput'),nameList:$('nameList'),textEditor:$('textEditor'),verticalPage:$('verticalPage'),previewShell:$('previewShell'),rawPreview:$('rawPreview')};
-function escapeHtml(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
-function cleanText(v){return String(v??'').replace(/\u00a0/g,' ').replace(/\r/g,'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
-function htmlToText(html){const d=document.createElement('div');d.innerHTML=String(html).replace(/<br\s*\/?\s*>/gi,'\n').replace(/<\/p>/gi,'\n');return cleanText(d.textContent||'')}
-function colorFromStyle(style){const m=String(style||'').match(/color\s*:\s*([^;]+)/i);return m?m[1].trim():'#888888'}
-function isDiceText(text){const t=String(text||'').trim();if(!t)return false;const formula=/\b(CCB|CC|C)\s*[<＜=≦]/i.test(t)||/\b\d+\s*[dD]\s*\d+\b/.test(t)||/正気度ロール|SAN\s*(チェック|ck|値|減少|ロール)/i.test(t);if(!formula)return false;return /成功|失敗|スペシャル|クリティカル|ファンブル|決定的成功|致命的失敗/.test(t)||/[＞>]\s*\d+|[＜<]\s*\d+|=\s*\d+/.test(t)||/→|⇒/.test(t)||formula}
-function processBody(body){let t=toFullWidthAsciiExceptLetters(cleanText(body));if($('fullWidthPunctuation').checked){t=t.replace(/\.{3,}/g,'……').replace(/…{3,}/g,'……').replace(/!/g,'！').replace(/\?/g,'？').replace(/:/g,'：')}return t}
-function parseCcfoliaHtml(html){const doc=new DOMParser().parseFromString(html,'text/html');const ps=[...doc.querySelectorAll('p')];return ps.map((p,i)=>{const spans=[...p.querySelectorAll(':scope > span')];const tab=cleanText(spans[0]?.textContent||'').replace(/^\[|\]$/g,'');const name=cleanText(spans[1]?.textContent||'');const bodySpan=spans[2]||p;const body=htmlToText(bodySpan.innerHTML);const color=colorFromStyle(p.getAttribute('style')||'');return {id:i,tab,name,body,color,isDice:isDiceText(body),isSystem:name.toLowerCase()==='system',isEmpty:body.trim().length===0}}).filter(e=>e.name||e.body)}
-async function parseSelectedFile(){const file=els.fileInput.files?.[0];if(!file){alert('HTMLファイルを選んでください');return}const html=await file.text();entries=parseCcfoliaHtml(html);excludedNames=new Set();displayNames=new Map([...new Set(entries.map(e=>e.name).filter(Boolean))].map(n=>[n,n]));pcNames=new Set(entries.filter(e=>e.name&&!e.isSystem&&e.color.toLowerCase()!=='#888888').map(e=>e.name));renderNameList();renderAll(false)}
-function scenarioKeys(){return $('scenarioNames').value.split(',').map(s=>s.trim()).filter(Boolean)}
-function isScenarioEntry(e){if(e.isSystem)return false;if(!$('scenarioAsNarration').checked)return false;const low=String(e.color||'').toLowerCase();return low==='#888888'&&scenarioKeys().some(k=>e.name.startsWith(k)||e.name.includes(k))}
-function filteredEntries(){let list=entries.filter(e=>{if($('skipEmpty').checked&&e.isEmpty)return false;if($('skipDice').checked&&e.isDice)return false;if($('skipSystem').checked&&e.isSystem)return false;if(excludedNames.has(e.name))return false;return true});if($('mergeSameSpeaker').checked)list=mergeEntries(list);return list}
-function mergeEntries(list){const out=[];for(const e of list){const p=out[out.length-1];const same=p&&p.name===e.name&&p.isDice===e.isDice&&isScenarioEntry(p)===isScenarioEntry(e);if(same&&!e.isDice&&!e.isSystem){p.body=[p.body,e.body].filter(Boolean).join('\n')}else out.push({...e})}return out}
-function entryToText(e){const body=processBody(e.body);if(isScenarioEntry(e))return `■ ${e.name}\n${body}`;if(e.isSystem||e.isDice)return `【${e.name||'system'}】${body}`;return `${e.name}\n${body}`}
-function renderAll(keep=true){const list=filteredEntries();els.textEditor.value=normalizeStoryVerticalText(list.map(entryToText).join('\n\n')).trim();renderRaw(list);renderStats(list);updatePreview(keep)}
-function renderStats(list){$('statTotal').textContent=entries.length;$('statShown').textContent=list.length;$('statDice').textContent=entries.filter(e=>e.isDice).length;$('statNames').textContent=new Set(entries.map(e=>e.name).filter(Boolean)).size}
-function renderRaw(list){els.rawPreview.innerHTML=list.map(e=>`<div class="raw-item"><div class="raw-meta"><span class="dot" style="--c:${escapeHtml(e.color)}"></span><span>[${escapeHtml(e.tab)}]</span><b>${escapeHtml(e.name)}</b>${e.isDice?' <span>🎲 dice</span>':''}</div><div class="raw-body">${escapeHtml(e.body)}</div></div>`).join('')}
-function renderNameList(){const counts=new Map();const colors=new Map();for(const e of entries){if(!e.name)continue;counts.set(e.name,(counts.get(e.name)||0)+1);if(!colors.has(e.name))colors.set(e.name,e.color)}els.nameList.innerHTML='';[...counts.keys()].sort((a,b)=>a.localeCompare(b,'ja')).forEach(name=>{const role=excludedNames.has(name)?'off':pcNames.has(name)?'pc':'kp';const label=role==='pc'?'PC':role==='kp'?'KP/描写':'除外';const chip=document.createElement('div');chip.className='chip';chip.innerHTML=`<div><div class="chip-title"><span class="dot" style="--c:${escapeHtml(colors.get(name)||'#888')}"></span><b title="${escapeHtml(name)}">${escapeHtml(name)}</b></div><small>${counts.get(name)}件 / <span class="role ${role}">${label}</span></small><input type="text" value="${escapeHtml(displayNames.get(name)||name)}" aria-label="表示名"></div><div class="role-buttons"><button class="secondary small" data-role="pc">PC</button><button class="secondary small" data-role="kp">KP</button><button class="secondary small" data-role="off">除外</button></div>`;chip.querySelector('input').addEventListener('input',ev=>{displayNames.set(name,ev.target.value||name);schedulePreview()});chip.querySelectorAll('button[data-role]').forEach(btn=>btn.addEventListener('click',()=>setRole(name,btn.dataset.role)));els.nameList.appendChild(chip)})}
-function setRole(name,role){if(role==='pc'){pcNames.add(name);excludedNames.delete(name)}else if(role==='kp'){pcNames.delete(name);excludedNames.delete(name)}else{pcNames.delete(name);excludedNames.add(name)}renderNameList();renderAll(true)}
-function parseEditableBlocks(text){return String(text||'').split(/\n{2,}/).map(b=>b.trim()).filter(Boolean).map(block=>{const lines=block.split('\n');const first=lines[0]||'';if(first.startsWith('■ '))return {type:'heading',title:normalizeStoryVerticalText(first.replace(/^■\s*/,'')),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())};const callout=block.match(/^【([^】]+)】([\s\S]*)$/);if(callout)return {type:'callout',name:callout[1].trim(),body:normalizeStoryVerticalText(callout[2].trim())};return {type:'speech',name:first.trim(),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())}})}
-function isPcBlock(b){return b.type==='speech'&&pcNames.has(b.name)}
-function isNarrationBlock(b){return b.type==='heading'||(b.type==='speech'&&!pcNames.has(b.name))}
-function mergeEditableBlocks(blocks){
-  if(!$('mergeSameSpeaker') || !$('mergeSameSpeaker').checked) return blocks;
-  const out=[];
-  for(const b of blocks){
-    const p=out[out.length-1];
-    const same=p && b && p.type===b.type && p.type==='speech' && p.name===b.name;
-    if(same){
-      p.body=[p.body,b.body].filter(Boolean).join('\n');
-    }else{
-      out.push({...b});
-    }
-  }
-  return out;
-}
-function renderBlocks(blocks){
-  blocks.forEach((b,i)=>b.__idx=i);
-  const out=[];let i=0;
-  while(i<blocks.length){
-    const b=blocks[i];
-    if(isPcBlock(b)){
-      const group=[];
-      while(i<blocks.length&&isPcBlock(blocks[i]))group.push(blocks[i++]);
-      out.push(renderPcGroup(group));
-      continue;
-    }
-    if(isNarrationBlock(b)){out.push(renderNarrationBlock(b));i++;continue;}
-    out.push(renderCallout(b));i++;
-  }
-  return out.join('')
-}
-function renderPcGroup(group){return `<section class="pc-group">${group.map((b,i)=>{const prev=group[i-1];const next=group[i+1];const samePrev=prev&&prev.name===b.name;const sameNext=next&&next.name===b.name;const cls=['pc-turn'];if(samePrev)cls.push('speaker-continued');if(prev&&prev.name!==b.name)cls.push('speaker-change');if(next)cls.push('dialogue-connect');return `<div class="${cls.join(' ')}" data-block="${b.__idx}"><span class="pc-speaker">${escapeHtml(samePrev?'':(displayNames.get(b.name)||b.name))}</span><span class="pc-body preview-editable" contenteditable="true" spellcheck="false" data-block="${b.__idx}" data-field="body">${escapeHtml(b.body||'　')}</span></div>`}).join('')}</section>`}
-function renderCallout(b){
-  const label=`【${b.name||'system'}】`;
-  const raw=cleanText(b.body||'');
-  const full=b.type==='callout' ? (label+raw) : raw;
-  return `<section class="dice preview-editable" contenteditable="true" spellcheck="false" data-block="${b.__idx}" data-field="body"><span class="dice-text">${escapeHtml(full||'　')}</span></section>`;
-}
-function renderNarrationBlock(b){
-  let text='';
-  if(b.type==='heading'){
-    const title=normalizeStoryVerticalText(cleanText(b.title));
-    const body=normalizeStoryVerticalText(cleanText(b.body));
-    text=[title?`◆ ${title}`:'',body].filter(Boolean).join('\n');
-  }else{
-    text=normalizeStoryVerticalText(cleanText(b.body));
-  }
-  if(!text)return '';
-  const html=escapeHtml(text).replace(/^◆\s*([^\n]+)/,'<span class="mark">◆</span> <strong>$1</strong>');
-  return `<section class="narration preview-editable" contenteditable="true" spellcheck="false" data-block="${b.__idx}" data-field="${b.type==='heading'?'heading':'body'}">${html}</section>`;
-}
-function applySettings(){const root=els.verticalPage;root.style.setProperty('--preview-font',$('fontSize').value);root.style.setProperty('--speaker-height',$('speakerHeight').value);root.style.setProperty('--speaker-font',$('speakerFont').value);const h=$('bodyHeight').value;root.style.setProperty('--body-height',h==='auto'?'auto':h);root.style.setProperty('--turn-gap',$('turnGap').value);root.classList.toggle('horizontal',isHorizontal)}
-function updatePreview(keep=true){const shell=els.previewShell;const nearStart=shell.scrollLeft>shell.scrollWidth-shell.clientWidth-120;previewBlocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));els.verticalPage.innerHTML=renderBlocks(previewBlocks);applySettings();if(!keep||nearStart)requestAnimationFrame(scrollStart)}
-function schedulePreview(){clearTimeout(updateTimer);updateTimer=setTimeout(()=>updatePreview(true),180)}
-function scrollStart(){els.previewShell.scrollTop=0;els.previewShell.scrollLeft=els.previewShell.scrollWidth;requestAnimationFrame(()=>{els.previewShell.scrollLeft=els.previewShell.scrollWidth})}
-function blockToEditableText(b){
-  if(!b)return '';
-  if(b.type==='heading') return [`■ ${b.title||''}`, b.body||''].filter(Boolean).join('\n');
-  if(b.type==='callout'||b.type==='dice') return `【${b.name||'system'}】${b.body||''}`;
-  return [b.name||'', b.body||''].filter(Boolean).join('\n');
-}
-function blocksToEditableText(blocks){return blocks.map(blockToEditableText).filter(Boolean).join('\n\n').trim()}
-function plainTextFromEditable(el){return String(el.innerText||el.textContent||'').replace(/\u00a0/g,' ').replace(/\r/g,'').trim()}
-function applyPreviewEdit(el){
-  const idx=parseInt(el.dataset.block||'-1',10);
-  const field=el.dataset.field||'body';
-  const b=previewBlocks[idx];
-  if(!b)return;
-  let t=normalizeStoryVerticalText(plainTextFromEditable(el));
-  if(b.type==='heading' && field==='heading'){
-    t=t.replace(/^◆\s*/, '');
-    const parts=t.split(/\n/);
-    b.title=(parts.shift()||b.title||'').trim();
-    b.body=parts.join('\n').trim();
-  }else if((b.type==='callout'||b.type==='dice') && /^【[^】]+】/.test(t)){
-    const m=t.match(/^【([^】]+)】([\s\S]*)$/);
-    b.name=(m[1]||b.name||'').trim();
-    b.body=(m[2]||'').trim();
-  }else{
-    b.body=t;
-  }
-  els.textEditor.value=blocksToEditableText(previewBlocks);
-  findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';
-  updatePreview(true);
-}
-els.verticalPage.addEventListener('keydown',e=>{
-  if(e.target.closest('.preview-editable') && (e.metaKey||e.ctrlKey) && e.key==='Enter'){
-    e.preventDefault(); e.target.blur();
-  }
-});
-els.verticalPage.addEventListener('blur',e=>{const el=e.target.closest&&e.target.closest('.preview-editable');if(el)applyPreviewEdit(el)},true);
-function showDemo(){entries=[];excludedNames=new Set();pcNames=new Set(['皇 政宗','烏丸 かがみ']);displayNames=new Map([['皇 政宗','皇 政宗'],['烏丸 かがみ','烏丸 かがみ'],['KP','KP']]);els.textEditor.value=`■ 使い方\n1. ココフォリアから書き出したHTMLログを選びます。\n2. 「読み込む」を押します。\n3. 話者設定でPC/KP/除外を選びます。\n4. 必要なら編集テキストを直します。\n5. 印刷/PDFで保存します。\n\n皇 政宗\n「これは発言の例です」\n\n烏丸 かがみ\nト書きや行動描写もそのまま入れられます。\n「セリフも混ぜられます」\n\n【system】SAN : 65 → 64`;renderNameList();renderStats([]);renderRaw([]);updatePreview(false)}
-function downloadBlob(content,filename,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url)}
-async function copyEditor(){await navigator.clipboard.writeText(els.textEditor.value);alert('コピーしました')}
-function downloadText(){downloadBlob(els.textEditor.value,'ccfolia_vertical_edit.txt','text/plain;charset=utf-8')}
-function downloadHtml(){const css=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');const html=`<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title>縦書きログ</title><style>${css}\nbody{background:#fff}.page{height:240mm}
-.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
-</style></head><body><main><section class="preview-shell"><div class="page">${els.verticalPage.innerHTML}</div></section></main></body></html>`;downloadBlob(html,'ccfolia_vertical_book.html','text/html;charset=utf-8')}
+  <header>
+    <div class="wrap head">
+      <div class="top">
+        <div class="title">
+          <h1>タスクかんりシート</h1>
+        </div>
+        <div class="userBox">
+          <button class="pill profileOpen" id="loginPill" type="button" title="自分のページを開く">未ログイン</button>
+          <button id="logoutBtn" class="ghost hidden">ログアウト</button>
+        </div>
+      </div>
+      <nav id="mainNav" class="hidden">
+        <button class="active" data-view="board">今日やること</button>
+        <button data-view="calendar">今月のよてい</button>
+        <button data-view="setup">タスクのついか</button>
+      </nav>
+    </div>
+  </header>
 
+  <main class="wrap">
+    <section id="configWarning" class="panel warning hidden">
+      <h2>Supabase設定がまだです <button class="infoDot" type="button" data-info="config.js に Supabase Project URL と anon / publishable key を入れてください。">i</button></h2>
+    </section>
 
+    <section id="authView" class="panel authPanel">
+      <h2>ログイン <button class="infoDot" type="button" data-info="未ログインではタスクデータを読み込みません。先にSupabaseのSQL設定を済ませてから使ってください。">i</button></h2>
+      <div class="form two">
+        <label><small>メールアドレス</small><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"></label>
+        <label><small>パスワード</small><input id="authPassword" type="password" autocomplete="current-password" placeholder="8文字以上推奨"></label>
+      </div>
+      <div class="actions">
+        <button class="primary" id="signinBtn">ログイン</button>
+        <button class="ghost" id="signupBtn">新規登録</button>
+      </div>
+      <div id="authMsg" class="notice hidden"></div>
+    </section>
 
-function getPdfSpec(){
-  const key=($('pdfSize')&&$('pdfSize').value)||'A5';
-  const map={
-    A5:{key:'A5',name:'A5',w:148,h:210,pt:10.2,line:1.72,pad:{t:12,r:12,b:18,l:12},speakerEm:6.2,dicePt:8.6},
-    B5:{key:'B5',name:'B5',w:182,h:257,pt:10.8,line:1.76,pad:{t:14,r:14,b:20,l:14},speakerEm:6.4,dicePt:9.0},
-    B6:{key:'B6',name:'B6',w:128,h:182,pt:9.4,line:1.66,pad:{t:11,r:10,b:17,l:10},speakerEm:5.8,dicePt:8.0},
-    BUNKO:{key:'BUNKO',name:'文庫本',w:105,h:148,pt:8.6,line:1.58,pad:{t:10,r:9,b:16,l:9},speakerEm:5.4,dicePt:7.5},
-    A6:{key:'A6',name:'A6',w:105,h:148,pt:8.6,line:1.58,pad:{t:10,r:9,b:16,l:9},speakerEm:5.4,dicePt:7.5}
-  };
-  const spec=map[key]||map.A5;
-  const lineMode=($('pdfLines')&&$('pdfLines').value)||'normal';
-  // v35: v34で少しだけ横切れしたため、A5の初期列数を1列だけ減らし、左側に微小安全域を戻す。
-  // 左余白が気になる場合は最大列数を+1、切れる場合は-1で調整する。
-  const numVal=(id, fallback)=>{ const el=$(id); const n=parseFloat(el&&el.value); return Number.isFinite(n)?n:fallback; };
-  const safeRight=numVal('pdfSafeRight',2.0);
-  const safeLeft=numVal('pdfSafeLeft',2.5);
-  const safeBottom=numVal('pdfSafeBottom',4.0);
-  const contentW=spec.w-spec.pad.r-spec.pad.l-safeRight-safeLeft;
-  const contentH=spec.h-spec.pad.t-spec.pad.b-safeBottom;
-  const mmPerPt=.35278;
-  const charMm=spec.pt*mmPerPt*1.02;
-  const colMm=spec.pt*mmPerPt*spec.line*1.03;
-  spec.contentW=Math.max(10,contentW);
-  spec.contentH=Math.max(20,contentH);
-  spec.safeRight=safeRight;
-  spec.safeLeft=safeLeft;
-  spec.safeBottom=safeBottom;
-  let chars=Math.max(18, Math.floor(spec.contentH/charMm)-4);
-  if(lineMode==='tight') chars += 8;
-  if(lineMode==='safe') chars -= 2;
-  if(lineMode==='safer') chars -= 6;
-  spec.charsPerCol=Math.max(14, chars);
-  const physicalCols=Math.max(3, Math.floor(spec.contentW/colMm)-1);
-  spec.colsPerPage=physicalCols;
-  const manualPc=parseInt(($('pdfPcChars')&&$('pdfPcChars').value)||'',10);
-  spec.pcChars=Number.isFinite(manualPc) && manualPc>0 ? Math.min(48, Math.max(10, manualPc)) : 30;
-  spec.diceChars=Math.max(10, Math.floor(spec.charsPerCol*.60));
-  const defaultCaps={A5:14,B5:18,B6:11,BUNKO:8,A6:8};
-  const manualCap=parseInt(($('pdfMaxCols')&&$('pdfMaxCols').value)||'',10);
-  const wanted=Number.isFinite(manualCap)&&manualCap>0 ? manualCap : (defaultCaps[spec.key]||physicalCols);
-  spec.pageColCap=Math.max(3, Math.min(physicalCols, wanted));
-  return spec;
-}
-function cloneBlock(b){return JSON.parse(JSON.stringify(b));}
-function normalizeVerticalText(text){
-  return String(text||'')
-    .replace(/\r/g,'')
-    .replace(/[ \t]+\n/g,'\n')
-    .replace(/\n{3,}/g,'\n\n')
-    .trim();
-}
-function toFullWidthAscii(str){
-  // ダイスなど、英数字も含めて完全に全角へ寄せたい場面用。
-  return String(str||'').replace(/[!-~]/g,function(ch){return String.fromCharCode(ch.charCodeAt(0)+0xFEE0);});
-}
-function toFullWidthAsciiExceptLetters(str){
-  // ver18: 未使用。本文・セリフは normalizeStoryVerticalText で全角化します。
-  // 縦書きCSS上で英字語句が横倒しのまとまりとして出やすくなり、
-  // Call of Cthulhu などが C / . / all... のように割れるのを防ぐ。
-  return String(str||'').replace(/[!-~]/g,function(ch){
-    return /[A-Za-z]/.test(ch) ? ch : String.fromCharCode(ch.charCodeAt(0)+0xFEE0);
-  });
-}
-function halfWidthLatinLetters(str){
-  // 旧版で全角化済みの編集テキストを読み込んでも、英字だけ半角へ戻す。
-  return String(str||'').replace(/[Ａ-Ｚａ-ｚ]/g,function(ch){return String.fromCharCode(ch.charCodeAt(0)-0xFEE0);});
-}
-function toFullWidthDigits(str){
-  return String(str||'').replace(/[0-9]/g,function(d){return String.fromCharCode(d.charCodeAt(0)+0xFEE0);});
-}
-function toVerticalSafeSymbols(str){
-  return String(str||'')
-    .replace(/</g,'＜').replace(/>/g,'＞')
-    .replace(/\(/g,'（').replace(/\)/g,'）')
-    .replace(/\[/g,'［').replace(/\]/g,'］')
-    .replace(/\{/g,'｛').replace(/\}/g,'｝');
-}
-function normalizeStoryVerticalText(text){
-  // ver18: 英字も数字も記号も全角へ寄せる。
-  // 1d10 の d だけ半角で横倒しになる事故を避け、全体を縦書きで統一する。
-  return toVerticalSafeSymbols(toFullWidthAscii(normalizeVerticalText(text)));
-}
-function normalizeDiceVerticalText(text){
-  return toVerticalSafeSymbols(toFullWidthAscii(String(text||'')))
-    .replace(/=/g,'＝')
-    .replace(/\+/g,'＋').replace(/\-/g,'－')
-    .replace(/\*/g,'＊');
-}
-function splitByVerticalCapacity(text,maxChars){
-  const chunks=[];
-  let rest=normalizeVerticalText(text);
-  if(!rest) return [''];
-  while(rest.length>maxChars){
-    let cut=rest.lastIndexOf('\n\n',maxChars);
-    if(cut<Math.floor(maxChars*.55)) cut=rest.lastIndexOf('\n',maxChars);
-    if(cut<Math.floor(maxChars*.55)) cut=rest.lastIndexOf('。',maxChars);
-    if(cut<Math.floor(maxChars*.55)) cut=rest.lastIndexOf('」',maxChars);
-    if(cut<Math.floor(maxChars*.55)) cut=rest.lastIndexOf('、',maxChars);
-    if(cut<Math.floor(maxChars*.55)) cut=maxChars-1;
-    chunks.push(rest.slice(0,cut+1).trim());
-    rest=rest.slice(cut+1).trim();
-  }
-  if(rest) chunks.push(rest);
-  return chunks;
-}
-function printUnitWeight(u){
-  if(u.type==='pcRun') return Math.max(1.8,(u.bodies?.length||1)*1.65+.65);
-  if(u.type==='pc') return 1.48;
-  if(u.type==='dice') return 1.55;
-  if(u.type==='spacer') return 1.15;
-  return 1;
-}
-function pushNarrationUnits(units,text,spec,opts={}){
-  const clean=normalizeStoryVerticalText(text);
-  if(!clean) return;
-  const chunks=splitByVerticalCapacity(clean,spec.charsPerCol);
-  // 同じ文章が折り返された続きの列は、別ブロックより少し近づける。
-  chunks.forEach((chunk,i)=>units.push({type:'narration',text:chunk,heading:opts.heading&&i===0,continued:i>0}));
-}
-function pushPcUnits(units,b,spec){
-  const name=displayNames.get(b.name)||b.name||'';
-  const chunks=splitByVerticalCapacity(normalizeStoryVerticalText(b.body||'　'),spec.pcChars).filter(Boolean);
-  // v26: 1つの会話グループが横に伸びすぎると端切れするため、ページ上限よりかなり少なめで分割。
-  const maxCols=Math.max(1, Math.floor(spec.pageColCap || spec.colsPerPage));
-  for(let i=0;i<chunks.length;i+=maxCols){
-    const bodies=chunks.slice(i,i+maxCols);
-    // ページをまたいだ続きでも、読みにくくなるので話者名を再表示する。
-    units.push({type:'pcRun',name,bodies,continued:i>0});
-  }
-}
-function isRollLikeText(text){
-  return /(?:CCB|CBB|1D\d+|D100|SAN|正気度|目星|聞き耳|幸運|DEX|POW|APP|<=|＞|→)/i.test(String(text||''));
-}
-function splitFrameText(text,maxChars){
-  const chunks=[];
-  let rest=String(text||'').replace(/\s*\n+\s*/g,' ').replace(/\s{2,}/g,' ').trim();
-  if(!rest) return [];
-  const limit=Math.max(14,maxChars||28);
-  while(rest.length>limit){
-    let cut=-1;
-    const min=Math.floor(limit*.45);
-    const candidates=[') ＞','） ＞',' ＞',' →','】 ','》 ','。','、',' '];
-    for(const mark of candidates){
-      const idx=rest.lastIndexOf(mark,limit);
-      if(idx>=min){cut=idx+mark.length-1;break;}
-    }
-    if(cut<min) cut=limit-1;
-    chunks.push(rest.slice(0,cut+1).trim());
-    rest=rest.slice(cut+1).trim();
-  }
-  if(rest) chunks.push(rest);
-  return chunks;
-}
-function splitRollFrameText(text,spec){
-  const full=String(text||'').replace(/\s*\n+\s*/g,' ').replace(/\s{2,}/g,' ').trim();
-  if(!full) return [];
-  // ダイス結果は「式」「(1D100...)」「成功/失敗」を別枠に分けると読みにくいので、
-  // A5でも収まる長さまでは必ず1本の枠に入れる。
-  const keepLimit=Math.max(92, Math.floor((spec.charsPerCol||60)*1.55));
-  if(full.length<=keepLimit) return [full];
-  // かなり長い特殊ダイスだけ分割する。ただし「＞ 成功/失敗」直前では切らない。
-  const protectedText=full.replace(/＞\s*(成功|失敗|スペシャル|クリティカル|ファンブル|決定的成功|致命的失敗)/g,'＞\u00a0$1');
-  return splitFrameText(protectedText,keepLimit).map(x=>x.replace(/\u00a0/g,' '));
-}
-function pushCalloutUnits(units,b,spec){
-  const label=`【${b.name||'system'}】`;
-  const raw=normalizeVerticalText(b.body||'');
-  const source=(label + (raw?(' '+raw):'')).replace(/\s*\n+\s*/g,' ').replace(/\s{2,}/g,' ').trim();
-  const roll=isRollLikeText(source);
-  const full=roll ? normalizeDiceVerticalText(source) : source;
-  // ダイス結果は基本的に1本。パネル文・長文calloutだけ分割。
-  const chunks=roll ? splitRollFrameText(full,spec) : splitFrameText(full, Math.max(22, spec.diceChars||22));
-  chunks.forEach((chunk,i)=>units.push({type:'dice',text:chunk,continued:i>0,roll}));
-}
-function pushPcRunFromBodies(units,name,bodyList,spec,meta={}){
-  const display=displayNames.get(name)||name||'';
-  const joined=bodyList.map(x=>normalizeStoryVerticalText(x||'　')).filter(Boolean).join('\n');
-  const chunks=splitByVerticalCapacity(joined||'　',spec.pcChars).filter(Boolean);
-  const maxCols=Math.max(1, Math.floor(spec.pageColCap || spec.colsPerPage));
-  for(let i=0;i<chunks.length;i+=maxCols){
-    const bodies=chunks.slice(i,i+maxCols);
-    units.push({
-      type:'pcRun',
-      name:display,
-      bodies,
-      continued:i>0,
-      dialogue:!!meta.dialogue,
-      dialogueStart:!!meta.dialogueStart && i===0,
-      dialogueEnd:!!meta.dialogueEnd && i+maxCols>=chunks.length,
-      speakerChange:!!meta.speakerChange && i===0
-    });
-  }
-}
-function flushPcDialogue(units,dialogue,spec){
-  if(!dialogue.length) return;
-  const runs=[];
-  for(const b of dialogue){
-    const last=runs[runs.length-1];
-    if(last && last.name===b.name){
-      last.bodies.push(b.body||'　');
-    }else{
-      runs.push({name:b.name,bodies:[b.body||'　']});
-    }
-  }
-  runs.forEach((r,i)=>pushPcRunFromBodies(units,r.name,r.bodies,spec,{
-    dialogue:true,
-    dialogueStart:i===0,
-    dialogueEnd:i===runs.length-1,
-    speakerChange:i>0
-  }));
-}
-function blocksToPrintUnits(blocks,spec){
-  const units=[];
-  let dialogue=[];
-  const flush=()=>{flushPcDialogue(units,dialogue,spec);dialogue=[];};
-  for(const b of blocks){
-    if(b.type==='speech'&&pcNames.has(b.name)){
-      dialogue.push(b);
-      continue;
-    }
-    flush();
-    if(b.type==='heading'){
-      const title=normalizeStoryVerticalText(b.title);
-      const body=normalizeStoryVerticalText(b.body);
-      pushNarrationUnits(units,[title?`◆ ${title}`:'',body].filter(Boolean).join('\n'),spec,{heading:true});
-    }else if(b.type==='callout'||b.type==='dice'){
-      pushCalloutUnits(units,b,spec);
-    }else if(b.type==='speech'){
-      pushNarrationUnits(units,b.body,spec);
-    }
-  }
-  flush();
-  return units;
-}
-function unitColumnWidth(u){
-  if(u.type==='pcRun') return Math.max(1, (u.bodies||[]).length);
-  if(u.type==='pc') return 1;
-  if(u.type==='dice') return 1.25;
-  if(u.type==='spacer') return .65;
-  return 1;
-}
-function pushPageIfNeeded(pages,cur){
-  if(cur.length) pages.push(cur.slice());
-}
-function ensureMeasureCss(spec){
-  let iframe=document.getElementById('measureFrame');
-  if(!iframe){
-    iframe=document.createElement('iframe');
-    iframe.id='measureFrame';
-    iframe.style.position='fixed';
-    iframe.style.left='-100000px';
-    iframe.style.top='0';
-    iframe.style.width='1px';
-    iframe.style.height='1px';
-    iframe.style.border='0';
-    iframe.setAttribute('aria-hidden','true');
-    document.body.appendChild(iframe);
-  }
-  const doc=iframe.contentDocument||iframe.contentWindow.document;
-  const css=printCss(spec).replace(/@page\{[^}]*\}/,'');
-  doc.open();
-  doc.write(`<!doctype html><html><head><meta charset="UTF-8"><style>${css} .print-page{page-break-after:auto!important;break-after:auto!important;}
-.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
-</style></head><body></body></html>`);
-  doc.close();
-}
-function makeMeasurePage(units,spec){
-  const iframe=document.getElementById('measureFrame');
-  const doc=iframe.contentDocument||iframe.contentWindow.document;
-  doc.body.innerHTML=`<section class="print-page"><div class="print-content">${units.map(renderPrintUnit).join('')}</div><div class="page-mark">-0P-</div></section>`;
-  return doc.querySelector('.print-page');
-}
-function pageFitsUnits(units,spec){
-  if(!units.length) return true;
-  const pg=makeMeasurePage(units,spec);
-  const pr=pg.getBoundingClientRect();
-  const nodes=[...pg.querySelectorAll('.print-content > *')];
-  const rects=nodes.map(n=>n.getBoundingClientRect()).filter(r=>r.width>0&&r.height>0);
-  if(!rects.length) return true;
-  let left=Infinity,right=-Infinity;
-  for(const r of rects){left=Math.min(left,r.left);right=Math.max(right,r.right);}
-  // 左端の切れを防ぐ。右側は縦書きの開始側なので接しても許容する。
-  const safe=2;
-  return left >= pr.left + safe;
-}
-function splitPcRunToFit(u,cur,pages,spec){
-  const bodies=(u.bodies||[]).filter(Boolean);
-  let idx=0;
-  while(idx<bodies.length){
-    let maxTake=bodies.length-idx;
-    let chosen=null;
-    for(let take=maxTake; take>=1; take--){
-      const seg={...u,bodies:bodies.slice(idx,idx+take),continued:!!(u.continued||idx>0)};
-      // ページをまたぐ続きでも話者名は再表示する。
-      seg.name=u.name||seg.name||'';
-      if(idx>0) seg.dialogueStart=true;
-      if(idx+take<bodies.length) seg.dialogueEnd=false;
-      if(pageFitsUnits(cur.concat([seg]),spec)){chosen=seg;break;}
-    }
-    if(chosen){cur.push(chosen); idx+=chosen.bodies.length; continue;}
-    if(cur.length){pages.push(cur.slice()); cur.length=0; continue;}
-    // 1列でも入らない場合は、無限ループ回避のため1列だけ置く。
-    const forced={...u,bodies:bodies.slice(idx,idx+1),continued:!!(u.continued||idx>0),name:u.name||'',dialogueStart:idx>0?true:u.dialogueStart,dialogueEnd:idx+1>=bodies.length?u.dialogueEnd:false};
-    cur.push(forced); idx+=1;
-  }
-}
-function paginatePrintUnits(units,spec){
-  // v42: 決め打ち列数ではなく、実際の印刷ページDOMに置いて「切れる直前」で改ページする。
-  ensureMeasureCss(spec);
-  const pages=[];
-  let cur=[];
-  for(const u of units){
-    if(u.type==='spacer' && !cur.length) continue;
-    if(u.type==='pcRun'){
-      splitPcRunToFit(u,cur,pages,spec);
-      continue;
-    }
-    if(pageFitsUnits(cur.concat([u]),spec)){
-      cur.push(u);
-    }else{
-      if(cur.length){pages.push(cur.slice());cur=[];}
-      if(u.type==='spacer') continue;
-      cur.push(u);
-      // 単体でもはみ出す場合はそのまま置く。次の要素は次ページで再判定する。
-    }
-  }
-  if(cur.length) pages.push(cur.slice());
-  const host=document.getElementById('measureHost');
-  if(host) host.innerHTML='';
-  return pages.length?pages:[[]];
-}
-function paginateBlocksByEstimate(blocks){
-  const spec=getPdfSpec();
-  return paginatePrintUnits(blocksToPrintUnits(blocks,spec),spec);
-}
-function renderPrintUnit(u){
-  if(u.type==='spacer') return `<section class="print-spacer"></section>`;
-  if(u.type==='pcRun'){
-    const classes=['print-pc-run'];
-    if(u.continued) classes.push('continued');
-    if(u.dialogue) classes.push('dialogue');
-    if(u.dialogueStart) classes.push('dialogue-start');
-    if(u.dialogueEnd) classes.push('dialogue-end');
-    if(u.speakerChange) classes.push('speaker-change');
-    const bodies=(u.bodies||[]).map(body=>`<span class="print-pc-col"><span class="print-body-col">${escapeHtml(normalizeStoryVerticalText(body||'　'))}</span></span>`).join('');
-    return `<section class="${classes.join(' ')}"><span class="print-speaker print-speaker-run">${escapeHtml(u.name||'　')}</span><span class="print-run-rule"></span><span class="print-bodies">${bodies}</span></section>`;
-  }
-  if(u.type==='pc'){
-    const empty=u.name?'':' empty';
-    const cont=u.continued?' continued':'';
-    return `<section class="print-pc${cont}"><span class="print-speaker${empty}">${escapeHtml(u.name||'　')}</span><span class="print-body">${escapeHtml(normalizeStoryVerticalText(u.body))}</span></section>`;
-  }
-  if(u.type==='dice'){
-    const cls=`print-dice${u.continued?' continued':''}${u.roll?' roll':''}`;
-    return `<section class="${cls}"><span>${escapeHtml(u.roll?normalizeDiceVerticalText(u.text):normalizeStoryVerticalText(u.text))}</span></section>`;
-  }
-  const html=escapeHtml(u.text).replace(/^◆\s*([^\n]+)/,'<span class="print-mark">◆</span><strong>$1</strong>');
-  const cls = `print-narration${u.heading?' heading':''}${u.continued?' continued':''}`;
-  return `<section class="${cls}">${html}</section>`;
-}
-function printCss(spec){
-  const p=spec.pad;
-  return `
-@page{size:${spec.w}mm ${spec.h}mm;margin:0;}
-html,body{margin:0;padding:0;background:#fff;color:#171410;}
-body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
-.print-page{width:${spec.w}mm;height:${spec.h}mm;padding:${p.t}mm ${p.r}mm ${p.b}mm ${p.l}mm;margin:0;position:relative;overflow:hidden;background:#fff;box-sizing:border-box;page-break-after:always;break-after:page;}
-.print-page:last-child{page-break-after:auto;break-after:auto;}
-.print-content{width:100%;height:100%;display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;gap:.52em;overflow:hidden;background:#fff;box-sizing:border-box;color:#171410;font-size:${spec.pt}pt;line-height:${spec.line};letter-spacing:.015em;padding-left:${spec.safeLeft}mm;padding-right:${spec.safeRight}mm;padding-bottom:${spec.safeBottom}mm;}
-.print-narration{height:100%;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;line-height:${spec.line};font-size:${spec.pt}pt;box-sizing:border-box;flex:0 0 auto;overflow:hidden;}
-.print-narration.continued{margin-right:-.72em;}
-.print-narration strong{font-weight:900;}
-.print-mark{color:#8d7444;font-size:.72em;font-weight:900;}
-.print-spacer{height:100%;width:1.45em;flex:0 0 1.45em;}
-.print-pc{height:100%;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;writing-mode:horizontal-tb;flex:0 0 auto;box-sizing:border-box;break-inside:avoid;page-break-inside:avoid;position:relative;}
-.print-pc::after{content:"";position:absolute;left:0;right:0;top:${spec.speakerEm+.18}em;border-top:1.35px solid rgba(35,31,27,.55);}
-.print-pc-run{height:100%;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;writing-mode:horizontal-tb;flex:0 0 auto;box-sizing:border-box;break-inside:avoid;page-break-inside:avoid;margin-left:.18em;position:relative;width:max-content;max-width:100%;}
-.print-pc-run.continued{margin-right:0;}
-.print-pc-run.speaker-change{margin-left:.54em;}
-.print-speaker-run{align-self:flex-end;}
-.print-run-rule{display:block;align-self:stretch;width:100%;height:0;border-top:1.35px solid rgba(35,31,27,.55);margin:.16em 0 .34em;box-sizing:border-box;}
-.print-pc-run.dialogue:not(.dialogue-start) .print-run-rule{margin-right:-.58em;width:calc(100% + .58em);}
-.print-pc-run.dialogue:not(.dialogue-end) .print-run-rule{margin-left:-.58em;width:calc(100% + .58em);}
-.print-pc-run.dialogue:not(.dialogue-start):not(.dialogue-end) .print-run-rule{width:calc(100% + 1.16em);}
-.print-pc-run.speaker-change .print-run-rule{margin-right:-1.05em;}
-.print-bodies{display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;gap:0;writing-mode:horizontal-tb;width:max-content;}
-.print-pc-col{height:100%;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;writing-mode:horizontal-tb;flex:0 0 auto;box-sizing:border-box;margin:0;}
-.print-body-col{display:block;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;line-height:1.62;font-size:${spec.pt}pt;width:1.75em;min-width:1.75em;height:calc(100% - ${spec.speakerEm+1.25}em);max-height:calc(100% - ${spec.speakerEm+1.25}em);margin:0;padding:.16em 0 0;box-sizing:border-box;border-top:0;overflow:hidden;overflow-wrap:anywhere;word-break:normal;}
-.print-speaker{display:block;writing-mode:vertical-rl;text-orientation:mixed;font-weight:900;font-size:.82em;line-height:1.48;letter-spacing:.07em;min-height:${spec.speakerEm}em;min-width:1.75em;width:1.75em;margin:0;padding:0;text-align:start;box-sizing:border-box;}
-.print-body{display:block;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;line-height:1.70;font-size:${spec.pt}pt;min-width:1.75em;width:1.75em;height:calc(100% - ${spec.speakerEm+.75}em);max-height:calc(100% - ${spec.speakerEm+.75}em);margin:0;padding:.54em 0 0;box-sizing:border-box;border-top:0;overflow:hidden;overflow-wrap:anywhere;word-break:normal;}
+    <section id="appView" class="hidden">
+      <section id="board" class="view active">
+        <div class="todayHero">
+          <div class="date dateTime" id="heroDate">----</div>
+        </div>
+        <div class="tabs" id="memberTabs"></div>
+        <div id="boardNotice" class="notice ok"></div>
+        <div class="activitySummary" id="activitySummary"></div>
+        <div class="grid">
+          <section class="panel boardPanel">
+            <div class="scheduleNav">
+              <button class="scheduleMove" id="schedulePrev" title="前の日へ">&lt;&lt;</button>
+              <span class="scheduleTitle" id="scheduleTitle">今日のスケジュール</span>
+              <button class="scheduleMove" id="scheduleNext" title="次の日へ">&gt;&gt;</button>
+            </div>
+            <details class="panelDetails compactTool organizeTool">
+              <summary>未完了タスクを今から入れ直す <button class="infoDot" type="button" data-info="対象は、単発・持ち越し・分割タスク・過去に残った未完了タスクです。毎日/毎週/毎月の繰り返しタスク、睡眠、稼働不可、仕事時間は入れ直し対象にしません。">i</button></summary>
+              <div class="organizeBox">
+                <div class="organizeActions">
+                  <button class="primary" type="button" id="reflowFromTodayBtn">未完了タスクを今から入れ直す</button>
+                </div>
+                <div id="organizeMsg" class="notice hidden"></div>
+              </div>
+            </details>
+            <details class="panelDetails compactTool sleepTool" open>
+              <summary>睡眠時間 <button class="infoDot" type="button" data-info="寝る時間・起きる時間を一時的にずらしたいときに使います。タイムライン上では灰色のすいみん予定として表示されます。">i</button></summary>
+              <div class="form two compactForm">
+                <label><small>寝る時間</small><input type="time" step="600" id="boardSleepStart" value="02:00"></label>
+                <label><small>起きる時間</small><input type="time" step="600" id="boardSleepEnd" value="09:00"></label>
+              </div>
+              <div class="actions compactActions">
+                <button class="primary" type="button" id="saveBoardSleepBtn">反映</button>
+                <button class="ghost" type="button" id="resetBoardSleepBtn">デフォルトに戻す</button>
+              </div>
+              <div id="sleepSaveMsg" class="notice hidden"></div>
+              <div id="planMsg" class="notice ok"></div>
+            </details>
+            <div class="timelineBox" id="timelineBox"><div id="timeline" class="timeline"></div></div>
+          </section>
+          <aside>
+            <details class="panel sideDetails" open>
+              <summary>差し込みタスク <button class="infoDot" type="button" data-info="急に入った作業を、カテゴリ・プロジェクトを選んで今日のタスクとして追加できます。">i</button></summary>
+              <div class="quickAddBox">
+                <div class="form two">
+                  <label><small>カテゴリ</small><select id="quickCategory"></select></label>
+                  <label><small>プロジェクト</small><select id="quickProject"></select></label>
+                </div>
+                <label><small>タスク候補</small><select id="quickCandidate"></select></label>
+                <label><small>タスク名</small><input id="quickTitle" placeholder="急ぎの依頼・今日やるメモ"></label>
+                <div class="form two">
+                  <label><small>見積もり時間</small><input id="quickMinutes" type="number" min="10" step="10" placeholder="分"></label>
+                  <label><small>期限</small><input id="quickDue" type="date"></label>
+                </div>
+                <label><small>メモ</small><textarea id="quickMemo" placeholder="確認先、注意点など"></textarea></label>
+                <button class="primary" id="quickAddBtn">今日に差し込む</button>
+              </div>
+            </details>
+            <details class="panel sideDetails" open>
+              <summary>持ち越しタスク <button class="infoDot" type="button" data-info="タイムラインのタスクをここへドラッグすると、選択中の日付の持ち越しタスクになります。">i</button></summary>
+              <div class="carryNav simple">
+                <button class="carryMove" id="carryPrev" title="前の日へ">&lt;&lt;</button>
+                <span class="carryDateText" id="carryDateText">----/--/--</span>
+                <button class="carryMove" id="carryNext" title="次の日へ">&gt;&gt;</button>
+              </div>
+              <div class="dateHint" id="carryRelative">(明日)</div>
+              <div class="dropzone" id="carryDrop">
+                <div class="list" id="carryList"></div>
+              </div>
+            </details>
+          </aside>
+        </div>
+      </section>
 
-.print-speaker.empty{visibility:hidden!important;}
-.print-pc.continued{margin-right:-.15em;}
-.print-dice{height:auto;max-height:100%;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.dicePt}pt;line-height:1.48;font-weight:700;color:#4f463c;border:1.15px solid rgba(95,86,74,.74);border-radius:7px;background:#fff;padding:.42em .32em;box-sizing:border-box;flex:0 0 auto;overflow:visible;overflow-wrap:normal;word-break:keep-all;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.print-dice.continued{margin-right:-.45em;}
-.print-dice.roll{font-size:${Math.max(6.7,spec.dicePt-.75)}pt;line-height:1.24;overflow-wrap:normal;word-break:keep-all;white-space:nowrap;max-height:none!important;overflow:visible!important;}
-.page-mark{position:absolute;left:50%;bottom:5mm;transform:translateX(-50%);width:max-content;text-align:center;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb;}
-`;
-}
-function buildPrintPagesHtml(pages){
-  return pages.map((page,i)=>`<section class="print-page" data-page="${i+1}"><div class="print-content">${page.map(renderPrintUnit).join('')}</div><div class="page-mark">-${i+1}P-</div></section>`).join('');
-}
-function preparePrintHost(){
-  updatePreview(true);
-  const blocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));
-  const spec=getPdfSpec();
-  const pages=paginatePrintUnits(blocksToPrintUnits(blocks,spec),spec);
-  const host=document.getElementById('printHost');
-  host.innerHTML=buildPrintPagesHtml(pages);
-  let style=document.getElementById('dynamicPrintPageStyle');
-  if(!style){style=document.createElement('style');style.id='dynamicPrintPageStyle';document.head.appendChild(style);}
-  style.textContent=`@media print{${printCss(spec)} body>*:not(#printHost){display:none!important;} #printHost{display:block!important;margin:0!important;padding:0!important;background:#fff!important;} }`;
-  return {pages,spec};
-}
-function makePrintDocument(pages,spec,mode='print'){
-  const screenCss = mode==='preview' ? `
-html,body{background:#d9d9d9!important;}
-body{padding:18px!important;box-sizing:border-box;}
-.print-page{margin:0 auto 18px!important;box-shadow:0 6px 22px rgba(0,0,0,.18);page-break-after:auto!important;break-after:auto!important;}
-` : '';
-  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title></title><style>${printCss(spec)}${screenCss}
-.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
-</style></head><body>${buildPrintPagesHtml(pages)}</body></html>`;
-}
-function printPdf(){
-  const {pages,spec}=preparePrintHost();
-  const old=document.getElementById('printFrame');
-  if(old) old.remove();
-  const iframe=document.createElement('iframe');
-  iframe.id='printFrame';
-  iframe.style.position='fixed';
-  iframe.style.right='0';
-  iframe.style.bottom='0';
-  iframe.style.width='0';
-  iframe.style.height='0';
-  iframe.style.border='0';
-  document.body.appendChild(iframe);
-  const doc=iframe.contentDocument||iframe.contentWindow.document;
-  doc.open();
-  doc.write(makePrintDocument(pages,spec));
-  doc.close();
-  setTimeout(()=>{iframe.contentWindow.focus();iframe.contentWindow.print();},250);
-}
-function downloadPrintHtml(){
-  const blocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));
-  const spec=getPdfSpec();
-  const pages=paginatePrintUnits(blocksToPrintUnits(blocks,spec),spec);
-  downloadBlob(makePrintDocument(pages,spec),'ccfolia_vertical_print_only_v41.html','text/html;charset=utf-8');
-}
-let currentPrintPreviewPage=1;
-function buildPrintPreview(){
-  updatePreview(true);
-  const blocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));
-  const spec=getPdfSpec();
-  const pages=paginatePrintUnits(blocksToPrintUnits(blocks,spec),spec);
-  const frame=$('printPreviewFrame');
-  if(frame){ frame.srcdoc=makePrintDocument(pages,spec,'preview'); }
-  currentPrintPreviewPage=1;
-  const status=$('printPreviewStatus');
-  if(status){ status.textContent=`${spec.name} / ${pages.length}P / 最大${spec.pageColCap}列`; }
-  return {pages,spec};
-}
-function scrollPrintPreviewPage(delta){
-  const frame=$('printPreviewFrame');
-  if(!frame || !frame.contentWindow) return;
-  const doc=frame.contentDocument;
-  const pages=[...doc.querySelectorAll('.print-page')];
-  if(!pages.length) return;
-  currentPrintPreviewPage=Math.max(1,Math.min(pages.length,currentPrintPreviewPage+delta));
-  pages[currentPrintPreviewPage-1].scrollIntoView({block:'start',inline:'nearest'});
-  const status=$('printPreviewStatus');
-  if(status){
-    const base=status.textContent.replace(/\s*\/\s*表示:.*/, '');
-    status.textContent=`${base} / 表示:${currentPrintPreviewPage}P`;
-  }
-}
-function schedulePrintPreview(){
-  clearTimeout(window.__printPreviewTimer);
-  window.__printPreviewTimer=setTimeout(()=>{
-    if($('printPreviewFrame')) buildPrintPreview();
-  },350);
-}
-let findMatches=[];
-let findIndex=-1;
-function refreshFindResults(reset=true){
-  const q=$('findText').value;
-  const box=$('findResults');
-  findMatches=[];
-  findIndex=-1;
-  if(!q){
-    $('findCounter').textContent='0 / 0';
-    $('findNote').textContent='検索する言葉を入れてください。';
-    box.innerHTML='';
-    return;
-  }
-  const text=els.textEditor.value;
-  let pos=0;
-  while(true){
-    const idx=text.indexOf(q,pos);
-    if(idx<0)break;
-    findMatches.push({start:idx,end:idx+q.length});
-    pos=idx+Math.max(q.length,1);
-  }
-  if(!findMatches.length){
-    $('findCounter').textContent='0 / 0';
-    $('findNote').textContent=`「${q}」は見つかりませんでした。`;
-    box.innerHTML='';
-    return;
-  }
-  const caret=els.textEditor.selectionStart||0;
-  let nearest=findMatches.findIndex(m=>m.start>=caret);
-  if(nearest<0)nearest=0;
-  findIndex=reset?nearest:Math.max(0,Math.min(findIndex,findMatches.length-1));
-  renderFindResultList();
-  selectFindMatch(findIndex,false);
-}
-function makeFindSnippet(m){
-  const text=els.textEditor.value;
-  const q=$('findText').value;
-  const s=Math.max(0,m.start-32);
-  const e=Math.min(text.length,m.end+48);
-  return `${s>0?'…':''}${text.slice(s,m.start)}【${text.slice(m.start,m.end)}】${text.slice(m.end,e)}${e<text.length?'…':''}`.replace(/\n/g,' / ');
-}
-function renderFindResultList(){
-  const q=$('findText').value;
-  $('findCounter').textContent=findMatches.length?`${findIndex+1} / ${findMatches.length}`:'0 / 0';
-  const box=$('findResults');
-  box.innerHTML='';
-  if(findMatches.length){
-    const around=[];
-    const start=Math.max(0,findIndex-3);
-    const end=Math.min(findMatches.length,start+9);
-    for(let n=start;n<end;n++){
-      const btn=document.createElement('button');
-      btn.type='button';
-      btn.className='find-hit'+(n===findIndex?' active':'');
-      btn.innerHTML=`<span class="find-context">${n+1}.</span> ${escapeHtml(makeFindSnippet(findMatches[n]))}`;
-      btn.addEventListener('click',()=>selectFindMatch(n));
-      box.appendChild(btn);
-    }
-  }
-  $('findNote').textContent=findMatches.length
-    ? `「${q}」が${findMatches.length}件見つかりました。上の候補クリック、前/次ボタン、Enterで移動できます。`
-    : '検索する言葉を入れてください。';
-}
-function selectFindMatch(i,focus=true){
-  if(!findMatches.length)return;
-  findIndex=(i+findMatches.length)%findMatches.length;
-  const m=findMatches[findIndex];
-  const ta=els.textEditor;
-  if(focus) ta.focus({preventScroll:true});
-  ta.setSelectionRange(m.start,m.end);
-  // textarea内の候補が見えない時でも、近くの検索結果欄に文脈を表示する。
-  // scrollTopは行数ベースで概算。検索結果欄の候補クリックで位置確認できるようにする。
-  const before=ta.value.slice(0,m.start);
-  const line=before.split('\n').length;
-  const lineHeight=parseFloat(getComputedStyle(ta).lineHeight)||24;
-  ta.scrollTop=Math.max(0,(line-4)*lineHeight);
-  $('findCounter').textContent=`${findIndex+1} / ${findMatches.length}`;
-  renderFindResultList();
-}
-function findInEditor(){refreshFindResults(true)}
-function nextFindMatch(){if(!findMatches.length)refreshFindResults(true);else selectFindMatch(findIndex+1)}
-function prevFindMatch(){if(!findMatches.length)refreshFindResults(true);else selectFindMatch(findIndex-1)}
-function replaceNextInEditor(){
-  const q=$('findText').value;
-  const r=$('replaceText').value;
-  if(!q){$('findNote').textContent='検索する言葉を入れてください。';return;}
-  if(!findMatches.length)refreshFindResults(true);
-  if(!findMatches.length)return;
-  const m=findMatches[findIndex];
-  const ta=els.textEditor;
-  ta.value=ta.value.slice(0,m.start)+r+ta.value.slice(m.end);
-  ta.setSelectionRange(m.start,m.start+r.length);
-  updatePreview(true);
-  refreshFindResults(false);
-  $('findNote').textContent='現在の1件を置換しました。';
-}
-function replaceAllInEditor(deleteMode=false){
-  const q=$('findText').value;
-  const r=deleteMode?'':$('replaceText').value;
-  if(!q){$('findNote').textContent='検索する言葉を入れてください。';return;}
-  const count=els.textEditor.value.split(q).length-1;
-  if(count<=0){$('findNote').textContent=`「${q}」は見つかりませんでした。`;return;}
-  els.textEditor.value=els.textEditor.value.split(q).join(r);
-  updatePreview(true);
-  refreshFindResults(true);
-  $('findNote').textContent=`${count}件${deleteMode?'削除':'置換'}しました。`;
-}
+      <section id="calendar" class="view">
+        <section class="panel">
+          <div class="calendarTop">
+            <label><small>表示月</small><input type="month" id="calendarMonth"></label>
+            <button class="ghost" id="calendarThisMonth">今月</button>
+          </div>
+        </section>
+        <details class="panel sideDetails" id="icsImportPanel">
+          <summary>Googleカレンダーを読み込む <button class="infoDot" type="button" data-info="Googleカレンダーから書き出した .ics ファイルを読み込んで、予定を稼働不可時間として取り込めます。zipで出た場合は、先に解凍して中の .ics を選んでください。">i</button></summary>
+          <div class="icsImportBox">
+            <label><small>.icsファイル</small><input type="file" id="icsFileInput" accept=".ics,text/calendar"></label>
+            <button class="primary" id="icsParseBtn" type="button">予定を読み込む</button>
+          </div>
+          <div id="icsImportMsg" class="notice hidden"></div>
+          <div id="icsPreview" class="icsPreview"></div>
+          <div class="actions hidden" id="icsImportActions">
+            <button class="ghost" id="icsSelectAllBtn" type="button">全部選択</button>
+            <button class="ghost" id="icsClearAllBtn" type="button">選択解除</button>
+            <button class="primary" id="icsImportBtn" type="button">選んだ予定を稼働不可として取り込む</button>
+          </div>
+        </details>
+        <section class="panel"><h2>日付別の予定量 <button class="infoDot" type="button" data-info="日付ごとの予定量と稼働不可を確認できます。日付をクリックすると、その日のタスク一覧を確認できます。">i</button></h2><div class="monthGrid" id="monthGrid"></div></section>
+        <section class="panel" id="selectedDayPanel"><h2><span id="selectedDayTitle">選択日の予定</span> <button class="infoDot" type="button" data-info="カレンダーで選んだ日のタスクと稼働不可を、日別カードで確認できます。タイムラインで細かく調整したい時は「タイムラインで調整」を押してください。">i</button></h2><div id="selectedDayTasks" class="selectedDayTasks"></div></section>
+        <details class="panel sideDetails">
+          <summary>稼働できない日・時間 <button class="infoDot" type="button" data-info="稼働不可の追加・解除は、右上の自分の名前から開く「自分のページ」で管理できます。">i</button></summary>
+          <button class="ghost" type="button" id="openProfileFromCalendar">自分のページで管理する</button>
+        </details>
+        <details class="panel sideDetails" open><summary>メンバー別・今月のタスク <button class="infoDot" type="button" data-info="メンバーごとの今月のタスク数と進行度をカテゴリ/プロジェクト単位で確認できます。">i</button></summary><div class="memberSummary" id="memberSummary"></div></details>
+      </section>
 
-/* v43: A5ログ本向け・固定スロット絶対配置PDF
-   PDFページ内の横位置をJSで決め、各列を絶対配置する。
-   flex/overflow測定に頼らないため、ページ左端の切れと大余白を抑える。 */
-function numVal(id, fallback){ const el=$(id); const n=parseFloat(el&&el.value); return Number.isFinite(n)?n:fallback; }
-function getAbsSpec(){
-  const base=getPdfSpec();
-  const safeLeft=numVal('pdfSafeLeft',1.5);
-  const safeRight=numVal('pdfSafeRight',1.5);
-  const safeBottom=numVal('pdfSafeBottom',2.5);
-  const manualMax=parseInt(($('pdfMaxCols')&&$('pdfMaxCols').value)||'',10);
-  const defaultMax={A5:14,B5:17,B6:11,BUNKO:8,A6:8}[base.key]||14;
-  const maxCols=Math.max(3, Math.min(26, Number.isFinite(manualMax)?manualMax:defaultMax));
-  const spec={...base};
-  spec.pad={...base.pad};
-  spec.safeLeft=safeLeft;
-  spec.safeRight=safeRight;
-  spec.safeBottom=safeBottom;
-  spec.maxCols=maxCols;
-  spec.pageColCap=maxCols;
-  spec.innerX=spec.pad.l+safeLeft;
-  spec.innerY=spec.pad.t;
-  spec.innerW=Math.max(40, spec.w-spec.pad.l-spec.pad.r-safeLeft-safeRight);
-  spec.innerH=Math.max(40, spec.h-spec.pad.t-spec.pad.b-safeBottom);
-  spec.slotPitch=spec.innerW/maxCols;
-  spec.colW=Math.max(3.9, Math.min(6.6, spec.slotPitch*.62));
-  spec.diceW=Math.max(5.3, Math.min(8.4, spec.slotPitch*.86));
-  // v44: 同じ文章が折り返された続き列は詰める。別ブロック同士は適度に離す。
-  spec.normalGap=Math.max(1.6, Math.min(3.0, spec.slotPitch-spec.colW));
-  spec.continuedGap=Math.max(.15, Math.min(.65, spec.normalGap*.28));
-  spec.diceGap=Math.max(1.4, Math.min(2.6, spec.normalGap*.9));
-  spec.speakerH=Math.max(18, Math.min(28, spec.speakerEm*spec.pt*.35278*.78));
-  spec.lineGap=2.0;
-  spec.bodyTop=spec.innerY+spec.speakerH+spec.lineGap;
-  spec.bodyH=Math.max(30, spec.innerH-spec.speakerH-Math.max(.6,spec.lineGap*.45));
-  const pcManual=parseInt(($('pdfPcChars')&&$('pdfPcChars').value)||'',10);
-  const mmPerPt=.35278;
-  const charMm=spec.pt*mmPerPt*1.02;
-  const maxByHeight=Math.max(12, Math.floor(spec.bodyH/charMm)-1);
-  const defaultPc=Math.min(maxByHeight, base.key==='A5'?42:Math.max(22,maxByHeight-1));
-  spec.pcChars=Number.isFinite(pcManual)&&pcManual>0 ? Math.max(8,Math.min(maxByHeight,pcManual)) : defaultPc;
-  // v70: 本文・見出し列の文字欠け防止。
-  // 縦書きの記号・URL・箇条書きは実際の描画高さが単純な文字数より大きくなるため、
-  // 文字数上限を安全側に下げる。ここを攻めすぎると overflow:hidden で文章が飛んで見える。
-  const lineModeForNarr=($('pdfLines')&&$('pdfLines').value)||'safe';
-  const narrSafety={tight:1.08,normal:1.18,safe:1.30,safer:1.42}[lineModeForNarr]||1.30;
-  spec.narrChars=Math.max(12, Math.floor(spec.innerH/(charMm*narrSafety))-2);
-  // v45: 枠付き表示は余裕を持って分割する。枠の上下余白・罫線ぶんを差し引く。
-  spec.diceChars=Math.max(18, Math.floor(spec.innerH/(spec.dicePt*mmPerPt*1.48))-2);
-  // v49: ダイス結果は「数値 ＞ 成功/失敗」を分離させないため、通常枠より小さめの文字で多めに入れる。
-  const rollPt=Math.max(6.8, spec.dicePt-.9);
-  spec.rollDiceChars=Math.max(96, spec.diceChars+18, Math.floor(spec.innerH/(rollPt*mmPerPt*1.05))-1);
-  return spec;
-}
-function visualColumnUnits(text){
-  let n=0;
-  const s=String(text||'');
-  for(let i=0;i<s.length;i++){
-    const ch=s[i];
-    if(ch==='\r') continue;
-    if(ch==='\n') { n+=2.65; continue; }
-    if(/[ 　\t]/.test(ch)) { n+=.55; continue; }
-    if(/[、。，．・：；！？!?,.]/.test(ch)) { n+=.82; continue; }
-    if(/[「」『』（）［］【】＜＞《》〈〉“”\[\]()]/.test(ch)) { n+=.92; continue; }
-    n+=1;
-  }
-  return n;
-}
-function splitSingleLineForColumns(line,maxChars){
-  const chunks=[];
-  let rest=String(line||'').trim();
-  const limit=Math.max(10, maxChars|0);
-  if(!rest) return [];
-  while(visualColumnUnits(rest)>limit){
-    let units=0;
-    let hard=0;
-    let best=-1;
-    let bestScore=-1;
-    for(let i=0;i<rest.length;i++){
-      const ch=rest[i];
-      units += (/[ 　\t]/.test(ch) ? .55 : (/[、。，．・：；！？!?,.]/.test(ch) ? .82 : (/[「」『』（）［］【】＜＞《》〈〉“”\[\]()]/.test(ch) ? .92 : 1)));
-      if(units<=limit) hard=i;
-      if(units<=limit && units>=limit*.42){
-        let score=0;
-        if(/[。！？]/.test(ch)) score=62;
-        else if(/[」』）］】＞》〉]/.test(ch)) score=58;
-        else if(/[、，・：；]/.test(ch)) score=42;
-        else if(/[ 　]/.test(ch)) score=30;
-        if(score>bestScore){ best=i; bestScore=score; }
-      }
-      if(units>limit) break;
-    }
-    let cut=best>=0 ? best : hard;
-    if(cut<0) cut=Math.max(0,Math.min(rest.length-1,limit-1));
-    const head=rest.slice(0,cut+1).trim();
-    if(head) chunks.push(head);
-    rest=rest.slice(cut+1).trim();
-    if(chunks.length>10000) break;
-  }
-  if(rest) chunks.push(rest);
-  return chunks;
-}
-function splitTextForColumns(text,maxChars){
-  // v16: 縦書きPDFでは、1つの絶対配置カラム内に改行を残すと、
-  // ブラウザがカラム内部でさらに縦書き列を作り、右端・文頭が隠れる。
-  // そのため改行はCSSに任せず、事前に行ごとへ分解してから各行をカラム化する。
-  const chunks=[];
-  const normalized=normalizeVerticalText(text);
-  const limit=Math.max(10, maxChars|0);
-  if(!normalized) return [];
-  const lines=normalized.split(/\n+/).map(x=>x.trim()).filter(Boolean);
-  for(const line of lines){
-    const parts=splitSingleLineForColumns(line,limit);
-    for(const part of parts) chunks.push(part);
-  }
-  return chunks;
-}
-function splitDiceTextForColumns(text,maxChars,roll=false){
-  const src=normalizeVerticalText(text).replace(/\s*\n+\s*/g,' ').replace(/\s{2,}/g,' ').trim();
-  if(!src) return [];
-  const limit=Math.max(18, maxChars|0);
-  // ダイス結果は「＞ 成功／失敗」だけが別枠へ逃げると読みにくいので、基本は1本に保持。
-  if(roll && src.length<=limit) return [src];
-  if(roll){
-    const protectedText=src.replace(/＞\s*(成功|失敗|スペシャル|クリティカル|ファンブル|決定的成功|致命的失敗)/g,'＞ $1');
-    return splitTextForColumns(protectedText,limit).map(x=>x.replace(/ /g,' '));
-  }
-  return splitTextForColumns(src,limit);
-}
-function isDiceTextForAbs(name,body){
-  const t=normalizeVerticalText(body||'');
-  if(name==='system') return true;
-  return /^(?:CCB|CBR|CC|RES|SANC|SAN|1d|\d+d|\d+D|\(1D|\[\s*[^\]]+\s*\]|choice|CHOICE)/i.test(t) || /＞\s*(?:成功|失敗|スペシャル|決定的成功|致命的失敗|ファンブル|クリティカル)/.test(t);
-}
-function buildAbsColumns(blocks,spec){
-  const cols=[];
-  let run=0;
-  const addNarr=(text,heading=false)=>{
-    const chunks=splitTextForColumns(text,spec.narrChars);
-    chunks.forEach((ch,i)=>cols.push({type:'narr',text:ch,heading:heading&&i===0,continued:i>0}));
-  };
-  for(let bi=0; bi<blocks.length; bi++){
-    const b=blocks[bi];
-    if(b.type==='heading'){
-      const text=[b.title?`◆ ${normalizeStoryVerticalText(b.title)}`:'', normalizeStoryVerticalText(b.body)].filter(Boolean).join('\n');
-      addNarr(text,true);
-      continue;
-    }
-    if(b.type==='callout'||b.type==='dice'||isDiceTextForAbs(b.name,b.body)){
-      const label=`【${b.name||'system'}】`;
-      const raw=normalizeVerticalText(b.body||'');
-      const source=(b.type==='callout'||b.name==='system'||isDiceTextForAbs(b.name,b.body)) ? `${label} ${raw}`.trim() : raw;
-      const roll=isDiceTextForAbs(b.name,b.body);
-      const text=roll ? normalizeDiceVerticalText(source) : source;
-      const chunks=splitDiceTextForColumns(text, roll ? spec.rollDiceChars : spec.diceChars, roll);
-      chunks.forEach((ch,i)=>cols.push({type:'dice',text:ch,continued:i>0,roll}));
-      continue;
-    }
-    if(b.type==='speech'&&pcNames.has(b.name)){
-      // ここが今回の本丸：連続した同一話者を先に1つの「発言ラン」にまとめる。
-      // その後に列分割することで、列が分かれても同じrun番号になり、罫線を接続できる。
-      const sameSpeakerBlocks=[b];
-      while(bi+1<blocks.length && blocks[bi+1].type==='speech' && pcNames.has(blocks[bi+1].name) && blocks[bi+1].name===b.name){
-        sameSpeakerBlocks.push(blocks[++bi]);
-      }
-      const speaker=displayNames.get(b.name)||b.name||'';
-      const body=sameSpeakerBlocks.map(x=>normalizeStoryVerticalText(x.body||'')).filter(Boolean).join('\n');
-      const chunks=splitTextForColumns(body||'　',spec.pcChars);
-      run++;
-      chunks.forEach((ch,i)=>cols.push({type:'pc',speaker,text:ch,run,first:i===0,continued:i>0}));
-      continue;
-    }
-    if(b.type==='speech'){
-      const speaker=displayNames.get(b.name)||b.name||'';
-      const body=normalizeStoryVerticalText(b.body||'');
-      addNarr(speaker?`${speaker}\n${body}`:body,false);
-      continue;
-    }
-    if(b.body) addNarr(normalizeStoryVerticalText(b.body),false);
-  }
-  return cols;
-}
+      <section id="profile" class="view">
+        <section class="panel profilePagePanel" id="profileSettingsPanel">
+          <div class="profilePageHead">
+            <div>
+              <h2>自分のページ <button class="infoDot" type="button" data-info="表示名・絵文字・色を変えたり、できたことログを見られます。">i</button></h2>
+            </div>
+            <button class="ghost" id="backToBoardBtn" type="button">今日やることへ戻る</button>
+          </div>
+          <div class="profilePreview" id="profilePreview"></div>
+          <div class="form three profileForm">
+            <label><small>自分の名前</small><input id="profileName" placeholder="表示したい名前"></label>
+            <label><small>自分の絵文字</small><input id="profileEmoji" placeholder="例：🌙" maxlength="4"></label>
+            <label><small>自分の色</small><input id="profileColor" type="color" value="#5d9cec" aria-label="自分の色"></label>
+          </div>
+          <div class="sectionline sleepSettingsBlock">
+            <h3>基本的な睡眠時間の設定 <button class="infoDot" type="button" data-info="デフォルトの睡眠時間を設定できます。タイムラインに自動でこの睡眠時間が反映されます。">i</button></h3>
+            <div class="form two">
+              <label><small>寝る時間</small><input id="profileSleepStart" type="time" step="600" value="02:00"></label>
+              <label><small>起きる時間</small><input id="profileSleepEnd" type="time" step="600" value="09:00"></label>
+            </div>
+          </div>
+          <div class="sectionline workSettingsBlock">
+            <h3>基本的な仕事時間の設定 <button class="infoDot" type="button" data-info="デフォルトの仕事時間を設定できます。タイムラインに自動でこの勤務時間が反映されます。仕事時間がない人はOFFにできます。">i</button></h3>
+            <label class="toggleLine"><input id="profileWorkEnabled" type="checkbox"> 仕事時間を使う</label>
+            <div class="form three">
+              <label><small>仕事開始</small><input id="profileWorkStart" type="time" step="600" value="10:00"></label>
+              <label><small>仕事終了</small><input id="profileWorkEnd" type="time" step="600" value="19:00"></label>
+              <label><small>仕事カテゴリ名</small><input id="profileWorkCategory" value="仕事" placeholder="例：仕事"></label>
+            </div>
+            <div class="workDayPicker">
+              <label><input class="profileWorkDay" type="checkbox" value="1" checked>月</label>
+              <label><input class="profileWorkDay" type="checkbox" value="2" checked>火</label>
+              <label><input class="profileWorkDay" type="checkbox" value="3" checked>水</label>
+              <label><input class="profileWorkDay" type="checkbox" value="4" checked>木</label>
+              <label><input class="profileWorkDay" type="checkbox" value="5" checked>金</label>
+              <label><input class="profileWorkDay" type="checkbox" value="6">土</label>
+              <label><input class="profileWorkDay" type="checkbox" value="0">日</label>
+            </div>
+          </div>
+          <button class="primary" id="saveProfileBtn">自分設定を保存</button>
+        </section>
 
-function absColWidth(c,spec){
-  return c.type==='dice' ? spec.diceW : spec.colW;
-}
-function absGapBefore(c,prev,spec){
-  if(!prev) return 0;
-  if(c.type==='dice' || prev.type==='dice'){
-    if(c.continued && prev && prev.type==='dice') return spec.continuedGap;
-    return spec.diceGap;
-  }
-  if(c.continued && prev && c.type===prev.type){
-    if(c.type==='pc' && c.run===prev.run) return spec.continuedGap;
-    if(c.type==='narr') return spec.continuedGap;
-  }
-  return spec.normalGap;
-}
-function paginateAbsColumns(cols,spec){
-  const pages=[];
-  let cur=[];
-  let used=0;
-  const limit=spec.innerW;
-  for(const c of cols){
-    const gap=absGapBefore(c,cur[cur.length-1],spec);
-    const w=absColWidth(c,spec);
-    if(cur.length && used + gap + w > limit){
-      pages.push(cur);
-      cur=[];
-      used=0;
-    }
-    const gap2=absGapBefore(c,cur[cur.length-1],spec);
-    cur.push(c);
-    used += (cur.length===1 ? w : gap2 + w);
-  }
-  if(cur.length) pages.push(cur);
-  return pages.length?pages:[[]];
-}
-function absRightMm(i,page,spec){
-  let right=spec.pad.r+spec.safeRight;
-  for(let n=0;n<i;n++){
-    right += absColWidth(page[n],spec) + absGapBefore(page[n+1],page[n],spec);
-  }
-  return right;
-}
-function absPrintCss(spec){
-  return `
-@page{size:${spec.w}mm ${spec.h}mm;margin:0;}
-html,body{margin:0;padding:0;background:#fff;color:#171410;}
-body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
-.print-page{width:${spec.w}mm;height:${spec.h}mm;margin:0;padding:0;position:relative;overflow:hidden;background:#fff;box-sizing:border-box;page-break-after:always;break-after:page;}
-.print-page:last-child{page-break-after:auto;break-after:auto;}
-.abs-col{position:absolute;top:${spec.innerY}mm;width:${spec.colW}mm;height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.pt}pt;line-height:${spec.line};letter-spacing:.015em;color:#171410;overflow:hidden;}
-.abs-col.continued{opacity:.99;}
-.abs-col strong{font-weight:900;}
-.abs-mark{color:#8d7444;font-size:.72em;font-weight:900;}
-.abs-pc{position:absolute;top:${spec.innerY}mm;width:${spec.colW}mm;height:${spec.innerH}mm;box-sizing:border-box;color:#171410;overflow:visible;}
-.abs-pc.continued .abs-rule{border-top-color:rgba(35,31,27,.42);}
-.abs-speaker{position:absolute;top:0;right:0;width:${spec.colW}mm;height:${spec.speakerH}mm;writing-mode:vertical-rl;text-orientation:mixed;font-size:${Math.max(8.2,spec.pt*.82)}pt;line-height:1.35;font-weight:900;letter-spacing:.06em;overflow:hidden;}
-.abs-rule{display:none;}
-.abs-run-rule{position:absolute;top:${spec.innerY+spec.speakerH}mm;height:0;border-top:1.1px solid rgba(35,31,27,.58);z-index:6;pointer-events:none;box-sizing:border-box;}
-.abs-body{position:absolute;top:${spec.speakerH+spec.lineGap}mm;right:0;width:${spec.colW}mm;height:${spec.bodyH}mm;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.pt}pt;line-height:${spec.line};letter-spacing:.015em;overflow:hidden;z-index:1;}
-.abs-dice{position:absolute;top:${spec.innerY}mm;width:${spec.diceW}mm;max-height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.dicePt}pt;line-height:1.38;font-weight:700;color:#4f463c;border:1.1px solid rgba(95,86,74,.75);border-radius:7px;background:#fff;padding:.34em .28em;overflow:hidden;overflow-wrap:anywhere;word-break:normal;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.abs-dice.roll{font-size:${Math.max(6.8,spec.dicePt-.9)}pt;line-height:1.20;letter-spacing:.01em;overflow-wrap:normal;word-break:keep-all;}
-.abs-dice.continued{border-color:rgba(95,86,74,.55);}
-.page-mark{position:absolute;left:50%;bottom:5mm;transform:translateX(-50%);width:max-content;text-align:center;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb;}
-`;
-}
-function renderAbsCol(c,i,page,spec){
-  const isPageStart=i===0;
-  const right=absRightMm(i,page,spec).toFixed(3);
-  if(c.type==='pc'){
-    const showSpeaker=c.first || isPageStart || (page[i-1]&&page[i-1].run!==c.run);
-    const sameNext=page[i+1] && page[i+1].type==='pc' && page[i+1].run===c.run;
-    const cont=c.continued && !showSpeaker ? ' continued' : '';
-    const join=sameNext ? ' same-next' : '';
-    return `<section class="abs-pc${cont}${join}" style="right:${right}mm"><div class="abs-speaker">${showSpeaker?escapeHtml(c.speaker):'　'}</div><div class="abs-rule"></div><div class="abs-body">${escapeHtml(c.text||'　')}</div></section>`;
-  }
-  if(c.type==='dice'){
-    const cont=c.continued?' continued':'';
-    const roll=c.roll?' roll':'';
-    return `<section class="abs-dice${cont}${roll}" style="right:${right}mm">${escapeHtml(c.text||'　')}</section>`;
-  }
-  const html=escapeHtml(c.text||'　').replace(/^◆\s*([^\n]+)/,'<span class="abs-mark">◆</span><strong>$1</strong>');
-  const cont=c.continued?' continued':'';
-  return `<section class="abs-col${cont}" style="right:${right}mm">${html}</section>`;
-}
-function renderAbsRunRules(page,spec){
-  const rules=[];
-  let i=0;
-  while(i<page.length){
-    const c=page[i];
-    if(c.type!=='pc') { i++; continue; }
+        <details class="panel unavailablePanel sideDetails" id="profileUnavailablePanel">
+          <summary>稼働できない日・時間 <button class="infoDot" type="button" data-info="外出・通院・予定など、作業できない日や時間を先に入れておくと、分割タスクや持ち越しタスクがその時間を避けます。">i</button></summary>
+          <div class="form unavailableForm">
+            <label><small>稼働不可の日</small><input type="date" id="unavailableDate"></label>
+            <label><small>開始時間</small><input type="time" id="unavailableStart" value="00:00" step="600"></label>
+            <label><small>終了時間</small><input type="time" id="unavailableEnd" value="23:59" step="600"></label>
+            <label><small>理由メモ</small><input id="unavailableMemo" placeholder="例：外出 / 通院 / 休み"></label>
+          </div>
+          <div class="mode unavailableMode">
+            <label><input type="checkbox" id="unavailableAllDay" checked>終日稼働不可にする</label>
+          </div>
+          <button class="primary" id="addUnavailableBtn" type="button">稼働不可を追加</button>
+          <div id="unavailableList" class="unavailableList"></div>
+        </details>
+        <details class="panel sideDetails" id="achievementPanel" open>
+          <summary>できたことログ <button class="infoDot" type="button" data-info="完了したタスクをカテゴリごとに確認できます。テスト用などはログから外せます。">i</button></summary>
+          <div id="achievementArchive"></div>
+        </details>
+      </section>
 
-    // ver10: 「PC会話が連続している区間」全体に1本の罫線を引く。
-    // 同じ話者ランだけではなく、皇政宗→烏丸かがみ→皇政宗のように
-    // 話者が切り替わっても、間に本文/ダイスが入らない限り会話区間としてつなげる。
-    let j=i;
-    while(j+1<page.length && page[j+1].type==='pc') j++;
+      <section id="setup" class="view">
+        <div class="tabs" id="setupMemberTabs"></div>
+        <div id="setupNotice" class="notice ok"></div>
+        <section class="panel">
+          <h2>今月タスクを追加 <button class="infoDot" type="button" data-info="カテゴリ・プロジェクト・タスク候補を選んで、今月のタスクを追加します。納期から逆算して分割することもできます。">i</button></h2>
+          <div class="form">
+            <label><small>カテゴリ</small><select id="newCategory"></select></label>
+            <label><small>プロジェクト</small><select id="newProject"></select></label>
+            <label><small>タスク候補</small><select id="newCandidate"></select></label>
+            <label><small>タスク名</small><input id="newTitle" placeholder="候補にない場合だけ入力"></label>
+            <label><small>見積もり時間</small><input id="newMinutes" type="number" min="10" step="10" placeholder="分"></label>
+            <label><small>開始日</small><input id="newStart" type="date"></label>
+            <label><small>開始時間</small><input id="newStartTime" type="time" step="600" value="09:00"></label>
+            <label><small>期限</small><input id="newDue" type="date"></label>
+          </div>
+          <div class="mode">
+            <label><input type="radio" name="occurrence" value="single" checked>単発</label>
+            <label><input type="radio" name="occurrence" value="daily">毎日</label>
+            <label><input type="radio" name="occurrence" value="weekly">毎週</label>
+            <label><input type="radio" name="occurrence" value="monthly">毎月</label>
+          </div>
+          <label><small>メモ</small><textarea id="newMemo" placeholder="補足・確認先・注意点"></textarea></label>
+          <div class="reversePlannerBox">
+            <div class="reversePlannerText">
+              <b>納期から逆算</b>
+              <span id="reversePlanPreview">見積もり時間と期限を入れると、毎日どれくらいやればいいか計算します。</span>
+            </div>
+            <button class="ghost" id="calcReversePlanBtn" type="button">逆算する</button>
+            <button class="primary" id="addReversePlanBtn" type="button">毎日のタスクに分けて追加</button>
+          </div>
+          <button class="primary" id="addMonthlyTaskBtn">追加する</button>
+        </section>
+        <details class="panel sideDetails"><summary>カテゴリ管理 <button class="infoDot" type="button" data-info="カテゴリカードを選ぶと、そのカテゴリの中身を編集できます。ドラッグで並び替えもできます。">i</button></summary><div class="catgrid" id="categoryGrid"></div></details>
+        <details class="panel sideDetails" id="categoryEditorPanel">
+          <summary>カテゴリ編集 <button class="infoDot" type="button" data-info="カテゴリ名、色、プロジェクト、タスク候補、一緒に頑張る人などを編集できます。">i</button></summary>
+          <div id="categoryEditor" class="empty">カテゴリカードをクリックすると編集できます。</div>
+        </details>
+        <details class="panel sideDetails">
+          <summary>登録済みタスクの修正 <button class="infoDot" type="button" data-info="追加済みのタスク名・カテゴリ・プロジェクト・日付・期限などをあとから直せます。まとめて削除もできます。">i</button></summary>
+          <div class="bulkTaskActions">
+            <button class="ghost" type="button" id="selectAllRegisteredTasks">表示中を選択</button>
+            <button class="ghost" type="button" id="clearRegisteredTaskSelection">選択解除</button>
+            <button class="danger" type="button" id="deleteSelectedTasks">選択したタスクをまとめて削除</button>
+          </div>
+          <div class="registeredTaskList" id="registeredTasks"></div>
+        </details>
+      </section>
+    </section>
+  </main>
 
-    const rightStart=absRightMm(i,page,spec);
-    const rightEnd=absRightMm(j,page,spec);
-    const width=(rightEnd-rightStart+absColWidth(page[j],spec));
-    rules.push(`<div class="abs-run-rule abs-dialogue-rule" style="right:${rightStart.toFixed(3)}mm;width:${width.toFixed(3)}mm"></div>`);
-    i=j+1;
-  }
-  return rules.join('');
-}
-function buildAbsPagesHtml(pages,spec){
-  return pages.map((page,pi)=>`<section class="print-page" data-page="${pi+1}">${renderAbsRunRules(page,spec)}${page.map((c,i)=>renderAbsCol(c,i,page,spec)).join('')}<div class="page-mark">-${pi+1}P-</div></section>`).join('');
-}
-function makeAbsPages(){
-  updatePreview(true);
-  const blocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));
-  const spec=getAbsSpec();
-  const cols=buildAbsColumns(blocks,spec);
-  const pages=paginateAbsColumns(cols,spec);
-  return {pages,spec};
-}
-function makePrintDocument(pages,spec){
-  return `<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><title></title><style>${absPrintCss(spec)}
-.preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}
-</style></head><body>${buildAbsPagesHtml(pages,spec)}</body></html>`;
-}
-function preparePrintHost(){
-  const {pages,spec}=makeAbsPages();
-  const host=document.getElementById('printHost');
-  host.innerHTML=buildAbsPagesHtml(pages,spec);
-  let style=document.getElementById('dynamicPrintPageStyle');
-  if(!style){style=document.createElement('style');style.id='dynamicPrintPageStyle';document.head.appendChild(style);}
-  style.textContent=`@media print{${absPrintCss(spec)} body>*:not(#printHost){display:none!important;} #printHost{display:block!important;margin:0!important;padding:0!important;background:#fff!important;} }`;
-  return {pages,spec};
-}
-function buildPrintPreview(){
-  const {pages,spec}=makeAbsPages();
-  const frame=$('printPreviewFrame');
-  if(frame){ frame.srcdoc=makePrintDocument(pages,spec); }
-  currentPrintPreviewPage=1;
-  const status=$('printPreviewStatus');
-  if(status){ status.textContent=`${spec.name} / ${pages.length}P / 最大${spec.maxCols}列 / 1列${spec.pcChars}字 / 続き列は詰め`; }
-  return {pages,spec};
-}
-function printPdf(){
-  const {pages,spec}=makeAbsPages();
-  const old=document.getElementById('printFrame');
-  if(old) old.remove();
-  const iframe=document.createElement('iframe');
-  iframe.id='printFrame';
-  iframe.style.position='fixed';
-  iframe.style.right='0';
-  iframe.style.bottom='0';
-  iframe.style.width='0';
-  iframe.style.height='0';
-  iframe.style.border='0';
-  document.body.appendChild(iframe);
-  const doc=iframe.contentDocument||iframe.contentWindow.document;
-  doc.open();
-  doc.write(makePrintDocument(pages,spec));
-  doc.close();
-  setTimeout(()=>{iframe.contentWindow.focus();iframe.contentWindow.print();},250);
-}
-function downloadPrintHtml(){
-  const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'ccfolia_vertical_print_only_v17_latin_sideways.html','text/html;charset=utf-8');
-}
+  <template id="taskTemplate">
+    <article class="task" draggable="true"></article>
+  </template>
 
-
-$('loadBtn').addEventListener('click',parseSelectedFile);$('demoBtn').addEventListener('click',showDemo);$('findBtn').addEventListener('click',findInEditor);$('prevHitBtn').addEventListener('click',prevFindMatch);$('nextHitBtn').addEventListener('click',nextFindMatch);$('findText').addEventListener('input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';$('findResults').innerHTML='';$('findNote').textContent='検索ボタンかEnterで検索します。';});$('findText').addEventListener('keydown',e=>{if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(!findMatches.length)refreshFindResults(true);else e.shiftKey?prevFindMatch():nextFindMatch();}});$('replaceOneBtn').addEventListener('click',replaceNextInEditor);$('replaceAllBtn').addEventListener('click',()=>replaceAllInEditor(false));$('deleteAllBtn').addEventListener('click',()=>replaceAllInEditor(true));$('rerenderBtn').addEventListener('click',()=>renderAll(true));$('fromLogBtn').addEventListener('click',()=>renderAll(true));$('previewBtn').addEventListener('click',()=>updatePreview(true));$('copyBtn').addEventListener('click',copyEditor);$('txtBtn').addEventListener('click',downloadText);$('htmlBtn').addEventListener('click',downloadHtml);$('printHtmlBtn').addEventListener('click',downloadPrintHtml);$('printBtn').addEventListener('click',printPdf);$('startBtn').addEventListener('click',scrollStart);$('directionBtn').addEventListener('click',e=>{isHorizontal=!isHorizontal;applySettings();e.target.textContent=isHorizontal?'縦書き確認':'横書き確認'});['skipEmpty','skipDice','skipSystem','mergeSameSpeaker','scenarioAsNarration','fullWidthPunctuation'].forEach(id=>$(id).addEventListener('change',()=>renderAll(true)));['fontSize','speakerHeight','speakerFont','bodyHeight','turnGap'].forEach(id=>$(id).addEventListener('change',()=>{applySettings();scrollStart()}));$('pdfSize').addEventListener('change',()=>{applySettings();});$('scenarioNames').addEventListener('input',()=>renderAll(true));els.textEditor.addEventListener('input',()=>{schedulePreview();findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';});if($('printPreviewBtn')) $('printPreviewBtn').addEventListener('click',buildPrintPreview);
-if($('prevPrintPageBtn')) $('prevPrintPageBtn').addEventListener('click',()=>scrollPrintPreviewPage(-1));
-if($('nextPrintPageBtn')) $('nextPrintPageBtn').addEventListener('click',()=>scrollPrintPreviewPage(1));
-['pdfSize','pdfLines','pdfPcChars','pdfMaxCols','pdfSafeLeft','pdfSafeRight','pdfSafeBottom'].forEach(id=>{ const el=$(id); if(el){ el.addEventListener('input',schedulePrintPreview); el.addEventListener('change',schedulePrintPreview); }});
-showDemo();
-setTimeout(buildPrintPreview,250);
-</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module" src="js/app.js?v=68"></script>
 </body>
 </html>
