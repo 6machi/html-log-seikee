@@ -721,3 +721,12 @@ input[type="time"], input[type="date"]{min-height:42px}
 
 .workRuleHelp{margin:6px 0 10px;line-height:1.6}
 .organizeOption input:disabled + span{opacity:.5}
+
+
+/* v75: make reflow rule clearly visible */
+.reflowRuleCard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;margin:0 0 10px;box-shadow:0 5px 14px rgba(40,50,80,.05)}
+.miniSectionTitle{font-size:12px;font-weight:950;color:var(--muted);margin:0 0 8px;letter-spacing:.02em}
+.organizeOption.alwaysVisible{margin:0;padding:0;border:0;background:transparent;box-shadow:none}
+.organizeOption.alwaysVisible input{width:22px;height:22px;flex:0 0 22px}
+.organizeOption.alwaysVisible span{font-size:14px;font-weight:950}
+.reflowRuleCard .organizeStatus{margin:10px 0 0}
