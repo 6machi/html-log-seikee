@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>タスクかんりシート</title>
-  <link rel="stylesheet" href="style.css?v=69" />
+  <link rel="stylesheet" href="style.css?v=70" />
 </head>
 <body>
   <header>
@@ -62,6 +62,7 @@
             <details class="panelDetails compactTool organizeTool">
               <summary>未完了タスクを今から入れ直す <button class="infoDot" type="button" data-info="対象は、単発・持ち越し・分割タスク・過去に残った未完了タスクです。毎日/毎週/毎月の繰り返しタスク、睡眠、稼働不可、仕事時間は入れ直し対象にしません。">i</button></summary>
               <div class="organizeBox">
+                <label class="checkLine organizeOption"><input type="checkbox" id="avoidWorkForNonWork" checked>仕事以外のタスクは仕事外の時間に振り分ける</label>
                 <div class="organizeActions">
                   <button class="primary" type="button" id="reflowFromTodayBtn">未完了タスクを今から入れ直す</button>
                 </div>
@@ -264,6 +265,6 @@
   </template>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script type="module" src="js/app.js?v=69"></script>
+  <script type="module" src="js/app.js?v=70"></script>
 </body>
 </html>

@@ -1,9 +1,9 @@
-import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=69';
-import { state } from './state.js?v=69';
-import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=69';
-import { refreshAll, showView } from './app.js?v=69';
-import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=69';
-import { updateMyProfile, loadMembers } from './auth.js?v=69';
+import { $, esc, todayISO, addDays, fmtDate, diffDays, relativeFrom, taskOccursOnDate, occurrenceLabel, fullClock, minutesFromTime } from './utils.js?v=70';
+import { state } from './state.js?v=70';
+import { createTask, markCarryover, returnToSchedule, updateTask, deleteTask } from './tasks.js?v=70';
+import { refreshAll, showView } from './app.js?v=70';
+import { isUnavailableTask, isUnavailableForMember, unavailableBlocksForMember } from './calendar.js?v=70';
+import { updateMyProfile, loadMembers } from './auth.js?v=70';
 
 const SLOT_MINUTES = 10;
 const PX_PER_MINUTE = 1.15; // 10分刻み / 60分 = 約69px
@@ -491,11 +491,15 @@ function fixedBusyIntervals(dateIso, memberId, excludeIds){
     .map((t,i)=>({ start:taskStartMinutes(t,i), end:taskStartMinutes(t,i)+taskDuration(t) }));
   return mergeIntervals([...blocks, ...tasks]);
 }
+function shouldAvoidWorkForNonWork(){
+  const el = $('avoidWorkForNonWork');
+  return el ? el.checked : true;
+}
 function fixedBusyIntervalsForTask(dateIso, memberId, excludeIds, taskForPlacement){
   const base = fixedBusyIntervals(dateIso, memberId, excludeIds);
-  // 仕事時間は、仕事カテゴリのタスクだけが使える専用枠として扱う。
-  // 仕事以外のタスクを振り直す時は、仕事時間を埋まっている時間として扱う。
-  if(taskForPlacement && !isWorkTask(taskForPlacement, memberId)){
+  // チェックONの時だけ、仕事以外のタスクは仕事時間を避ける。
+  // OFFなら、空き枠として仕事時間にも入れられる。
+  if(shouldAvoidWorkForNonWork() && taskForPlacement && !isWorkTask(taskForPlacement, memberId)){
     const workBlocks = memberWorkIntervals(dateIso, memberId).map(b=>({ start:b.start, end:b.end }));
     return mergeIntervals([...base, ...workBlocks]);
   }
@@ -585,7 +589,7 @@ async function reflowTasksAvoidingUnavailable(){
       if(isWorkTask(t, ownerId)) workMoved++; else freeMoved++;
     }
   }
-  const detail = moved ? `（仕事 ${workMoved}件 / 自由 ${freeMoved}件）` : '';
+  const detail = moved ? `（仕事 ${workMoved}件 / 自由 ${freeMoved}件${shouldAvoidWorkForNonWork() ? ' / 仕事以外は仕事外に配置' : ' / 仕事時間も使用可'}）` : '';
   showOrganizeMessage(`${moved}件を今から先の空き時間へ入れ直しました。${detail}${skipped ? ` ${skipped}件は空き枠が見つかりませんでした。` : ''}`, !!skipped);
   await refreshAll();
 }
