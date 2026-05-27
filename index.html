@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CoCログ縦書きメーカー 軽量版 GitHub ver18 A5固定UI版</title>
+<title>CoCログ縦書きメーカー 軽量版 GitHub ver19 話者名安定版</title>
 <style>
 :root{
   --bg1:#fff8fb;
@@ -405,9 +405,9 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver18</h1></div><span class="badge">A5安定＋英字横倒し / GitHub ver18</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver19</h1></div><span class="badge">A5固定＋話者名安定 / GitHub ver19</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver18ではver16の安定レイアウトを維持しつつ、英字だけを半角のまま縦書き内で横倒し表示しやすい形に調整しています。</p></section>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver19ではA5固定の安定レイアウトを維持しつつ、長めの話者名が崩れにくいよう話者名エリアを自動調整します。</p></section>
 <section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box settings-simple"><h2>整形設定</h2>
   <div class="preset-card">
     <b>A5固定プリセット</b>
@@ -498,7 +498,7 @@ function renderBlocks(blocks){
   }
   return out.join('')
 }
-function renderPcGroup(group){return `<section class="pc-group">${group.map((b,i)=>{const prev=group[i-1];const next=group[i+1];const samePrev=prev&&prev.name===b.name;const sameNext=next&&next.name===b.name;const cls=['pc-turn'];if(samePrev)cls.push('speaker-continued');if(prev&&prev.name!==b.name)cls.push('speaker-change');if(next)cls.push('dialogue-connect');return `<div class="${cls.join(' ')}" data-block="${b.__idx}"><span class="pc-speaker">${escapeHtml(samePrev?'':(displayNames.get(b.name)||b.name))}</span><span class="pc-body preview-editable" contenteditable="true" spellcheck="false" data-block="${b.__idx}" data-field="body">${escapeHtml(b.body||'　')}</span></div>`}).join('')}</section>`}
+function renderPcGroup(group){return `<section class="pc-group">${group.map((b,i)=>{const prev=group[i-1];const next=group[i+1];const samePrev=prev&&prev.name===b.name;const sameNext=next&&next.name===b.name;const cls=['pc-turn'];if(samePrev)cls.push('speaker-continued');if(prev&&prev.name!==b.name)cls.push('speaker-change');if(next)cls.push('dialogue-connect');return `<div class="${cls.join(' ')}" data-block="${b.__idx}"><span class="pc-speaker">${escapeHtml(samePrev?'':normalizeSpeakerName(displayNames.get(b.name)||b.name))}</span><span class="pc-body preview-editable" contenteditable="true" spellcheck="false" data-block="${b.__idx}" data-field="body">${escapeHtml(b.body||'　')}</span></div>`}).join('')}</section>`}
 function renderCallout(b){
   const label=`【${b.name||'system'}】`;
   const raw=cleanText(b.body||'');
@@ -650,6 +650,29 @@ function normalizeStoryVerticalText(text){
   // 1d10 の d だけ半角で横倒しになる事故を避け、全体を縦書きで統一する。
   return toVerticalSafeSymbols(toFullWidthAscii(normalizeVerticalText(text)));
 }
+function normalizeSpeakerName(text){
+  // ver19: 話者名は本文分割に巻き込まず、縦書き名札として安全に出す。
+  // 半角記号は全角へ、半角スペースは全角スペースへ寄せる。
+  return normalizeStoryVerticalText(text).replace(/[ \t]+/g,'　');
+}
+function speakerNameUnits(text){
+  const s=normalizeSpeakerName(text);
+  let n=0;
+  for(const ch of s){
+    if(/[ 　]/.test(ch)) n+=.55;
+    else if(/[、。，．・：；！？!?,.]/.test(ch)) n+=.82;
+    else n+=1;
+  }
+  return n;
+}
+function currentMaxSpeakerUnits(){
+  let max=0;
+  for(const name of pcNames){
+    const shown=displayNames.get(name)||name;
+    max=Math.max(max,speakerNameUnits(shown));
+  }
+  return max;
+}
 function normalizeDiceVerticalText(text){
   return toVerticalSafeSymbols(toFullWidthAscii(String(text||'')))
     .replace(/=/g,'＝')
@@ -688,7 +711,7 @@ function pushNarrationUnits(units,text,spec,opts={}){
   chunks.forEach((chunk,i)=>units.push({type:'narration',text:chunk,heading:opts.heading&&i===0,continued:i>0}));
 }
 function pushPcUnits(units,b,spec){
-  const name=displayNames.get(b.name)||b.name||'';
+  const name=normalizeSpeakerName(displayNames.get(b.name)||b.name||'');
   const chunks=splitByVerticalCapacity(normalizeStoryVerticalText(b.body||'　'),spec.pcChars).filter(Boolean);
   // v26: 1つの会話グループが横に伸びすぎると端切れするため、ページ上限よりかなり少なめで分割。
   const maxCols=Math.max(1, Math.floor(spec.pageColCap || spec.colsPerPage));
@@ -743,7 +766,7 @@ function pushCalloutUnits(units,b,spec){
   chunks.forEach((chunk,i)=>units.push({type:'dice',text:chunk,continued:i>0,roll}));
 }
 function pushPcRunFromBodies(units,name,bodyList,spec,meta={}){
-  const display=displayNames.get(name)||name||'';
+  const display=normalizeSpeakerName(displayNames.get(name)||name||'');
   const joined=bodyList.map(x=>normalizeStoryVerticalText(x||'　')).filter(Boolean).join('\n');
   const chunks=splitByVerticalCapacity(joined||'　',spec.pcChars).filter(Boolean);
   const maxCols=Math.max(1, Math.floor(spec.pageColCap || spec.colsPerPage));
@@ -956,7 +979,7 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .print-bodies{display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;gap:0;writing-mode:horizontal-tb;width:max-content;}
 .print-pc-col{height:100%;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;writing-mode:horizontal-tb;flex:0 0 auto;box-sizing:border-box;margin:0;}
 .print-body-col{display:block;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;line-height:1.62;font-size:${spec.pt}pt;width:1.75em;min-width:1.75em;height:calc(100% - ${spec.speakerEm+1.25}em);max-height:calc(100% - ${spec.speakerEm+1.25}em);margin:0;padding:.16em 0 0;box-sizing:border-box;border-top:0;overflow:hidden;overflow-wrap:anywhere;word-break:normal;}
-.print-speaker{display:block;writing-mode:vertical-rl;text-orientation:mixed;font-weight:900;font-size:.82em;line-height:1.48;letter-spacing:.07em;min-height:${spec.speakerEm}em;min-width:1.75em;width:1.75em;margin:0;padding:0;text-align:start;box-sizing:border-box;}
+.print-speaker{display:block;writing-mode:vertical-rl;text-orientation:mixed;font-weight:900;font-size:.78em;line-height:1.28;letter-spacing:.045em;min-height:${spec.speakerEm}em;min-width:1.75em;width:1.75em;margin:0;padding:0;text-align:start;box-sizing:border-box;white-space:pre;word-break:keep-all;overflow-wrap:normal;overflow:visible;}
 .print-body{display:block;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;line-height:1.70;font-size:${spec.pt}pt;min-width:1.75em;width:1.75em;height:calc(100% - ${spec.speakerEm+.75}em);max-height:calc(100% - ${spec.speakerEm+.75}em);margin:0;padding:.54em 0 0;box-sizing:border-box;border-top:0;overflow:hidden;overflow-wrap:anywhere;word-break:normal;}
 
 .print-speaker.empty{visibility:hidden!important;}
@@ -1188,7 +1211,12 @@ function getAbsSpec(){
   spec.normalGap=Math.max(1.6, Math.min(3.0, spec.slotPitch-spec.colW));
   spec.continuedGap=Math.max(.15, Math.min(.65, spec.normalGap*.28));
   spec.diceGap=Math.max(1.4, Math.min(2.6, spec.normalGap*.9));
-  spec.speakerH=Math.max(18, Math.min(28, spec.speakerEm*spec.pt*.35278*.78));
+  // ver19: 話者名が「烏丸 かがみ？」程度でも名札内で折れないよう、
+  // PC表示名の最長に合わせて話者名エリアを少しだけ伸ばす。
+  // フルネーム級はページ効率を守るため上限を設け、表示名の短縮を推奨。
+  const maxSpeakerUnits=currentMaxSpeakerUnits();
+  spec.speakerEm=Math.max(spec.speakerEm, Math.min(9.2, 1.05 + maxSpeakerUnits*.86));
+  spec.speakerH=Math.max(18, Math.min(34, spec.speakerEm*spec.pt*.35278*.78));
   spec.lineGap=2.0;
   spec.bodyTop=spec.innerY+spec.speakerH+spec.lineGap;
   spec.bodyH=Math.max(30, spec.innerH-spec.speakerH-Math.max(.6,spec.lineGap*.45));
@@ -1322,7 +1350,7 @@ function buildAbsColumns(blocks,spec){
       while(bi+1<blocks.length && blocks[bi+1].type==='speech' && pcNames.has(blocks[bi+1].name) && blocks[bi+1].name===b.name){
         sameSpeakerBlocks.push(blocks[++bi]);
       }
-      const speaker=displayNames.get(b.name)||b.name||'';
+      const speaker=normalizeSpeakerName(displayNames.get(b.name)||b.name||'');
       const body=sameSpeakerBlocks.map(x=>normalizeStoryVerticalText(x.body||'')).filter(Boolean).join('\n');
       const chunks=splitTextForColumns(body||'　',spec.pcChars);
       run++;
@@ -1330,7 +1358,7 @@ function buildAbsColumns(blocks,spec){
       continue;
     }
     if(b.type==='speech'){
-      const speaker=displayNames.get(b.name)||b.name||'';
+      const speaker=normalizeSpeakerName(displayNames.get(b.name)||b.name||'');
       const body=normalizeStoryVerticalText(b.body||'');
       addNarr(speaker?`${speaker}\n${body}`:body,false);
       continue;
@@ -1395,7 +1423,7 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .abs-mark{color:#8d7444;font-size:.72em;font-weight:900;}
 .abs-pc{position:absolute;top:${spec.innerY}mm;width:${spec.colW}mm;height:${spec.innerH}mm;box-sizing:border-box;color:#171410;overflow:visible;}
 .abs-pc.continued .abs-rule{border-top-color:rgba(35,31,27,.42);}
-.abs-speaker{position:absolute;top:0;right:0;width:${spec.colW}mm;height:${spec.speakerH}mm;writing-mode:vertical-rl;text-orientation:mixed;font-size:${Math.max(8.2,spec.pt*.82)}pt;line-height:1.35;font-weight:900;letter-spacing:.06em;overflow:hidden;}
+.abs-speaker{position:absolute;top:0;right:0;width:${spec.colW}mm;height:${spec.speakerH}mm;writing-mode:vertical-rl;text-orientation:mixed;font-size:${Math.max(7.8,spec.pt*.78)}pt;line-height:1.26;font-weight:900;letter-spacing:.045em;overflow:visible;white-space:pre;word-break:keep-all;overflow-wrap:normal;}
 .abs-rule{display:none;}
 .abs-run-rule{position:absolute;top:${spec.innerY+spec.speakerH}mm;height:0;border-top:1.1px solid rgba(35,31,27,.58);z-index:6;pointer-events:none;box-sizing:border-box;}
 .abs-body{position:absolute;top:${spec.speakerH+spec.lineGap}mm;right:0;width:${spec.colW}mm;height:${spec.bodyH}mm;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.pt}pt;line-height:${spec.line};letter-spacing:.015em;overflow:hidden;z-index:1;}
