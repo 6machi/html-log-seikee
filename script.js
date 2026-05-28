@@ -12,22 +12,40 @@ function processBody(body){let t=toFullWidthAsciiExceptLetters(cleanText(body));
 function parseCcfoliaHtml(html){const doc=new DOMParser().parseFromString(html,'text/html');const ps=[...doc.querySelectorAll('p')];return ps.map((p,i)=>{const spans=[...p.querySelectorAll(':scope > span')];const tab=cleanText(spans[0]?.textContent||'').replace(/^\[|\]$/g,'');const name=cleanText(spans[1]?.textContent||'');const bodySpan=spans[2]||p;const body=htmlToText(bodySpan.innerHTML);const color=colorFromStyle(p.getAttribute('style')||'');return {id:i,tab,name,body,color,isDice:isDiceText(body),isSystem:name.toLowerCase()==='system',isEmpty:body.trim().length===0}}).filter(e=>e.name||e.body)}
 async function parseSelectedFile(){const file=els.fileInput.files?.[0];if(!file){alert('HTMLファイルを選んでください');return}const html=await file.text();entries=parseCcfoliaHtml(html);excludedNames=new Set();bodyOnlyNames=new Set();displayNames=new Map([...new Set(entries.map(e=>e.name).filter(Boolean))].map(n=>[n,n]));nameAliases=new Map([...displayNames.keys()].map(n=>[n,new Set([n])]));pcNames=new Set(entries.filter(e=>e.name&&!e.isSystem&&e.color.toLowerCase()!=='#888888').map(e=>e.name));renderNameList();renderAll(false)}
 
+function speakerMatchKey(value){
+  // 話者設定の照合用キー。編集テキスト側は縦書き用に全角化されるため、
+  // 「###2-1 導入」⇔「＃＃＃２－１　導入」のような差分を同一視する。
+  return normalizeSpeakerName(value).replace(/[\s　]+/g,'').toLocaleLowerCase();
+}
+function speakerAliasVariants(value){
+  const raw=cleanText(value||'');
+  if(!raw)return [];
+  const vals=new Set([raw, normalizeSpeakerName(raw)]);
+  // ココフォリアのタイトル系話者「###2-1 導入」は、編集テキスト上で
+  // 「###2-1」だけに見える/残ることがあるため、###系だけ先頭トークンも別名化する。
+  if(/^#+|^＃+/.test(raw)){
+    const first=raw.split(/[\s　]+/).filter(Boolean)[0];
+    if(first){vals.add(first);vals.add(normalizeSpeakerName(first));}
+  }
+  return [...vals].filter(Boolean);
+}
 function rememberNameAlias(original,value){
   if(!original)return;
-  const v=cleanText(value||'');
-  if(!nameAliases.has(original)) nameAliases.set(original,new Set([original]));
-  nameAliases.get(original).add(original);
-  if(v) nameAliases.get(original).add(v);
+  if(!nameAliases.has(original)) nameAliases.set(original,new Set());
+  speakerAliasVariants(original).forEach(v=>nameAliases.get(original).add(v));
+  speakerAliasVariants(value).forEach(v=>nameAliases.get(original).add(v));
 }
 function canonicalSpeakerName(raw){
   const name=cleanText(raw||'');
   if(!name)return '';
   if(displayNames.has(name)||pcNames.has(name)||bodyOnlyNames.has(name)||excludedNames.has(name)) return name;
+  const key=speakerMatchKey(name);
   for(const [orig,set] of nameAliases.entries()){
-    if(set&&set.has(name)) return orig;
+    if(speakerMatchKey(orig)===key)return orig;
+    if(set){for(const alias of set){if(speakerMatchKey(alias)===key)return orig;}}
   }
   for(const [orig,disp] of displayNames.entries()){
-    if(cleanText(disp)===name) return orig;
+    if(speakerMatchKey(orig)===key||speakerMatchKey(disp)===key) return orig;
   }
   return name;
 }
@@ -46,12 +64,15 @@ function applySpeakerSettingsToEditor(){
   // ここが弱いと、表示名を変えた後に「本文だけ」「非表示」「PC/KP」が効かなくなる。
   const nameRows=[...displayNames.keys()].map(orig=>{
     rememberNameAlias(orig, displayNames.get(orig)||orig);
-    const aliases=new Set([orig, displayNames.get(orig)||orig]);
+    const aliases=new Set();
+    speakerAliasVariants(orig).forEach(v=>aliases.add(v));
+    speakerAliasVariants(displayNames.get(orig)||orig).forEach(v=>aliases.add(v));
     const saved=nameAliases.get(orig);
-    if(saved) saved.forEach(v=>aliases.add(v));
+    if(saved) saved.forEach(v=>speakerAliasVariants(v).forEach(x=>aliases.add(x)));
     const cleanAliases=[...aliases].map(v=>cleanText(v)).filter(Boolean);
+    const aliasKeys=new Set(cleanAliases.map(v=>speakerMatchKey(v)));
     const role=isExcludedName(orig)?'off':isBodyOnlyName(orig)?'body':isPcName(orig)?'pc':'kp';
-    return {orig, display:cleanText(displayNames.get(orig)||orig), role, aliases:cleanAliases};
+    return {orig, display:cleanText(displayNames.get(orig)||orig), role, aliases:cleanAliases, aliasKeys};
   });
   const aliasToRow=[];
   nameRows.forEach(row=>row.aliases.forEach(a=>aliasToRow.push([a,row])));
@@ -61,7 +82,8 @@ function applySpeakerSettingsToEditor(){
     const n=cleanText(name||'');
     if(!n)return null;
     const canon=canonicalSpeakerName(n);
-    const direct=nameRows.find(r=>r.orig===canon || r.aliases.includes(n));
+    const key=speakerMatchKey(n);
+    const direct=nameRows.find(r=>r.orig===canon || r.aliasKeys.has(key) || r.aliases.includes(n));
     if(direct)return direct;
     return null;
   }
@@ -1254,7 +1276,7 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_ver25.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta 1.html','text/html;charset=utf-8');
 }
 
 
