@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ログジェネ GitHub ver22 ファビコン追加版</title>
+<title>ログジェネ GitHub ver23 ファビコン追加版</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -412,10 +412,10 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ GitHub ver22</h1></div><span class="badge">A5固定＋UI整理 / GitHub ver22</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ GitHub ver23</h1></div><span class="badge">A5固定＋UI整理 / GitHub ver23</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver22ではA5固定運用に絞り、編集テキスト中心の画面へ整理しています。</p></section>
-<section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>話者設定</h2><div class="notice">話者設定や表示名を変えても、編集中のテキストは自動では書き換えません。表示名を編集テキストへ反映したい時は下のボタンを押してください。最初から作り直したい時だけ、編集テキスト欄の「元ログから再生成」を押してください。</div><div class="buttons" style="margin:10px 0"><button class="secondary" id="applyDisplayNamesBtn" type="button">表示名を編集テキストに反映</button></div><div class="mini-note">例：元の話者名「かぐや（竹宮月子）」の表示名を「かぐや」にした後、このボタンを押すと編集テキスト内の話者名も「かぐや」に置き換えます。</div><div id="nameList" class="names"></div></div></div>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver23ではA5固定運用に絞り、編集テキスト中心の画面へ整理しています。</p></section>
+<section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>話者設定</h2><div class="notice">話者設定や表示名を変えても、編集中のテキストは自動では書き換えません。表示名変更・本文だけ・非表示を編集テキストへ反映したい時は下のボタンを押してください。最初から作り直したい時だけ、編集テキスト欄の「元ログから再生成」を押してください。</div><div class="buttons" style="margin:10px 0"><button class="secondary" id="applySpeakerSettingsBtn" type="button">話者設定を編集テキストに反映</button></div><div class="mini-note">例：「かぐや（竹宮月子）」を「かぐや」にしたり、「ダイスロールの結果」を本文だけにした後、このボタンで編集テキストへ反映します。</div><div id="nameList" class="names"></div></div></div>
 <div class="hidden-settings" style="display:none">
   <label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label>
   <label class="check"><input id="skipDice" type="checkbox">ダイス結果を除外</label>
@@ -484,7 +484,7 @@ function displayForSpeaker(raw){
 function isPcName(raw){return pcNames.has(canonicalSpeakerName(raw))}
 function isBodyOnlyName(raw){return bodyOnlyNames.has(canonicalSpeakerName(raw))}
 function isExcludedName(raw){return excludedNames.has(canonicalSpeakerName(raw))}
-function applyDisplayNamesToEditor(){
+function applySpeakerSettingsToEditor(){
   const text=els.textEditor.value||'';
   if(!text.trim()){alert('編集テキストが空です');return}
   const blocks=text.split(/(\n{2,})/);
@@ -496,19 +496,21 @@ function applyDisplayNamesToEditor(){
     if(!first||first.startsWith('■')||first.startsWith('◆')||first.startsWith('【'))return part;
     const canon=canonicalSpeakerName(first);
     if(!canon||!displayNames.has(canon))return part;
+    if(isExcludedName(first)){changed++;return '';}
+    if(isBodyOnlyName(first)){const body=lines.slice(1).join('\n').trim();if(body){changed++;return body;}changed++;return '';}
     const display=cleanText(displayNames.get(canon)||canon);
     if(display&&display!==first){lines[0]=display;changed++;return lines.join('\n')}
     return part;
   }).join('');
-  if(changed){els.textEditor.value=out;schedulePreview();alert(`${changed}件の話者名を編集テキストへ反映しました。`) }
-  else alert('置き換え対象の話者名はありませんでした。');
+  if(changed){els.textEditor.value=out.replace(/\n{3,}/g,'\n\n').trim();schedulePreview();alert(`${changed}件の話者設定を編集テキストへ反映しました。`) }
+  else alert('反映できる話者設定はありませんでした。');
 }
 
 function scenarioKeys(){return $('scenarioNames').value.split(',').map(s=>s.trim()).filter(Boolean)}
 function isScenarioEntry(e){if(e.isSystem)return false;if(!$('scenarioAsNarration').checked)return false;const low=String(e.color||'').toLowerCase();return low==='#888888'&&scenarioKeys().some(k=>e.name.startsWith(k)||e.name.includes(k))}
 function filteredEntries(){let list=entries.filter(e=>{if($('skipEmpty').checked&&e.isEmpty)return false;if($('skipDice').checked&&e.isDice)return false;if($('skipSystem').checked&&e.isSystem)return false;if(isExcludedName(e.name))return false;return true});if($('mergeSameSpeaker').checked)list=mergeEntries(list);return list}
 function mergeEntries(list){const out=[];for(const e of list){const p=out[out.length-1];const same=p&&p.name===e.name&&p.isDice===e.isDice&&isScenarioEntry(p)===isScenarioEntry(e);if(same&&!e.isDice&&!e.isSystem){p.body=[p.body,e.body].filter(Boolean).join('\n')}else out.push({...e})}return out}
-function entryToText(e){const body=processBody(e.body);if(bodyOnlyNames.has(e.name))return body;if(isScenarioEntry(e))return `■ ${e.name}\n${body}`;if(e.isSystem||e.isDice)return `【${e.name||'system'}】${body}`;return `${e.name}\n${body}`}
+function entryToText(e){const body=processBody(e.body);if(isBodyOnlyName(e.name))return body;const shown=normalizeSpeakerName(displayForSpeaker(e.name));if(isScenarioEntry(e))return `■ ${shown}\n${body}`;if(e.isSystem||e.isDice)return `【${shown||e.name||'system'}】${body}`;return `${shown}\n${body}`}
 function renderAll(keep=true){const list=filteredEntries();els.textEditor.value=normalizeStoryVerticalText(list.map(entryToText).join('\n\n')).trim();renderRaw(list);renderStats(list);updatePreview(keep)}
 function renderStats(list){$('statTotal').textContent=entries.length;$('statShown').textContent=list.length;$('statDice').textContent=entries.filter(e=>e.isDice).length;$('statNames').textContent=new Set(entries.map(e=>e.name).filter(Boolean)).size}
 function renderRaw(list){els.rawPreview.innerHTML=list.map(e=>`<div class="raw-item"><div class="raw-meta"><span class="dot" style="--c:${escapeHtml(e.color)}"></span><span>[${escapeHtml(e.tab)}]</span><b>${escapeHtml(e.name)}</b>${e.isDice?' <span>🎲 dice</span>':''}</div><div class="raw-body">${escapeHtml(e.body)}</div></div>`).join('')}
@@ -857,6 +859,7 @@ function blocksToPrintUnits(blocks,spec){
   let dialogue=[];
   const flush=()=>{flushPcDialogue(units,dialogue,spec);dialogue=[];};
   for(const b of blocks){
+    if(b.type==='speech'&&isExcludedName(b.name)){continue;}
     if(b.type==='speech'&&isPcName(b.name)){
       dialogue.push(b);
       continue;
@@ -869,8 +872,9 @@ function blocksToPrintUnits(blocks,spec){
     }else if(b.type==='callout'||b.type==='dice'){
       pushCalloutUnits(units,b,spec);
     }else if(b.type==='speech'){
+      if(isExcludedName(b.name)) continue;
       const body=normalizeStoryVerticalText(b.body||'');
-      if(bodyOnlyNames.has(b.name)) pushNarrationUnits(units,body,spec);
+      if(isBodyOnlyName(b.name)) pushNarrationUnits(units,body,spec);
       else pushNarrationUnits(units,b.name ? `${normalizeSpeakerName(displayForSpeaker(b.name))}\n${body}` : body,spec);
     }
   }
@@ -1584,12 +1588,12 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_ver22.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_ver23.html','text/html;charset=utf-8');
 }
 
 
 function on(id,event,fn){const el=$(id);if(el)el.addEventListener(event,fn)}
-on('loadBtn','click',parseSelectedFile);on('demoBtn','click',showDemo);on('findBtn','click',findInEditor);on('prevHitBtn','click',prevFindMatch);on('nextHitBtn','click',nextFindMatch);on('findText','input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';$('findResults').innerHTML='';$('findNote').textContent='検索ボタンかEnterで検索します。';});on('findText','keydown',e=>{if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(!findMatches.length)refreshFindResults(true);else e.shiftKey?prevFindMatch():nextFindMatch();}});on('replaceOneBtn','click',replaceNextInEditor);on('replaceAllBtn','click',()=>replaceAllInEditor(false));on('deleteAllBtn','click',()=>replaceAllInEditor(true));on('rerenderBtn','click',()=>renderAll(true));on('fromLogBtn','click',()=>{if(!entries.length){alert('先にHTMLログを読み込んでください');return}if(confirm('現在の編集テキストを、元ログから作り直します。手で直した内容は上書きされます。よろしいですか？'))renderAll(true)});on('previewBtn','click',()=>updatePreview(true));on('copyBtn','click',copyEditor);on('txtBtn','click',downloadText);on('htmlBtn','click',downloadHtml);on('printHtmlBtn','click',downloadPrintHtml);on('printBtn','click',printPdf);on('startBtn','click',scrollStart);on('directionBtn','click',e=>{isHorizontal=!isHorizontal;applySettings();e.target.textContent=isHorizontal?'縦書き確認':'横書き確認'});['skipEmpty','skipDice','skipSystem','mergeSameSpeaker','scenarioAsNarration','fullWidthPunctuation'].forEach(id=>on(id,'change',()=>renderAll(true)));['fontSize','speakerHeight','speakerFont','bodyHeight','turnGap'].forEach(id=>on(id,'change',()=>{applySettings();scrollStart()}));on('pdfSize','change',()=>{applySettings();});on('scenarioNames','input',()=>renderAll(true));els.textEditor.addEventListener('input',()=>{schedulePreview();findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';});on('printPreviewBtn','click',buildPrintPreview);on('applyDisplayNamesBtn','click',applyDisplayNamesToEditor);
+on('loadBtn','click',parseSelectedFile);on('demoBtn','click',showDemo);on('findBtn','click',findInEditor);on('prevHitBtn','click',prevFindMatch);on('nextHitBtn','click',nextFindMatch);on('findText','input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';$('findResults').innerHTML='';$('findNote').textContent='検索ボタンかEnterで検索します。';});on('findText','keydown',e=>{if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(!findMatches.length)refreshFindResults(true);else e.shiftKey?prevFindMatch():nextFindMatch();}});on('replaceOneBtn','click',replaceNextInEditor);on('replaceAllBtn','click',()=>replaceAllInEditor(false));on('deleteAllBtn','click',()=>replaceAllInEditor(true));on('rerenderBtn','click',()=>renderAll(true));on('fromLogBtn','click',()=>{if(!entries.length){alert('先にHTMLログを読み込んでください');return}if(confirm('現在の編集テキストを、元ログから作り直します。手で直した内容は上書きされます。よろしいですか？'))renderAll(true)});on('previewBtn','click',()=>updatePreview(true));on('copyBtn','click',copyEditor);on('txtBtn','click',downloadText);on('htmlBtn','click',downloadHtml);on('printHtmlBtn','click',downloadPrintHtml);on('printBtn','click',printPdf);on('startBtn','click',scrollStart);on('directionBtn','click',e=>{isHorizontal=!isHorizontal;applySettings();e.target.textContent=isHorizontal?'縦書き確認':'横書き確認'});['skipEmpty','skipDice','skipSystem','mergeSameSpeaker','scenarioAsNarration','fullWidthPunctuation'].forEach(id=>on(id,'change',()=>renderAll(true)));['fontSize','speakerHeight','speakerFont','bodyHeight','turnGap'].forEach(id=>on(id,'change',()=>{applySettings();scrollStart()}));on('pdfSize','change',()=>{applySettings();});on('scenarioNames','input',()=>renderAll(true));els.textEditor.addEventListener('input',()=>{schedulePreview();findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';});on('printPreviewBtn','click',buildPrintPreview);on('applySpeakerSettingsBtn','click',applySpeakerSettingsToEditor);
 if($('prevPrintPageBtn')) $('prevPrintPageBtn').addEventListener('click',()=>scrollPrintPreviewPage(-1));
 if($('nextPrintPageBtn')) $('nextPrintPageBtn').addEventListener('click',()=>scrollPrintPreviewPage(1));
 ['pdfSize','pdfLines','pdfPcChars','pdfMaxCols','pdfSafeLeft','pdfSafeRight','pdfSafeBottom'].forEach(id=>{ const el=$(id); if(el){ el.addEventListener('input',schedulePrintPreview); el.addEventListener('change',schedulePrintPreview); }});

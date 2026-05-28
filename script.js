@@ -38,7 +38,7 @@ function displayForSpeaker(raw){
 function isPcName(raw){return pcNames.has(canonicalSpeakerName(raw))}
 function isBodyOnlyName(raw){return bodyOnlyNames.has(canonicalSpeakerName(raw))}
 function isExcludedName(raw){return excludedNames.has(canonicalSpeakerName(raw))}
-function applyDisplayNamesToEditor(){
+function applySpeakerSettingsToEditor(){
   const text=els.textEditor.value||'';
   if(!text.trim()){alert('編集テキストが空です');return}
   const blocks=text.split(/(\n{2,})/);
@@ -50,19 +50,21 @@ function applyDisplayNamesToEditor(){
     if(!first||first.startsWith('■')||first.startsWith('◆')||first.startsWith('【'))return part;
     const canon=canonicalSpeakerName(first);
     if(!canon||!displayNames.has(canon))return part;
+    if(isExcludedName(first)){changed++;return '';}
+    if(isBodyOnlyName(first)){const body=lines.slice(1).join('\n').trim();if(body){changed++;return body;}changed++;return '';}
     const display=cleanText(displayNames.get(canon)||canon);
     if(display&&display!==first){lines[0]=display;changed++;return lines.join('\n')}
     return part;
   }).join('');
-  if(changed){els.textEditor.value=out;schedulePreview();alert(`${changed}件の話者名を編集テキストへ反映しました。`) }
-  else alert('置き換え対象の話者名はありませんでした。');
+  if(changed){els.textEditor.value=out.replace(/\n{3,}/g,'\n\n').trim();schedulePreview();alert(`${changed}件の話者設定を編集テキストへ反映しました。`) }
+  else alert('反映できる話者設定はありませんでした。');
 }
 
 function scenarioKeys(){return $('scenarioNames').value.split(',').map(s=>s.trim()).filter(Boolean)}
 function isScenarioEntry(e){if(e.isSystem)return false;if(!$('scenarioAsNarration').checked)return false;const low=String(e.color||'').toLowerCase();return low==='#888888'&&scenarioKeys().some(k=>e.name.startsWith(k)||e.name.includes(k))}
 function filteredEntries(){let list=entries.filter(e=>{if($('skipEmpty').checked&&e.isEmpty)return false;if($('skipDice').checked&&e.isDice)return false;if($('skipSystem').checked&&e.isSystem)return false;if(isExcludedName(e.name))return false;return true});if($('mergeSameSpeaker').checked)list=mergeEntries(list);return list}
 function mergeEntries(list){const out=[];for(const e of list){const p=out[out.length-1];const same=p&&p.name===e.name&&p.isDice===e.isDice&&isScenarioEntry(p)===isScenarioEntry(e);if(same&&!e.isDice&&!e.isSystem){p.body=[p.body,e.body].filter(Boolean).join('\n')}else out.push({...e})}return out}
-function entryToText(e){const body=processBody(e.body);if(bodyOnlyNames.has(e.name))return body;if(isScenarioEntry(e))return `■ ${e.name}\n${body}`;if(e.isSystem||e.isDice)return `【${e.name||'system'}】${body}`;return `${e.name}\n${body}`}
+function entryToText(e){const body=processBody(e.body);if(isBodyOnlyName(e.name))return body;const shown=normalizeSpeakerName(displayForSpeaker(e.name));if(isScenarioEntry(e))return `■ ${shown}\n${body}`;if(e.isSystem||e.isDice)return `【${shown||e.name||'system'}】${body}`;return `${shown}\n${body}`}
 function renderAll(keep=true){const list=filteredEntries();els.textEditor.value=normalizeStoryVerticalText(list.map(entryToText).join('\n\n')).trim();renderRaw(list);renderStats(list);updatePreview(keep)}
 function renderStats(list){$('statTotal').textContent=entries.length;$('statShown').textContent=list.length;$('statDice').textContent=entries.filter(e=>e.isDice).length;$('statNames').textContent=new Set(entries.map(e=>e.name).filter(Boolean)).size}
 function renderRaw(list){els.rawPreview.innerHTML=list.map(e=>`<div class="raw-item"><div class="raw-meta"><span class="dot" style="--c:${escapeHtml(e.color)}"></span><span>[${escapeHtml(e.tab)}]</span><b>${escapeHtml(e.name)}</b>${e.isDice?' <span>🎲 dice</span>':''}</div><div class="raw-body">${escapeHtml(e.body)}</div></div>`).join('')}
@@ -410,6 +412,7 @@ function blocksToPrintUnits(blocks,spec){
   let dialogue=[];
   const flush=()=>{flushPcDialogue(units,dialogue,spec);dialogue=[];};
   for(const b of blocks){
+    if(b.type==='speech'&&isExcludedName(b.name)){continue;}
     if(b.type==='speech'&&isPcName(b.name)){
       dialogue.push(b);
       continue;
@@ -422,8 +425,9 @@ function blocksToPrintUnits(blocks,spec){
     }else if(b.type==='callout'||b.type==='dice'){
       pushCalloutUnits(units,b,spec);
     }else if(b.type==='speech'){
+      if(isExcludedName(b.name)) continue;
       const body=normalizeStoryVerticalText(b.body||'');
-      if(bodyOnlyNames.has(b.name)) pushNarrationUnits(units,body,spec);
+      if(isBodyOnlyName(b.name)) pushNarrationUnits(units,body,spec);
       else pushNarrationUnits(units,b.name ? `${normalizeSpeakerName(displayForSpeaker(b.name))}\n${body}` : body,spec);
     }
   }
@@ -1134,12 +1138,12 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_ver22.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_ver23.html','text/html;charset=utf-8');
 }
 
 
 function on(id,event,fn){const el=$(id);if(el)el.addEventListener(event,fn)}
-on('loadBtn','click',parseSelectedFile);on('demoBtn','click',showDemo);on('findBtn','click',findInEditor);on('prevHitBtn','click',prevFindMatch);on('nextHitBtn','click',nextFindMatch);on('findText','input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';$('findResults').innerHTML='';$('findNote').textContent='検索ボタンかEnterで検索します。';});on('findText','keydown',e=>{if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(!findMatches.length)refreshFindResults(true);else e.shiftKey?prevFindMatch():nextFindMatch();}});on('replaceOneBtn','click',replaceNextInEditor);on('replaceAllBtn','click',()=>replaceAllInEditor(false));on('deleteAllBtn','click',()=>replaceAllInEditor(true));on('rerenderBtn','click',()=>renderAll(true));on('fromLogBtn','click',()=>{if(!entries.length){alert('先にHTMLログを読み込んでください');return}if(confirm('現在の編集テキストを、元ログから作り直します。手で直した内容は上書きされます。よろしいですか？'))renderAll(true)});on('previewBtn','click',()=>updatePreview(true));on('copyBtn','click',copyEditor);on('txtBtn','click',downloadText);on('htmlBtn','click',downloadHtml);on('printHtmlBtn','click',downloadPrintHtml);on('printBtn','click',printPdf);on('startBtn','click',scrollStart);on('directionBtn','click',e=>{isHorizontal=!isHorizontal;applySettings();e.target.textContent=isHorizontal?'縦書き確認':'横書き確認'});['skipEmpty','skipDice','skipSystem','mergeSameSpeaker','scenarioAsNarration','fullWidthPunctuation'].forEach(id=>on(id,'change',()=>renderAll(true)));['fontSize','speakerHeight','speakerFont','bodyHeight','turnGap'].forEach(id=>on(id,'change',()=>{applySettings();scrollStart()}));on('pdfSize','change',()=>{applySettings();});on('scenarioNames','input',()=>renderAll(true));els.textEditor.addEventListener('input',()=>{schedulePreview();findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';});on('printPreviewBtn','click',buildPrintPreview);on('applyDisplayNamesBtn','click',applyDisplayNamesToEditor);
+on('loadBtn','click',parseSelectedFile);on('demoBtn','click',showDemo);on('findBtn','click',findInEditor);on('prevHitBtn','click',prevFindMatch);on('nextHitBtn','click',nextFindMatch);on('findText','input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';$('findResults').innerHTML='';$('findNote').textContent='検索ボタンかEnterで検索します。';});on('findText','keydown',e=>{if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(!findMatches.length)refreshFindResults(true);else e.shiftKey?prevFindMatch():nextFindMatch();}});on('replaceOneBtn','click',replaceNextInEditor);on('replaceAllBtn','click',()=>replaceAllInEditor(false));on('deleteAllBtn','click',()=>replaceAllInEditor(true));on('rerenderBtn','click',()=>renderAll(true));on('fromLogBtn','click',()=>{if(!entries.length){alert('先にHTMLログを読み込んでください');return}if(confirm('現在の編集テキストを、元ログから作り直します。手で直した内容は上書きされます。よろしいですか？'))renderAll(true)});on('previewBtn','click',()=>updatePreview(true));on('copyBtn','click',copyEditor);on('txtBtn','click',downloadText);on('htmlBtn','click',downloadHtml);on('printHtmlBtn','click',downloadPrintHtml);on('printBtn','click',printPdf);on('startBtn','click',scrollStart);on('directionBtn','click',e=>{isHorizontal=!isHorizontal;applySettings();e.target.textContent=isHorizontal?'縦書き確認':'横書き確認'});['skipEmpty','skipDice','skipSystem','mergeSameSpeaker','scenarioAsNarration','fullWidthPunctuation'].forEach(id=>on(id,'change',()=>renderAll(true)));['fontSize','speakerHeight','speakerFont','bodyHeight','turnGap'].forEach(id=>on(id,'change',()=>{applySettings();scrollStart()}));on('pdfSize','change',()=>{applySettings();});on('scenarioNames','input',()=>renderAll(true));els.textEditor.addEventListener('input',()=>{schedulePreview();findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';});on('printPreviewBtn','click',buildPrintPreview);on('applySpeakerSettingsBtn','click',applySpeakerSettingsToEditor);
 if($('prevPrintPageBtn')) $('prevPrintPageBtn').addEventListener('click',()=>scrollPrintPreviewPage(-1));
 if($('nextPrintPageBtn')) $('nextPrintPageBtn').addEventListener('click',()=>scrollPrintPreviewPage(1));
 ['pdfSize','pdfLines','pdfPcChars','pdfMaxCols','pdfSafeLeft','pdfSafeRight','pdfSafeBottom'].forEach(id=>{ const el=$(id); if(el){ el.addEventListener('input',schedulePrintPreview); el.addEventListener('change',schedulePrintPreview); }});
