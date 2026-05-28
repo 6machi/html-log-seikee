@@ -39,26 +39,142 @@ function isPcName(raw){return pcNames.has(canonicalSpeakerName(raw))}
 function isBodyOnlyName(raw){return bodyOnlyNames.has(canonicalSpeakerName(raw))}
 function isExcludedName(raw){return excludedNames.has(canonicalSpeakerName(raw))}
 function applySpeakerSettingsToEditor(){
-  const text=els.textEditor.value||'';
-  if(!text.trim()){alert('編集テキストが空です');return}
-  const blocks=text.split(/(\n{2,})/);
+  const originalText=els.textEditor.value||'';
+  if(!originalText.trim()){alert('編集テキストが空です');return}
+
+  // 反映対象の話者名を「元名・表示名・過去に使った別名」すべてから探せるようにする。
+  // ここが弱いと、表示名を変えた後に「本文だけ」「非表示」「PC/KP」が効かなくなる。
+  const nameRows=[...displayNames.keys()].map(orig=>{
+    rememberNameAlias(orig, displayNames.get(orig)||orig);
+    const aliases=new Set([orig, displayNames.get(orig)||orig]);
+    const saved=nameAliases.get(orig);
+    if(saved) saved.forEach(v=>aliases.add(v));
+    const cleanAliases=[...aliases].map(v=>cleanText(v)).filter(Boolean);
+    const role=isExcludedName(orig)?'off':isBodyOnlyName(orig)?'body':isPcName(orig)?'pc':'kp';
+    return {orig, display:cleanText(displayNames.get(orig)||orig), role, aliases:cleanAliases};
+  });
+  const aliasToRow=[];
+  nameRows.forEach(row=>row.aliases.forEach(a=>aliasToRow.push([a,row])));
+  aliasToRow.sort((a,b)=>b[0].length-a[0].length);
+
+  function rowForName(name){
+    const n=cleanText(name||'');
+    if(!n)return null;
+    const canon=canonicalSpeakerName(n);
+    const direct=nameRows.find(r=>r.orig===canon || r.aliases.includes(n));
+    if(direct)return direct;
+    return null;
+  }
+  function escReg(s){return String(s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+  function normalizeBlockNewlines(s){return String(s||'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
+
+  function transformCalloutLine(line){
+    // 【話者】本文 の1行単位。本文だけなら【話者】だけ消して本文は残す。
+    const m=String(line).match(/^([ \t]*)【([^】]+)】([\s\S]*)$/);
+    if(!m)return {text:line, changed:false, touched:false};
+    const row=rowForName(m[2]);
+    if(!row)return {text:line, changed:false, touched:false};
+    const indent=m[1]||'';
+    const body=cleanText(m[3]||'');
+    let next=line;
+    if(row.role==='off') next='';
+    else if(row.role==='body') next=body;
+    else next=`${indent}【${row.display}】${body}`;
+    return {text:next, changed:next!==line, touched:true};
+  }
+
+  function transformSpeakerBlock(block){
+    if(!block.trim())return {text:block, changed:false, touched:false};
+
+    // まず、ブロック内にダイス形式の【話者】が複数行で混ざっている場合にも効かせる。
+    const lines=block.split('\n');
+    let calloutTouched=false, calloutChanged=false;
+    const calloutLines=lines.map(line=>{
+      const r=transformCalloutLine(line);
+      if(r.touched)calloutTouched=true;
+      if(r.changed)calloutChanged=true;
+      return r.text;
+    }).filter(line=>line!==null && line!==undefined && line!=='');
+    if(calloutTouched){
+      return {text:normalizeBlockNewlines(calloutLines.join('\n')), changed:calloutChanged, touched:true};
+    }
+
+    const firstRaw=lines[0]||'';
+    const first=cleanText(firstRaw);
+    const rest=lines.slice(1).join('\n').trim();
+
+    // ■ 話者 / ◆ 話者 形式
+    const headingMatch=first.match(/^([■◆])\s*(.+)$/);
+    if(headingMatch){
+      const mark=headingMatch[1];
+      const row=rowForName(headingMatch[2]);
+      if(!row)return {text:block, changed:false, touched:false};
+      let next=block;
+      if(row.role==='off') next='';
+      else if(row.role==='body') next=rest;
+      else if(row.role==='pc') next=rest ? `${row.display}\n${rest}` : row.display;
+      else next=rest ? `${mark} ${row.display}\n${rest}` : `${mark} ${row.display}`;
+      next=normalizeBlockNewlines(next);
+      return {text:next, changed:next!==block, touched:true};
+    }
+
+    // 通常の「話者名\n本文」形式。表示名に変えた後でも元名に紐づけて判定する。
+    const row=rowForName(first);
+    if(row){
+      let next=block;
+      if(row.role==='off') next='';
+      else if(row.role==='body') next=rest;
+      else if(row.role==='pc') next=rest ? `${row.display}\n${rest}` : row.display;
+      else next=rest ? `■ ${row.display}\n${rest}` : `■ ${row.display}`;
+      next=normalizeBlockNewlines(next);
+      return {text:next, changed:next!==block, touched:true};
+    }
+
+    // 念のため、「話者名：本文」「話者名:本文」形式にも対応。
+    for(const [alias,row2] of aliasToRow){
+      const re=new RegExp(`^${escReg(alias)}\\s*[：:]\\s*([\\s\\S]*)$`);
+      const m=first.match(re);
+      if(m){
+        const body=[m[1], rest].filter(Boolean).join('\n').trim();
+        let next=block;
+        if(row2.role==='off') next='';
+        else if(row2.role==='body') next=body;
+        else if(row2.role==='pc') next=body ? `${row2.display}\n${body}` : row2.display;
+        else next=body ? `■ ${row2.display}\n${body}` : `■ ${row2.display}`;
+        next=normalizeBlockNewlines(next);
+        return {text:next, changed:next!==block, touched:true};
+      }
+    }
+
+    return {text:block, changed:false, touched:false};
+  }
+
+  // 空行区切りを維持したまま各ブロックに反映する。
+  const tokens=originalText.split(/(\n{2,})/);
   let changed=0;
-  const out=blocks.map(part=>{
-    if(/^\n{2,}$/.test(part)||!part.trim())return part;
-    const lines=part.split('\n');
-    const first=(lines[0]||'').trim();
-    if(!first||first.startsWith('■')||first.startsWith('◆')||first.startsWith('【'))return part;
-    const canon=canonicalSpeakerName(first);
-    if(!canon||!displayNames.has(canon))return part;
-    if(isExcludedName(first)){changed++;return '';}
-    if(isBodyOnlyName(first)){const body=lines.slice(1).join('\n').trim();if(body){changed++;return body;}changed++;return '';}
-    const display=cleanText(displayNames.get(canon)||canon);
-    if(display&&display!==first){lines[0]=display;changed++;return lines.join('\n')}
-    return part;
-  }).join('');
-  if(changed){els.textEditor.value=out.replace(/\n{3,}/g,'\n\n').trim();schedulePreview();alert(`${changed}件の話者設定を編集テキストへ反映しました。`) }
-  else alert('反映できる話者設定はありませんでした。');
+  let touched=0;
+  const out=tokens.map(tok=>{
+    if(/^\n{2,}$/.test(tok))return tok;
+    const r=transformSpeakerBlock(tok);
+    if(r.touched)touched++;
+    if(r.changed)changed++;
+    return r.text;
+  }).join('').replace(/\n{3,}/g,'\n\n').trim();
+
+  if(changed){
+    els.textEditor.value=out;
+    schedulePreview();
+    findMatches=[];findIndex=-1;
+    const counter=$('findCounter'); if(counter)counter.textContent='0 / 0';
+    alert(`${changed}ブロックの話者設定を編集テキストへ反映しました。`);
+  }else if(touched){
+    alert('話者設定は見つかりましたが、編集テキスト上で変更が必要な箇所はありませんでした。');
+  }else{
+    alert('編集テキスト内に、話者設定と一致する話者名が見つかりませんでした。\n話者名が手入力で変わっている場合は、話者設定の表示名と編集テキスト上の名前を確認してください。');
+  }
 }
+
+
 
 function scenarioKeys(){return $('scenarioNames').value.split(',').map(s=>s.trim()).filter(Boolean)}
 function isScenarioEntry(e){if(e.isSystem)return false;if(!$('scenarioAsNarration').checked)return false;const low=String(e.color||'').toLowerCase();return low==='#888888'&&scenarioKeys().some(k=>e.name.startsWith(k)||e.name.includes(k))}
@@ -1138,7 +1254,7 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_ver23.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_ver25.html','text/html;charset=utf-8');
 }
 
 
