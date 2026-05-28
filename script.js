@@ -144,7 +144,7 @@ function markTitlePage(){wrapEditorSelection('［タイトルページ］','［�
 function markSystemBox(){wrapEditorSelection('［システム枠］','［／システム枠］','ここにシステム枠にしたい文章');}
 function markInfoBox(){wrapEditorSelection('［情報枠］','［／情報枠］','ここに長文情報枠にしたい文章');}
 function insertRecallLine(){insertEditorBlock('————————————');}
-function insertTimeDots(){insertEditorBlock('・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・');}
+function insertTimeDots(){insertEditorBlock('・・・\n・・\n・');}
 function applySpeakerSettingsToEditor(){
   const originalText=els.textEditor.value||'';
   if(!originalText.trim()){alert('編集テキストが空です');return}
@@ -435,7 +435,7 @@ function blockToEditableText(b){
   if(b.type==='dicebox') return `［システム枠］\n${b.body||''}\n［／システム枠］`;
   if(b.type==='infobox') return `［情報枠］\n${b.body||''}\n［／情報枠］`;
   if(b.type==='divider') return b.body||'————————————';
-  if(b.type==='dots') return b.body||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・';
+  if(b.type==='dots') return b.body||'・・・\n・・\n・';
   if(b.type==='heading') return [`■ ${b.title||''}`, b.body||''].filter(Boolean).join('\n');
   if(b.type==='callout'||b.type==='dice') return `【${b.name||'system'}】${b.body||''}`;
   return [b.name||'', b.body||''].filter(Boolean).join('\n');
@@ -1253,7 +1253,7 @@ function buildAbsColumns(blocks,spec){
       continue;
     }
     if(b.type==='dots'){
-      cols.push({type:'dots',text:normalizeStoryVerticalText(b.body||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・')});
+      cols.push({type:'dots',text:normalizeStoryVerticalText(b.body||'・・・\n・・\n・')});
       continue;
     }
     if(b.type==='dicebox'||b.type==='infobox'){
@@ -1313,8 +1313,8 @@ function buildAbsColumns(blocks,spec){
 function absColWidth(c,spec){
   if(c.type==='dice') return spec.diceW;
   if(c.type==='info') return spec.colW;
-  if(c.type==='divider') return Math.max(spec.colW*.85, 4.2);
-  if(c.type==='dots') return Math.max(spec.colW*3.2, 18);
+  if(c.type==='divider') return Math.max(spec.colW*1.25, 6.2);
+  if(c.type==='dots') return Math.max(spec.colW*2.25, 13.5);
   return spec.colW;
 }
 function absGapBefore(c,prev,spec){
@@ -1386,16 +1386,16 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .abs-dice.roll{font-size:${Math.max(6.8,spec.dicePt-.9)}pt;line-height:1.20;letter-spacing:.01em;overflow-wrap:normal;word-break:keep-all;}
 .abs-dice.continued{border-color:rgba(95,86,74,.55);}
 .abs-dice.info{font-weight:600;border:1.25px solid rgba(65,58,50,.72);background:#fffdf7;}
-.abs-info-col{position:absolute;top:${spec.innerY+2.2}mm;width:${spec.colW}mm;height:${Math.max(30,spec.innerH-4.4)}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.pt}pt;line-height:${spec.line};letter-spacing:.015em;color:#171410;overflow:hidden;z-index:2;}
-.abs-info-frame{position:absolute;top:${spec.innerY}mm;height:${spec.innerH}mm;border:1.1px solid rgba(95,86,74,.70);border-radius:3.2mm;box-sizing:border-box;background:#fffdf7;z-index:1;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;text-align:center;font-size:${Math.max(13,spec.pt*1.12)}pt;line-height:1.55;font-weight:900;letter-spacing:.06em;color:#171410;}
-.abs-titlepage .abs-title-inner{border-inline-start:1.4px solid rgba(35,31,27,.55);border-inline-end:1.4px solid rgba(35,31,27,.55);padding:6mm 2.5mm;max-height:145mm;}
+.abs-info-col{position:absolute;top:${spec.innerY+2.0}mm;width:${spec.colW}mm;height:${Math.max(30,spec.innerH-4.0)}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${Math.max(8.8,spec.pt*.92)}pt;line-height:1.32;letter-spacing:.004em;color:#171410;overflow:hidden;z-index:2;}
+.abs-info-frame{position:absolute;top:${spec.innerY}mm;height:${spec.innerH}mm;border:1.0px solid rgba(95,86,74,.62);border-radius:2.4mm;box-sizing:border-box;background:#fffdf8;z-index:1;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:block;writing-mode:vertical-rl;text-orientation:mixed;text-align:start;font-size:${spec.pt}pt;line-height:${spec.line};font-weight:600;letter-spacing:.015em;color:#171410;overflow:hidden;}
+.abs-titlepage .abs-title-inner{border:0;padding:0;max-height:${spec.innerH}mm;white-space:pre-wrap;}
 .abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;height:${spec.innerH}mm;box-sizing:border-box;color:#6a5b4b;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .abs-divider{display:flex;align-items:flex-start;justify-content:center;writing-mode:horizontal-tb;padding-top:0;}
-.abs-divider .divider-line{display:block;width:0;height:38mm;border-left:1.2px solid rgba(106,91,75,.78);}
+.abs-divider .divider-dotline{display:block;writing-mode:vertical-rl;text-orientation:upright;white-space:nowrap;font-size:${Math.max(7.5,spec.pt*.78)}pt;line-height:1;letter-spacing:.10em;font-weight:700;color:#6a5b4b;}
 .abs-dots{display:flex;align-items:flex-start;justify-content:flex-start;writing-mode:horizontal-tb;padding-top:0;}
-.abs-dots-inner{display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;gap:1.15mm;}
-.abs-dot-col{display:block;writing-mode:vertical-rl;text-orientation:upright;white-space:nowrap;font-size:${Math.max(9,spec.pt*.92)}pt;line-height:1;letter-spacing:.17em;font-weight:700;color:#6a5b4b;}
+.abs-dots-inner{display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;gap:1.25mm;width:100%;}
+.abs-dot-col{display:block;writing-mode:vertical-rl;text-orientation:upright;white-space:nowrap;font-size:${Math.max(7.8,spec.pt*.80)}pt;line-height:1;letter-spacing:.08em;font-weight:700;color:#6a5b4b;}
 .page-mark{position:absolute;left:50%;bottom:5mm;transform:translateX(-50%);width:max-content;text-align:center;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb;}
 `;
 }
@@ -1407,11 +1407,11 @@ function renderAbsCol(c,i,page,spec){
   const right=absRightMm(i,page,spec).toFixed(3);
   if(c.type==='divider'){
     const w=absColWidth(c,spec).toFixed(3);
-    return `<section class="abs-divider" style="right:${right}mm;width:${w}mm" aria-label="回想線"><span class="divider-line"></span></section>`;
+    return `<section class="abs-divider" style="right:${right}mm;width:${w}mm" aria-label="回想線"><span class="divider-dotline">・・・・・・</span></section>`;
   }
   if(c.type==='dots'){
     const w=absColWidth(c,spec).toFixed(3);
-    const raw=String(c.text||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・');
+    const raw=String(c.text||'・・・\n・・\n・');
     const lines=raw.split(/\n+/).map(x=>x.trim()).filter(Boolean);
     const inner=lines.map(x=>`<span class="abs-dot-col">${escapeHtml(x)}</span>`).join('');
     return `<section class="abs-dots" style="right:${right}mm;width:${w}mm" aria-label="時間経過"><div class="abs-dots-inner">${inner}</div></section>`;
