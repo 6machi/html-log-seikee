@@ -317,7 +317,44 @@ function renderStats(list){$('statTotal').textContent=entries.length;$('statShow
 function renderRaw(list){els.rawPreview.innerHTML=`<div class="raw-item"><div class="raw-meta"><b>抽出ログ</b></div><div class="raw-body">軽量化のため、抽出ログの全件プレビューは表示していません。抽出件数：${list.length}件</div></div>`}
 function renderNameList(){const counts=new Map();const colors=new Map();for(const e of entries){if(!e.name)continue;counts.set(e.name,(counts.get(e.name)||0)+1);if(!colors.has(e.name))colors.set(e.name,e.color)}els.nameList.innerHTML='';[...counts.keys()].sort((a,b)=>a.localeCompare(b,'ja')).forEach(name=>{const role=excludedNames.has(name)?'off':bodyOnlyNames.has(name)?'body':pcNames.has(name)?'pc':'kp';const label=role==='pc'?'PC会話':role==='kp'?'KP/描写':role==='body'?'本文だけ':'非表示';const chip=document.createElement('div');chip.className='chip';chip.innerHTML=`<div><div class="chip-title"><span class="dot" style="--c:${escapeHtml(colors.get(name)||'#888')}"></span><b title="${escapeHtml(name)}">${escapeHtml(name)}</b></div><small>${counts.get(name)}件 / <span class="role ${role}">${label}</span></small><label class="display-name-label">表示名<input type="text" value="${escapeHtml(displayNames.get(name)||name)}" aria-label="PDF/編集表示名"></label></div><div class="role-buttons"><button class="secondary small" data-role="pc">PC</button><button class="secondary small" data-role="kp">KP</button><button class="secondary small" data-role="body">本文だけ</button><button class="secondary small" data-role="off">非表示</button></div>`;chip.querySelector('input').addEventListener('input',ev=>{rememberNameAlias(name,displayNames.get(name)||name);displayNames.set(name,ev.target.value||name);rememberNameAlias(name,ev.target.value||name);});chip.querySelectorAll('button[data-role]').forEach(btn=>btn.addEventListener('click',()=>setRole(name,btn.dataset.role)));els.nameList.appendChild(chip)})}
 function setRole(name,role){name=canonicalSpeakerName(name);pcNames.delete(name);excludedNames.delete(name);bodyOnlyNames.delete(name);if(role==='pc')pcNames.add(name);else if(role==='body')bodyOnlyNames.add(name);else if(role==='off')excludedNames.add(name);renderNameList();renderStats(filteredEntries())}
-function parseEditableBlocks(text){return String(text||'').split(/\n{2,}/).map(b=>b.trim()).filter(Boolean).map(block=>{
+function splitEditableBlocks(text){
+  // beta7: タイトルページ・システム枠・情報枠の中に空行があると、
+  // 以前の split(/\n{2,}/) では途中で分断され、PDF側で特殊ブロックとして認識できなかった。
+  // ここではマーカー内だけは空行ごと丸ごと保持する。
+  const lines=String(text||'').replace(/\r/g,'').split('\n');
+  const blocks=[];
+  let buf=[];
+  const flush=()=>{
+    const t=buf.join('\n').trim();
+    if(t) blocks.push(t);
+    buf=[];
+  };
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i];
+    const open=line.trim().match(/^［(タイトルページ|システム枠|情報枠)］$/);
+    if(open){
+      flush();
+      const kind=open[1];
+      const marker=[line];
+      const closeRe=new RegExp('^［[／\\/](?:'+kind+')］$');
+      i++;
+      for(;i<lines.length;i++){
+        marker.push(lines[i]);
+        if(closeRe.test(lines[i].trim())) break;
+      }
+      blocks.push(marker.join('\n').trim());
+      continue;
+    }
+    if(line.trim()===''){
+      flush();
+    }else{
+      buf.push(line);
+    }
+  }
+  flush();
+  return blocks;
+}
+function parseEditableBlocks(text){return splitEditableBlocks(text).map(block=>{
   const marked=block.match(/^［(タイトルページ|システム枠|情報枠)］\n?([\s\S]*?)\n?［[／\/](?:タイトルページ|システム枠|情報枠)］$/);
   if(marked){
     const kind=marked[1];
@@ -1268,7 +1305,8 @@ function buildAbsColumns(blocks,spec){
 
 function absColWidth(c,spec){
   if(c.type==='dice'||c.type==='info') return spec.diceW;
-  if(c.type==='divider'||c.type==='dots') return spec.colW;
+  if(c.type==='divider') return Math.max(spec.colW*.85, 4.2);
+  if(c.type==='dots') return Math.max(spec.colW*3.2, 18);
   return spec.colW;
 }
 function absGapBefore(c,prev,spec){
@@ -1338,9 +1376,12 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .abs-dice.info{font-weight:600;border:1.25px solid rgba(65,58,50,.72);background:#fffdf7;}
 .abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;text-align:center;font-size:${Math.max(18,spec.pt*1.65)}pt;line-height:1.7;font-weight:900;letter-spacing:.08em;color:#171410;}
 .abs-titlepage .abs-title-inner{border-inline-start:1.4px solid rgba(35,31,27,.55);border-inline-end:1.4px solid rgba(35,31,27,.55);padding:8mm 3mm;max-height:150mm;}
-.abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;width:${spec.colW}mm;height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.pt}pt;line-height:1.7;font-weight:800;color:#4f463c;overflow:hidden;text-align:center;}
-.abs-divider{letter-spacing:.08em;color:#6a5b4b;}
-.abs-dots{letter-spacing:.03em;color:#6a5b4b;font-weight:700;}
+.abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;height:${spec.innerH}mm;box-sizing:border-box;color:#6a5b4b;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.abs-divider{display:flex;align-items:center;justify-content:center;writing-mode:horizontal-tb;}
+.abs-divider .divider-line{display:block;width:0;height:72%;border-left:1.2px solid rgba(106,91,75,.78);}
+.abs-dots{display:flex;align-items:center;justify-content:center;writing-mode:horizontal-tb;}
+.abs-dots-inner{display:flex;flex-direction:row-reverse;align-items:center;justify-content:center;gap:1.15mm;}
+.abs-dot-col{display:block;writing-mode:vertical-rl;text-orientation:upright;white-space:nowrap;font-size:${Math.max(9,spec.pt*.92)}pt;line-height:1;letter-spacing:.17em;font-weight:700;color:#6a5b4b;}
 .page-mark{position:absolute;left:50%;bottom:5mm;transform:translateX(-50%);width:max-content;text-align:center;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb;}
 `;
 }
@@ -1351,10 +1392,15 @@ function renderAbsCol(c,i,page,spec){
   }
   const right=absRightMm(i,page,spec).toFixed(3);
   if(c.type==='divider'){
-    return `<section class="abs-divider" style="right:${right}mm">${escapeHtml(c.text||'————————————')}</section>`;
+    const w=absColWidth(c,spec).toFixed(3);
+    return `<section class="abs-divider" style="right:${right}mm;width:${w}mm" aria-label="回想線"><span class="divider-line"></span></section>`;
   }
   if(c.type==='dots'){
-    return `<section class="abs-dots" style="right:${right}mm">${escapeHtml(c.text||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・')}</section>`;
+    const w=absColWidth(c,spec).toFixed(3);
+    const raw=String(c.text||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・');
+    const lines=raw.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+    const inner=lines.map(x=>`<span class="abs-dot-col">${escapeHtml(x)}</span>`).join('');
+    return `<section class="abs-dots" style="right:${right}mm;width:${w}mm" aria-label="時間経過"><div class="abs-dots-inner">${inner}</div></section>`;
   }
   if(c.type==='pc'){
     const showSpeaker=c.first || isPageStart || (page[i-1]&&page[i-1].run!==c.run);
@@ -1448,7 +1494,7 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta5.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta7.html','text/html;charset=utf-8');
 }
 
 
