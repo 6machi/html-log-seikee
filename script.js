@@ -99,10 +99,35 @@ function replaceEditorSelection(next,selectInner=false,innerOffset=0){
   findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';
 }
 function wrapEditorSelection(open,close,placeholder){
-  const sel=selectedEditorText();
-  const body=(sel.text&&sel.text.trim())?sel.text.trim():placeholder;
-  const next=`${open}\n${body}\n${close}`;
-  replaceEditorSelection(next,!sel.text,open.length+1);
+  const el=els.textEditor;
+  const raw=el.value||'';
+  let start=el.selectionStart??0;
+  let end=el.selectionEnd??start;
+  const hasSelection=end>start;
+  let body='';
+  if(hasSelection){
+    body=raw.slice(start,end).trim();
+  }else{
+    const lineStart=raw.lastIndexOf('\n',Math.max(0,start-1))+1;
+    const nextNl=raw.indexOf('\n',start);
+    const lineEnd=nextNl<0?raw.length:nextNl;
+    const line=raw.slice(lineStart,lineEnd).trim();
+    if(line){start=lineStart;end=lineEnd;body=line;}
+  }
+  if(!body) body=placeholder;
+  const before=raw.slice(0,start);
+  const after=raw.slice(end);
+  const prefix=before && !/\n\n$/.test(before) ? (before.endsWith('\n')?'\n':'\n\n') : '';
+  const suffix=after && !/^\n\n/.test(after) ? (after.startsWith('\n')?'\n':'\n\n') : '';
+  const next=`${prefix}${open}\n${body}\n${close}${suffix}`;
+  el.setRangeText(next,start,end,'end');
+  if(!hasSelection && body===placeholder){
+    const innerStart=start+prefix.length+open.length+1;
+    el.selectionStart=innerStart;
+    el.selectionEnd=innerStart+placeholder.length;
+  }
+  el.focus();
+  findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';
 }
 function insertEditorBlock(text){
   const el=els.textEditor;
