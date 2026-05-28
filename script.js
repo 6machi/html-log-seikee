@@ -12,20 +12,33 @@ function processBody(body){let t=toFullWidthAsciiExceptLetters(cleanText(body));
 function parseCcfoliaHtml(html){const doc=new DOMParser().parseFromString(html,'text/html');const ps=[...doc.querySelectorAll('p')];return ps.map((p,i)=>{const spans=[...p.querySelectorAll(':scope > span')];const tab=cleanText(spans[0]?.textContent||'').replace(/^\[|\]$/g,'');const name=cleanText(spans[1]?.textContent||'');const bodySpan=spans[2]||p;const body=htmlToText(bodySpan.innerHTML);const color=colorFromStyle(p.getAttribute('style')||'');return {id:i,tab,name,body,color,isDice:isDiceText(body),isSystem:name.toLowerCase()==='system',isEmpty:body.trim().length===0}}).filter(e=>e.name||e.body)}
 async function parseSelectedFile(){const file=els.fileInput.files?.[0];if(!file){alert('HTMLファイルを選んでください');return}const html=await file.text();entries=parseCcfoliaHtml(html);excludedNames=new Set();bodyOnlyNames=new Set();displayNames=new Map([...new Set(entries.map(e=>e.name).filter(Boolean))].map(n=>[n,n]));nameAliases=new Map([...displayNames.keys()].map(n=>[n,new Set([n])]));pcNames=new Set(entries.filter(e=>e.name&&!e.isSystem&&e.color.toLowerCase()!=='#888888').map(e=>e.name));renderNameList();renderAll(false)}
 
+
 function speakerMatchKey(value){
-  // 話者設定の照合用キー。編集テキスト側は縦書き用に全角化されるため、
-  // 「###2-1 導入」⇔「＃＃＃２－１　導入」のような差分を同一視する。
-  return normalizeSpeakerName(value).replace(/[\s　]+/g,'').toLocaleLowerCase();
+  // 話者照合専用キー。
+  // 表示上の縦書き変換で「###2-1」→「＃＃＃２－１」になっても一致するよう、
+  // Unicode正規化で半角/全角・記号差を吸収してから比較する。
+  return cleanText(value||'')
+    .normalize('NFKC')
+    .replace(/[\s　]+/g,'')
+    .toLocaleLowerCase('ja-JP');
 }
 function speakerAliasVariants(value){
   const raw=cleanText(value||'');
   if(!raw)return [];
-  const vals=new Set([raw, normalizeSpeakerName(raw)]);
-  // ココフォリアのタイトル系話者「###2-1 導入」は、編集テキスト上で
-  // 「###2-1」だけに見える/残ることがあるため、###系だけ先頭トークンも別名化する。
-  if(/^#+|^＃+/.test(raw)){
-    const first=raw.split(/[\s　]+/).filter(Boolean)[0];
-    if(first){vals.add(first);vals.add(normalizeSpeakerName(first));}
+  const vals=new Set([raw, normalizeSpeakerName(raw), raw.normalize('NFKC')]);
+  // 「###2-1 導入」系は、編集テキストでは「###2-1」だけ残ることがある。
+  const tokens=raw.split(/[\s　]+/).filter(Boolean);
+  if(tokens.length>1){
+    vals.add(tokens[0]);
+    vals.add(normalizeSpeakerName(tokens[0]));
+    vals.add(tokens[0].normalize('NFKC'));
+  }
+  // 「かぐや（竹宮月子）」系は、表示名で「かぐや」だけにする運用がある。
+  const beforeParen=raw.split(/[（(]/)[0].trim();
+  if(beforeParen && beforeParen!==raw){
+    vals.add(beforeParen);
+    vals.add(normalizeSpeakerName(beforeParen));
+    vals.add(beforeParen.normalize('NFKC'));
   }
   return [...vals].filter(Boolean);
 }
@@ -35,17 +48,30 @@ function rememberNameAlias(original,value){
   speakerAliasVariants(original).forEach(v=>nameAliases.get(original).add(v));
   speakerAliasVariants(value).forEach(v=>nameAliases.get(original).add(v));
 }
+function speakerCodeLikeKey(key){
+  return /^#+[0-9]/.test(key) || /^scene[0-9]/i.test(key) || /^[0-9]+[-_]/.test(key);
+}
 function canonicalSpeakerName(raw){
   const name=cleanText(raw||'');
   if(!name)return '';
   if(displayNames.has(name)||pcNames.has(name)||bodyOnlyNames.has(name)||excludedNames.has(name)) return name;
   const key=speakerMatchKey(name);
+  const tryMatch=(orig, val)=>{
+    const k=speakerMatchKey(val);
+    if(!k)return false;
+    if(k===key)return true;
+    // タイトル系「###2-1 導入」と「###2-1」は同一視する。
+    if((speakerCodeLikeKey(k)||speakerCodeLikeKey(key)) && (k.startsWith(key)||key.startsWith(k))) return true;
+    return false;
+  };
   for(const [orig,set] of nameAliases.entries()){
-    if(speakerMatchKey(orig)===key)return orig;
-    if(set){for(const alias of set){if(speakerMatchKey(alias)===key)return orig;}}
+    if(tryMatch(orig,orig))return orig;
+    if(set){for(const alias of set){if(tryMatch(orig,alias))return orig;}}
   }
   for(const [orig,disp] of displayNames.entries()){
-    if(speakerMatchKey(orig)===key||speakerMatchKey(disp)===key) return orig;
+    if(tryMatch(orig,orig)||tryMatch(orig,disp)) return orig;
+    for(const alias of speakerAliasVariants(orig)){ if(tryMatch(orig,alias)) return orig; }
+    for(const alias of speakerAliasVariants(disp)){ if(tryMatch(orig,alias)) return orig; }
   }
   return name;
 }
@@ -60,8 +86,6 @@ function applySpeakerSettingsToEditor(){
   const originalText=els.textEditor.value||'';
   if(!originalText.trim()){alert('編集テキストが空です');return}
 
-  // 反映対象の話者名を「元名・表示名・過去に使った別名」すべてから探せるようにする。
-  // ここが弱いと、表示名を変えた後に「本文だけ」「非表示」「PC/KP」が効かなくなる。
   const nameRows=[...displayNames.keys()].map(orig=>{
     rememberNameAlias(orig, displayNames.get(orig)||orig);
     const aliases=new Set();
@@ -81,17 +105,18 @@ function applySpeakerSettingsToEditor(){
   function rowForName(name){
     const n=cleanText(name||'');
     if(!n)return null;
-    const canon=canonicalSpeakerName(n);
     const key=speakerMatchKey(n);
-    const direct=nameRows.find(r=>r.orig===canon || r.aliasKeys.has(key) || r.aliases.includes(n));
+    const canon=canonicalSpeakerName(n);
+    let direct=nameRows.find(r=>r.orig===canon || r.aliasKeys.has(key) || r.aliases.some(a=>speakerMatchKey(a)===key));
     if(direct)return direct;
-    return null;
+    // 「###2-1 導入」⇔「###2-1」など、タイトルコードの部分一致。
+    direct=nameRows.find(r=>[...r.aliasKeys].some(k=>(speakerCodeLikeKey(k)||speakerCodeLikeKey(key))&&(k.startsWith(key)||key.startsWith(k))));
+    return direct||null;
   }
   function escReg(s){return String(s).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
   function normalizeBlockNewlines(s){return String(s||'').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()}
 
   function transformCalloutLine(line){
-    // 【話者】本文 の1行単位。本文だけなら【話者】だけ消して本文は残す。
     const m=String(line).match(/^([ \t]*)【([^】]+)】([\s\S]*)$/);
     if(!m)return {text:line, changed:false, touched:false};
     const row=rowForName(m[2]);
@@ -101,77 +126,99 @@ function applySpeakerSettingsToEditor(){
     let next=line;
     if(row.role==='off') next='';
     else if(row.role==='body') next=body;
-    else next=`${indent}【${row.display}】${body}`;
+    else if(row.role==='pc') next=body ? `${row.display}\n${body}` : row.display;
+    else next=body ? `■ ${row.display}\n${body}` : `■ ${row.display}`;
     return {text:next, changed:next!==line, touched:true};
+  }
+
+  function transformSingleSpeakerLine(line){
+    const raw=String(line||'');
+    const clean=cleanText(raw);
+    if(!clean)return {text:line, changed:false, touched:false, removeFollowing:false};
+
+    // ■/◆ 話者名
+    const heading=clean.match(/^([■◆])\s*(.+)$/);
+    if(heading){
+      const row=rowForName(heading[2]);
+      if(!row)return {text:line, changed:false, touched:false, removeFollowing:false};
+      let next=line;
+      if(row.role==='off') next='';
+      else if(row.role==='body') next='';
+      else if(row.role==='pc') next=row.display;
+      else next=`${heading[1]} ${row.display}`;
+      return {text:next, changed:next!==line, touched:true, removeFollowing:row.role==='off'};
+    }
+
+    // 話者名：本文
+    for(const [alias,row] of aliasToRow){
+      const re=new RegExp(`^${escReg(alias)}\\s*[：:]\\s*([\\s\\S]*)$`);
+      const m=clean.match(re);
+      if(m){
+        const body=cleanText(m[1]||'');
+        let next=line;
+        if(row.role==='off') next='';
+        else if(row.role==='body') next=body;
+        else if(row.role==='pc') next=body ? `${row.display}\n${body}` : row.display;
+        else next=body ? `■ ${row.display}\n${body}` : `■ ${row.display}`;
+        return {text:next, changed:next!==line, touched:true, removeFollowing:row.role==='off'};
+      }
+    }
+
+    // 話者名だけの行。完全一致またはタイトルコード一致だけにする。
+    const row=rowForName(clean);
+    if(row){
+      let next=line;
+      if(row.role==='off') next='';
+      else if(row.role==='body') next='';
+      else if(row.role==='pc') next=row.display;
+      else next=`■ ${row.display}`;
+      return {text:next, changed:next!==line, touched:true, removeFollowing:row.role==='off'};
+    }
+    return {text:line, changed:false, touched:false, removeFollowing:false};
+  }
+
+  function lineLooksLikeAnySpeaker(line){
+    const clean=cleanText(line||'');
+    if(!clean)return false;
+    if(/^【([^】]+)】/.test(clean)) return !!rowForName(clean.match(/^【([^】]+)】/)[1]);
+    const h=clean.match(/^([■◆])\s*(.+)$/);
+    if(h && rowForName(h[2]))return true;
+    if(rowForName(clean))return true;
+    return false;
   }
 
   function transformSpeakerBlock(block){
     if(!block.trim())return {text:block, changed:false, touched:false};
-
-    // まず、ブロック内にダイス形式の【話者】が複数行で混ざっている場合にも効かせる。
     const lines=block.split('\n');
-    let calloutTouched=false, calloutChanged=false;
-    const calloutLines=lines.map(line=>{
-      const r=transformCalloutLine(line);
-      if(r.touched)calloutTouched=true;
-      if(r.changed)calloutChanged=true;
-      return r.text;
-    }).filter(line=>line!==null && line!==undefined && line!=='');
-    if(calloutTouched){
-      return {text:normalizeBlockNewlines(calloutLines.join('\n')), changed:calloutChanged, touched:true};
-    }
+    let touched=false, changed=false;
+    let out=[];
+    let skipUntilBoundary=false;
 
-    const firstRaw=lines[0]||'';
-    const first=cleanText(firstRaw);
-    const rest=lines.slice(1).join('\n').trim();
-
-    // ■ 話者 / ◆ 話者 形式
-    const headingMatch=first.match(/^([■◆])\s*(.+)$/);
-    if(headingMatch){
-      const mark=headingMatch[1];
-      const row=rowForName(headingMatch[2]);
-      if(!row)return {text:block, changed:false, touched:false};
-      let next=block;
-      if(row.role==='off') next='';
-      else if(row.role==='body') next=rest;
-      else if(row.role==='pc') next=rest ? `${row.display}\n${rest}` : row.display;
-      else next=rest ? `${mark} ${row.display}\n${rest}` : `${mark} ${row.display}`;
-      next=normalizeBlockNewlines(next);
-      return {text:next, changed:next!==block, touched:true};
-    }
-
-    // 通常の「話者名\n本文」形式。表示名に変えた後でも元名に紐づけて判定する。
-    const row=rowForName(first);
-    if(row){
-      let next=block;
-      if(row.role==='off') next='';
-      else if(row.role==='body') next=rest;
-      else if(row.role==='pc') next=rest ? `${row.display}\n${rest}` : row.display;
-      else next=rest ? `■ ${row.display}\n${rest}` : `■ ${row.display}`;
-      next=normalizeBlockNewlines(next);
-      return {text:next, changed:next!==block, touched:true};
-    }
-
-    // 念のため、「話者名：本文」「話者名:本文」形式にも対応。
-    for(const [alias,row2] of aliasToRow){
-      const re=new RegExp(`^${escReg(alias)}\\s*[：:]\\s*([\\s\\S]*)$`);
-      const m=first.match(re);
-      if(m){
-        const body=[m[1], rest].filter(Boolean).join('\n').trim();
-        let next=block;
-        if(row2.role==='off') next='';
-        else if(row2.role==='body') next=body;
-        else if(row2.role==='pc') next=body ? `${row2.display}\n${body}` : row2.display;
-        else next=body ? `■ ${row2.display}\n${body}` : `■ ${row2.display}`;
-        next=normalizeBlockNewlines(next);
-        return {text:next, changed:next!==block, touched:true};
+    for(let i=0;i<lines.length;i++){
+      const line=lines[i];
+      if(skipUntilBoundary){
+        if(!cleanText(line)) { out.push(line); skipUntilBoundary=false; continue; }
+        if(lineLooksLikeAnySpeaker(line)){ skipUntilBoundary=false; }
+        else { changed=true; continue; }
       }
+      const call=transformCalloutLine(line);
+      if(call.touched){
+        touched=true; if(call.changed)changed=true;
+        if(call.text) out.push(...call.text.split('\n'));
+        continue;
+      }
+      const sp=transformSingleSpeakerLine(line);
+      if(sp.touched){
+        touched=true; if(sp.changed)changed=true;
+        if(sp.text) out.push(...sp.text.split('\n'));
+        if(sp.removeFollowing) skipUntilBoundary=true;
+        continue;
+      }
+      out.push(line);
     }
-
-    return {text:block, changed:false, touched:false};
+    return {text:normalizeBlockNewlines(out.join('\n')), changed, touched};
   }
 
-  // 空行区切りを維持したまま各ブロックに反映する。
   const tokens=originalText.split(/(\n{2,})/);
   let changed=0;
   let touched=0;
@@ -192,10 +239,9 @@ function applySpeakerSettingsToEditor(){
   }else if(touched){
     alert('話者設定は見つかりましたが、編集テキスト上で変更が必要な箇所はありませんでした。');
   }else{
-    alert('編集テキスト内に、話者設定と一致する話者名が見つかりませんでした。\n話者名が手入力で変わっている場合は、話者設定の表示名と編集テキスト上の名前を確認してください。');
+    alert('編集テキスト内に、話者設定と一致する話者名が見つかりませんでした。\n半角/全角や「###2-1」形式も吸収しますが、該当名が本文中だけにある場合は反映対象になりません。');
   }
 }
-
 
 
 function scenarioKeys(){return $('scenarioNames').value.split(',').map(s=>s.trim()).filter(Boolean)}
