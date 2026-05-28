@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ログジェネ LOGGENE beta 4 軽量版</title>
+<title>ログジェネ LOGGENE beta 5 軽量版</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -408,13 +408,15 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 .preview-edit-hint{font-size:12px;color:#7a6b5c;margin:6px 0 0;}
 
 .preset-card{border:1px solid var(--line);border-radius:18px;background:#fffaf0;padding:14px 15px;margin-bottom:12px;line-height:1.8;color:#5b4b2b}.preset-card b{display:block;color:#1f2937;font-size:16px;margin-bottom:4px}.preset-card p{margin:0 0 6px}.preset-card .mini{font-size:12px;color:#88724b}.settings-simple .buttons{margin-top:12px}.save-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.save-actions button{min-height:40px}.editor-actions-note{font-size:12px;color:#7a6b5c;line-height:1.6;margin:0 0 8px}.danger-note{background:#fff1f1;border:1px solid #f2c4c4;color:#7a2525;border-radius:14px;padding:9px 11px;font-size:12px;line-height:1.6;margin-bottom:10px}
+
+.edit-tools{border:1px solid var(--line);border-radius:16px;background:#fffaf0;padding:10px 12px;margin:10px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}.edit-tools b{font-size:13px;color:#473625;margin-right:4px}.edit-tools .mini-note{flex-basis:100%;margin:0;color:#7a6b5c}.edit-tools button{min-height:34px;padding:7px 10px}.edit-tools .danger-lite{background:#fff;border-color:#ead8ba;color:#5b4630}
 .mini-note{font-size:12px;color:#6f7482;line-height:1.6;margin:0 0 10px}.display-name-label{display:block;font-size:12px;color:#6f7482;margin-top:6px}.display-name-label input{margin-top:3px}
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ LOGGENE beta 4</h1></div><span class="badge">A5固定＋軽量化 / LOGGENE beta 4</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ LOGGENE beta 5</h1></div><span class="badge">A5固定＋軽量化 / LOGGENE beta 5</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。LOGGENE beta 4では、入力中の自動プレビュー生成と抽出ログの全件描画を止め、編集テキスト中心の軽量構成にしています。</p></section>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。LOGGENE beta 5では、入力中の自動プレビュー生成と抽出ログの全件描画を止め、編集テキスト中心の軽量構成にしています。</p></section>
 <section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>話者設定</h2><div class="notice">話者設定や表示名を変えても、編集中のテキストは自動では書き換えません。表示名変更・本文だけ・非表示を編集テキストへ反映したい時は下のボタンを押してください。最初から作り直したい時だけ、編集テキスト欄の「元ログから再生成」を押してください。</div><div class="buttons" style="margin:10px 0"><button class="secondary" id="applySpeakerSettingsBtn" type="button">話者設定を編集テキストに反映</button></div><div class="mini-note">例：「かぐや（竹宮月子）」を「かぐや」にしたり、「ダイスロールの結果」を本文だけにした後、このボタンで編集テキストへ反映します。</div><div id="nameList" class="names"></div></div></div>
 <div class="hidden-settings" style="display:none">
   <label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label>
@@ -438,7 +440,7 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
   <input id="scenarioNames" type="text" value="部屋説明,START画面,導入,探索可能箇所,プロローグ,お話,ノイズ,決断,ENDA,ニュース,SNS,まとめ,アニメ,手を伸ばす,▼">
   <button id="rerenderBtn" type="button">再変換</button><button id="previewBtn" type="button">プレビュー更新</button><button id="htmlBtn" type="button">HTML保存</button>
 </div></section>
-<section class="panel editor"><div class="toolbar"><h2>編集テキスト</h2><div class="buttons"><button class="secondary" id="fromLogBtn">元ログから再生成</button></div></div><div class="danger-note">編集テキストは自動保存ではありません。大きく直したら「編集テキストをコピー」または「TXT保存」で手元に残してください。「元ログから再生成」を押すと、今の編集内容は上書きされます。</div><div class="notice">ここを直接編集して、PDFに出す内容を整えます。PCに設定した話者は会話ブロック、KP/描写に設定した話者は本文流しになります。見出しにしたい行は「■ 見出し」、ダイス表示にしたい行は「【名前】ダイス結果」の形にしてください。</div><div class="find-panel upgraded"><div><label for="findText">検索する言葉</label><input id="findText" type="text" placeholder="例：成功 失敗のパネル"></div><div><label for="replaceText">置き換え後 / 空欄なら削除</label><input id="replaceText" type="text" placeholder="例：成功/失敗パネル"></div><div class="find-buttons"><button class="secondary" id="findBtn" type="button">検索</button><button class="secondary" id="prevHitBtn" type="button">↑ 前</button><button class="secondary" id="nextHitBtn" type="button">↓ 次</button><button class="secondary" id="replaceOneBtn" type="button">現在を置換</button><button class="secondary" id="replaceAllBtn" type="button">全置換</button><button class="secondary" id="deleteAllBtn" type="button">全削除</button></div></div><div class="find-status-row"><span id="findCounter" class="find-counter">0 / 0</span><span class="find-note" id="findNote">検索ボタンで確定検索します。入力途中では検索しません。</span></div><div id="findResults" class="find-results" aria-label="検索結果"></div><textarea id="textEditor" placeholder="HTMLログを読み込むとここに整形テキストが入ります。"></textarea><p class="editor-actions-note">下のボタンは、現在の編集テキストを基準に保存・PDF化します。自動保存ではありません。</p><div class="save-actions"><button class="secondary" id="copyBtn">編集テキストをコピー</button><button class="secondary" id="txtBtn">TXT保存</button><button class="secondary" id="printHtmlBtn">PDF用HTML保存</button><button class="warn" id="printBtn">印刷/PDF</button></div><details style="margin-top:10px"><summary>抽出ログを見る</summary><div id="rawPreview" class="raw"></div></details></section>
+<section class="panel editor"><div class="toolbar"><h2>編集テキスト</h2><div class="buttons"><button class="secondary" id="fromLogBtn">元ログから再生成</button></div></div><div class="danger-note">編集テキストは自動保存ではありません。大きく直したら「編集テキストをコピー」または「TXT保存」で手元に残してください。「元ログから再生成」を押すと、今の編集内容は上書きされます。</div><div class="notice">ここを直接編集して、PDFに出す内容を整えます。PCに設定した話者は会話ブロック、KP/描写に設定した話者は本文流しになります。見出しにしたい行は「■ 見出し」、ダイス表示にしたい行は「【名前】ダイス結果」の形にしてください。</div><div class="find-panel upgraded"><div><label for="findText">検索する言葉</label><input id="findText" type="text" placeholder="例：成功 失敗のパネル"></div><div><label for="replaceText">置き換え後 / 空欄なら削除</label><input id="replaceText" type="text" placeholder="例：成功/失敗パネル"></div><div class="find-buttons"><button class="secondary" id="findBtn" type="button">検索</button><button class="secondary" id="prevHitBtn" type="button">↑ 前</button><button class="secondary" id="nextHitBtn" type="button">↓ 次</button><button class="secondary" id="replaceOneBtn" type="button">現在を置換</button><button class="secondary" id="replaceAllBtn" type="button">全置換</button><button class="secondary" id="deleteAllBtn" type="button">全削除</button></div></div><div class="find-status-row"><span id="findCounter" class="find-counter">0 / 0</span><span class="find-note" id="findNote">検索ボタンで確定検索します。入力途中では検索しません。</span></div><div id="findResults" class="find-results" aria-label="検索結果"></div><div class="edit-tools" aria-label="編集補助"><b>選択範囲を整える</b><button class="secondary" id="markTitlePageBtn" type="button">タイトル1ページ</button><button class="secondary" id="markSystemBoxBtn" type="button">システム枠</button><button class="secondary" id="markInfoBoxBtn" type="button">長文情報枠</button><button class="secondary danger-lite" id="insertRecallLineBtn" type="button">回想線を挿入</button><button class="secondary danger-lite" id="insertTimeDotsBtn" type="button">時間経過の点を挿入</button><div class="mini-note">文字を選択して押すと、PDF用の記法で囲みます。自動保存ではありません。押した後は「印刷/PDF」または「PDF用HTML保存」で確認してください。</div></div><textarea id="textEditor" placeholder="HTMLログを読み込むとここに整形テキストが入ります。"></textarea><p class="editor-actions-note">下のボタンは、現在の編集テキストを基準に保存・PDF化します。自動保存ではありません。</p><div class="save-actions"><button class="secondary" id="copyBtn">編集テキストをコピー</button><button class="secondary" id="txtBtn">TXT保存</button><button class="secondary" id="printHtmlBtn">PDF用HTML保存</button><button class="warn" id="printBtn">印刷/PDF</button></div><details style="margin-top:10px"><summary>抽出ログを見る</summary><div id="rawPreview" class="raw"></div></details></section>
 <div id="previewShell" style="display:none"><div id="verticalPage" class="page"></div></div>
 
 
@@ -529,6 +531,45 @@ function displayForSpeaker(raw){
 function isPcName(raw){return pcNames.has(canonicalSpeakerName(raw))}
 function isBodyOnlyName(raw){return bodyOnlyNames.has(canonicalSpeakerName(raw))}
 function isExcludedName(raw){return excludedNames.has(canonicalSpeakerName(raw))}
+
+function selectedEditorText(){
+  const el=els.textEditor;
+  return {el,start:el.selectionStart??0,end:el.selectionEnd??0,text:el.value.slice(el.selectionStart??0,el.selectionEnd??0)};
+}
+function replaceEditorSelection(next,selectInner=false,innerOffset=0){
+  const el=els.textEditor;
+  const start=el.selectionStart??0;
+  const end=el.selectionEnd??0;
+  el.setRangeText(next,start,end,'end');
+  if(selectInner){
+    el.selectionStart=start+innerOffset;
+    el.selectionEnd=start+next.length-innerOffset;
+  }
+  el.focus();
+  findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';
+}
+function wrapEditorSelection(open,close,placeholder){
+  const sel=selectedEditorText();
+  const body=(sel.text&&sel.text.trim())?sel.text.trim():placeholder;
+  const next=`${open}\n${body}\n${close}`;
+  replaceEditorSelection(next,!sel.text,open.length+1);
+}
+function insertEditorBlock(text){
+  const el=els.textEditor;
+  const start=el.selectionStart??0;
+  const before=el.value.slice(0,start);
+  const after=el.value.slice(el.selectionEnd??start);
+  const prefix=before && !/\n\n$/.test(before) ? (before.endsWith('\n')?'\n':'\n\n') : '';
+  const suffix=after && !/^\n\n/.test(after) ? (after.startsWith('\n')?'\n':'\n\n') : '';
+  el.setRangeText(prefix+text+suffix, start, el.selectionEnd??start, 'end');
+  el.focus();
+  findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';
+}
+function markTitlePage(){wrapEditorSelection('［タイトルページ］','［／タイトルページ］','タイトルを入力');}
+function markSystemBox(){wrapEditorSelection('［システム枠］','［／システム枠］','ここにシステム枠にしたい文章');}
+function markInfoBox(){wrapEditorSelection('［情報枠］','［／情報枠］','ここに長文情報枠にしたい文章');}
+function insertRecallLine(){insertEditorBlock('————————————');}
+function insertTimeDots(){insertEditorBlock('・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・');}
 function applySpeakerSettingsToEditor(){
   const originalText=els.textEditor.value||'';
   if(!originalText.trim()){alert('編集テキストが空です');return}
@@ -701,7 +742,25 @@ function renderStats(list){$('statTotal').textContent=entries.length;$('statShow
 function renderRaw(list){els.rawPreview.innerHTML=`<div class="raw-item"><div class="raw-meta"><b>抽出ログ</b></div><div class="raw-body">軽量化のため、抽出ログの全件プレビューは表示していません。抽出件数：${list.length}件</div></div>`}
 function renderNameList(){const counts=new Map();const colors=new Map();for(const e of entries){if(!e.name)continue;counts.set(e.name,(counts.get(e.name)||0)+1);if(!colors.has(e.name))colors.set(e.name,e.color)}els.nameList.innerHTML='';[...counts.keys()].sort((a,b)=>a.localeCompare(b,'ja')).forEach(name=>{const role=excludedNames.has(name)?'off':bodyOnlyNames.has(name)?'body':pcNames.has(name)?'pc':'kp';const label=role==='pc'?'PC会話':role==='kp'?'KP/描写':role==='body'?'本文だけ':'非表示';const chip=document.createElement('div');chip.className='chip';chip.innerHTML=`<div><div class="chip-title"><span class="dot" style="--c:${escapeHtml(colors.get(name)||'#888')}"></span><b title="${escapeHtml(name)}">${escapeHtml(name)}</b></div><small>${counts.get(name)}件 / <span class="role ${role}">${label}</span></small><label class="display-name-label">表示名<input type="text" value="${escapeHtml(displayNames.get(name)||name)}" aria-label="PDF/編集表示名"></label></div><div class="role-buttons"><button class="secondary small" data-role="pc">PC</button><button class="secondary small" data-role="kp">KP</button><button class="secondary small" data-role="body">本文だけ</button><button class="secondary small" data-role="off">非表示</button></div>`;chip.querySelector('input').addEventListener('input',ev=>{rememberNameAlias(name,displayNames.get(name)||name);displayNames.set(name,ev.target.value||name);rememberNameAlias(name,ev.target.value||name);});chip.querySelectorAll('button[data-role]').forEach(btn=>btn.addEventListener('click',()=>setRole(name,btn.dataset.role)));els.nameList.appendChild(chip)})}
 function setRole(name,role){name=canonicalSpeakerName(name);pcNames.delete(name);excludedNames.delete(name);bodyOnlyNames.delete(name);if(role==='pc')pcNames.add(name);else if(role==='body')bodyOnlyNames.add(name);else if(role==='off')excludedNames.add(name);renderNameList();renderStats(filteredEntries())}
-function parseEditableBlocks(text){return String(text||'').split(/\n{2,}/).map(b=>b.trim()).filter(Boolean).map(block=>{const lines=block.split('\n');const first=lines[0]||'';if(first.startsWith('■ '))return {type:'heading',title:normalizeStoryVerticalText(first.replace(/^■\s*/,'')),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())};const callout=block.match(/^【([^】]+)】([\s\S]*)$/);if(callout)return {type:'callout',name:callout[1].trim(),body:normalizeStoryVerticalText(callout[2].trim())};return {type:'speech',name:first.trim(),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())}})}
+function parseEditableBlocks(text){return String(text||'').split(/\n{2,}/).map(b=>b.trim()).filter(Boolean).map(block=>{
+  const marked=block.match(/^［(タイトルページ|システム枠|情報枠)］\n?([\s\S]*?)\n?［[／\/](?:タイトルページ|システム枠|情報枠)］$/);
+  if(marked){
+    const kind=marked[1];
+    const body=normalizeStoryVerticalText(marked[2].trim());
+    if(kind==='タイトルページ')return {type:'titlepage',body};
+    if(kind==='システム枠')return {type:'dicebox',body};
+    return {type:'infobox',body};
+  }
+  const plain=block.replace(/[\s　\n]/g,'');
+  if(/^[-—―─━ー]+$/.test(plain))return {type:'divider',body:'————————————'};
+  if(/^(・+)+$/.test(plain) && block.includes('\n'))return {type:'dots',body:normalizeStoryVerticalText(block)};
+  const lines=block.split('\n');
+  const first=lines[0]||'';
+  if(first.startsWith('■ '))return {type:'heading',title:normalizeStoryVerticalText(first.replace(/^■\s*/,'')),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())};
+  const callout=block.match(/^【([^】]+)】([\s\S]*)$/);
+  if(callout)return {type:'callout',name:callout[1].trim(),body:normalizeStoryVerticalText(callout[2].trim())};
+  return {type:'speech',name:first.trim(),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())}
+})}
 function isPcBlock(b){return b.type==='speech'&&isPcName(b.name)}
 function isNarrationBlock(b){return b.type==='heading'||(b.type==='speech'&&!isPcName(b.name))}
 function mergeEditableBlocks(blocks){
@@ -760,6 +819,11 @@ function schedulePreview(){/* beta4: 入力中の自動縦書きプレビュー�
 function scrollStart(){els.previewShell.scrollTop=0;els.previewShell.scrollLeft=els.previewShell.scrollWidth;requestAnimationFrame(()=>{els.previewShell.scrollLeft=els.previewShell.scrollWidth})}
 function blockToEditableText(b){
   if(!b)return '';
+  if(b.type==='titlepage') return `［タイトルページ］\n${b.body||''}\n［／タイトルページ］`;
+  if(b.type==='dicebox') return `［システム枠］\n${b.body||''}\n［／システム枠］`;
+  if(b.type==='infobox') return `［情報枠］\n${b.body||''}\n［／情報枠］`;
+  if(b.type==='divider') return b.body||'————————————';
+  if(b.type==='dots') return b.body||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・';
   if(b.type==='heading') return [`■ ${b.title||''}`, b.body||''].filter(Boolean).join('\n');
   if(b.type==='callout'||b.type==='dice') return `【${b.name||'system'}】${b.body||''}`;
   return [b.name||'', b.body||''].filter(Boolean).join('\n');
@@ -1473,6 +1537,7 @@ function getAbsSpec(){
   spec.narrChars=Math.max(12, Math.floor(spec.innerH/(charMm*narrSafety))-2);
   // v45: 枠付き表示は余裕を持って分割する。枠の上下余白・罫線ぶんを差し引く。
   spec.diceChars=Math.max(18, Math.floor(spec.innerH/(spec.dicePt*mmPerPt*1.48))-2);
+  spec.infoChars=Math.max(16, Math.floor(spec.innerH/(spec.dicePt*mmPerPt*1.36))-2);
   // v49: ダイス結果は「数値 ＞ 成功/失敗」を分離させないため、通常枠より小さめの文字で多めに入れる。
   const rollPt=Math.max(6.8, spec.dicePt-.9);
   spec.rollDiceChars=Math.max(96, spec.diceChars+18, Math.floor(spec.innerH/(rollPt*mmPerPt*1.05))-1);
@@ -1567,6 +1632,24 @@ function buildAbsColumns(blocks,spec){
   };
   for(let bi=0; bi<blocks.length; bi++){
     const b=blocks[bi];
+    if(b.type==='titlepage'){
+      cols.push({type:'titlepage',text:normalizeStoryVerticalText(b.body||'タイトル')});
+      continue;
+    }
+    if(b.type==='divider'){
+      cols.push({type:'divider',text:normalizeStoryVerticalText(b.body||'————————————')});
+      continue;
+    }
+    if(b.type==='dots'){
+      cols.push({type:'dots',text:normalizeStoryVerticalText(b.body||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・')});
+      continue;
+    }
+    if(b.type==='dicebox'||b.type==='infobox'){
+      const raw=normalizeVerticalText(b.body||'');
+      const chunks=splitDiceTextForColumns(raw, b.type==='infobox' ? spec.infoChars : spec.diceChars, false);
+      chunks.forEach((ch,i)=>cols.push({type:b.type==='infobox'?'info':'dice',text:ch,continued:i>0,roll:false,manual:true}));
+      continue;
+    }
     if(b.type==='heading'){
       const text=[b.title?`◆ ${normalizeStoryVerticalText(b.title)}`:'', normalizeStoryVerticalText(b.body)].filter(Boolean).join('\n');
       addNarr(text,true);
@@ -1609,7 +1692,9 @@ function buildAbsColumns(blocks,spec){
 }
 
 function absColWidth(c,spec){
-  return c.type==='dice' ? spec.diceW : spec.colW;
+  if(c.type==='dice'||c.type==='info') return spec.diceW;
+  if(c.type==='divider'||c.type==='dots') return spec.colW;
+  return spec.colW;
 }
 function absGapBefore(c,prev,spec){
   if(!prev) return 0;
@@ -1629,6 +1714,11 @@ function paginateAbsColumns(cols,spec){
   let used=0;
   const limit=spec.innerW;
   for(const c of cols){
+    if(c.type==='titlepage'){
+      if(cur.length){pages.push(cur);cur=[];used=0;}
+      pages.push([c]);
+      continue;
+    }
     const gap=absGapBefore(c,cur[cur.length-1],spec);
     const w=absColWidth(c,spec);
     if(cur.length && used + gap + w > limit){
@@ -1670,12 +1760,27 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .abs-dice{position:absolute;top:${spec.innerY}mm;width:${spec.diceW}mm;max-height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.dicePt}pt;line-height:1.38;font-weight:700;color:#4f463c;border:1.1px solid rgba(95,86,74,.75);border-radius:7px;background:#fff;padding:.34em .28em;overflow:hidden;overflow-wrap:anywhere;word-break:normal;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .abs-dice.roll{font-size:${Math.max(6.8,spec.dicePt-.9)}pt;line-height:1.20;letter-spacing:.01em;overflow-wrap:normal;word-break:keep-all;}
 .abs-dice.continued{border-color:rgba(95,86,74,.55);}
+.abs-dice.info{font-weight:600;border:1.25px solid rgba(65,58,50,.72);background:#fffdf7;}
+.abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;text-align:center;font-size:${Math.max(18,spec.pt*1.65)}pt;line-height:1.7;font-weight:900;letter-spacing:.08em;color:#171410;}
+.abs-titlepage .abs-title-inner{border-inline-start:1.4px solid rgba(35,31,27,.55);border-inline-end:1.4px solid rgba(35,31,27,.55);padding:8mm 3mm;max-height:150mm;}
+.abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;width:${spec.colW}mm;height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.pt}pt;line-height:1.7;font-weight:800;color:#4f463c;overflow:hidden;text-align:center;}
+.abs-divider{letter-spacing:.08em;color:#6a5b4b;}
+.abs-dots{letter-spacing:.03em;color:#6a5b4b;font-weight:700;}
 .page-mark{position:absolute;left:50%;bottom:5mm;transform:translateX(-50%);width:max-content;text-align:center;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb;}
 `;
 }
 function renderAbsCol(c,i,page,spec){
   const isPageStart=i===0;
+  if(c.type==='titlepage'){
+    return `<section class="abs-titlepage"><div class="abs-title-inner">${escapeHtml(c.text||'タイトル')}</div></section>`;
+  }
   const right=absRightMm(i,page,spec).toFixed(3);
+  if(c.type==='divider'){
+    return `<section class="abs-divider" style="right:${right}mm">${escapeHtml(c.text||'————————————')}</section>`;
+  }
+  if(c.type==='dots'){
+    return `<section class="abs-dots" style="right:${right}mm">${escapeHtml(c.text||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・')}</section>`;
+  }
   if(c.type==='pc'){
     const showSpeaker=c.first || isPageStart || (page[i-1]&&page[i-1].run!==c.run);
     const sameNext=page[i+1] && page[i+1].type==='pc' && page[i+1].run===c.run;
@@ -1683,10 +1788,11 @@ function renderAbsCol(c,i,page,spec){
     const join=sameNext ? ' same-next' : '';
     return `<section class="abs-pc${cont}${join}" style="right:${right}mm"><div class="abs-speaker">${showSpeaker?escapeHtml(c.speaker):'　'}</div><div class="abs-rule"></div><div class="abs-body">${escapeHtml(c.text||'　')}</div></section>`;
   }
-  if(c.type==='dice'){
+  if(c.type==='dice'||c.type==='info'){
     const cont=c.continued?' continued':'';
     const roll=c.roll?' roll':'';
-    return `<section class="abs-dice${cont}${roll}" style="right:${right}mm">${escapeHtml(c.text||'　')}</section>`;
+    const info=c.type==='info'?' info':'';
+    return `<section class="abs-dice${info}${cont}${roll}" style="right:${right}mm">${escapeHtml(c.text||'　')}</section>`;
   }
   const html=escapeHtml(c.text||'　').replace(/^◆\s*([^\n]+)/,'<span class="abs-mark">◆</span><strong>$1</strong>');
   const cont=c.continued?' continued':'';
@@ -1767,12 +1873,12 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta4.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta5.html','text/html;charset=utf-8');
 }
 
 
 function on(id,event,fn){const el=$(id);if(el)el.addEventListener(event,fn)}
-on('loadBtn','click',parseSelectedFile);on('demoBtn','click',showDemo);on('findBtn','click',findInEditor);on('prevHitBtn','click',prevFindMatch);on('nextHitBtn','click',nextFindMatch);on('findText','input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';$('findResults').innerHTML='';$('findNote').textContent='検索ボタンかEnterで検索します。';});on('findText','keydown',e=>{if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(!findMatches.length)refreshFindResults(true);else e.shiftKey?prevFindMatch():nextFindMatch();}});on('replaceOneBtn','click',replaceNextInEditor);on('replaceAllBtn','click',()=>replaceAllInEditor(false));on('deleteAllBtn','click',()=>replaceAllInEditor(true));on('rerenderBtn','click',()=>renderAll(true));on('fromLogBtn','click',()=>{if(!entries.length){alert('先にHTMLログを読み込んでください');return}if(confirm('現在の編集テキストを、元ログから作り直します。手で直した内容は上書きされます。よろしいですか？'))renderAll(true)});on('previewBtn','click',()=>updatePreview(true));on('copyBtn','click',copyEditor);on('txtBtn','click',downloadText);on('htmlBtn','click',downloadHtml);on('printHtmlBtn','click',downloadPrintHtml);on('printBtn','click',printPdf);on('startBtn','click',scrollStart);on('directionBtn','click',e=>{isHorizontal=!isHorizontal;applySettings();e.target.textContent=isHorizontal?'縦書き確認':'横書き確認'});['skipEmpty','skipDice','skipSystem','mergeSameSpeaker','scenarioAsNarration','fullWidthPunctuation'].forEach(id=>on(id,'change',()=>renderAll(true)));['fontSize','speakerHeight','speakerFont','bodyHeight','turnGap'].forEach(id=>on(id,'change',()=>{applySettings();scrollStart()}));on('pdfSize','change',()=>{applySettings();});on('scenarioNames','input',()=>renderAll(true));els.textEditor.addEventListener('input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';});on('applySpeakerSettingsBtn','click',applySpeakerSettingsToEditor);
+on('loadBtn','click',parseSelectedFile);on('demoBtn','click',showDemo);on('findBtn','click',findInEditor);on('prevHitBtn','click',prevFindMatch);on('nextHitBtn','click',nextFindMatch);on('findText','input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';$('findResults').innerHTML='';$('findNote').textContent='検索ボタンかEnterで検索します。';});on('findText','keydown',e=>{if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(!findMatches.length)refreshFindResults(true);else e.shiftKey?prevFindMatch():nextFindMatch();}});on('replaceOneBtn','click',replaceNextInEditor);on('replaceAllBtn','click',()=>replaceAllInEditor(false));on('deleteAllBtn','click',()=>replaceAllInEditor(true));on('rerenderBtn','click',()=>renderAll(true));on('fromLogBtn','click',()=>{if(!entries.length){alert('先にHTMLログを読み込んでください');return}if(confirm('現在の編集テキストを、元ログから作り直します。手で直した内容は上書きされます。よろしいですか？'))renderAll(true)});on('previewBtn','click',()=>updatePreview(true));on('copyBtn','click',copyEditor);on('txtBtn','click',downloadText);on('htmlBtn','click',downloadHtml);on('printHtmlBtn','click',downloadPrintHtml);on('printBtn','click',printPdf);on('startBtn','click',scrollStart);on('directionBtn','click',e=>{isHorizontal=!isHorizontal;applySettings();e.target.textContent=isHorizontal?'縦書き確認':'横書き確認'});['skipEmpty','skipDice','skipSystem','mergeSameSpeaker','scenarioAsNarration','fullWidthPunctuation'].forEach(id=>on(id,'change',()=>renderAll(true)));['fontSize','speakerHeight','speakerFont','bodyHeight','turnGap'].forEach(id=>on(id,'change',()=>{applySettings();scrollStart()}));on('pdfSize','change',()=>{applySettings();});on('scenarioNames','input',()=>renderAll(true));els.textEditor.addEventListener('input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';});on('applySpeakerSettingsBtn','click',applySpeakerSettingsToEditor);on('markTitlePageBtn','click',markTitlePage);on('markSystemBoxBtn','click',markSystemBox);on('markInfoBoxBtn','click',markInfoBox);on('insertRecallLineBtn','click',insertRecallLine);on('insertTimeDotsBtn','click',insertTimeDots);
 
 showDemo();
 

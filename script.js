@@ -1,4 +1,3 @@
-
 'use strict';
 let entries=[];let excludedNames=new Set();let bodyOnlyNames=new Set();let pcNames=new Set();let displayNames=new Map();let nameAliases=new Map();let isHorizontal=false;let updateTimer=null;let previewBlocks=[];
 const $=id=>document.getElementById(id);
@@ -82,6 +81,45 @@ function displayForSpeaker(raw){
 function isPcName(raw){return pcNames.has(canonicalSpeakerName(raw))}
 function isBodyOnlyName(raw){return bodyOnlyNames.has(canonicalSpeakerName(raw))}
 function isExcludedName(raw){return excludedNames.has(canonicalSpeakerName(raw))}
+
+function selectedEditorText(){
+  const el=els.textEditor;
+  return {el,start:el.selectionStart??0,end:el.selectionEnd??0,text:el.value.slice(el.selectionStart??0,el.selectionEnd??0)};
+}
+function replaceEditorSelection(next,selectInner=false,innerOffset=0){
+  const el=els.textEditor;
+  const start=el.selectionStart??0;
+  const end=el.selectionEnd??0;
+  el.setRangeText(next,start,end,'end');
+  if(selectInner){
+    el.selectionStart=start+innerOffset;
+    el.selectionEnd=start+next.length-innerOffset;
+  }
+  el.focus();
+  findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';
+}
+function wrapEditorSelection(open,close,placeholder){
+  const sel=selectedEditorText();
+  const body=(sel.text&&sel.text.trim())?sel.text.trim():placeholder;
+  const next=`${open}\n${body}\n${close}`;
+  replaceEditorSelection(next,!sel.text,open.length+1);
+}
+function insertEditorBlock(text){
+  const el=els.textEditor;
+  const start=el.selectionStart??0;
+  const before=el.value.slice(0,start);
+  const after=el.value.slice(el.selectionEnd??start);
+  const prefix=before && !/\n\n$/.test(before) ? (before.endsWith('\n')?'\n':'\n\n') : '';
+  const suffix=after && !/^\n\n/.test(after) ? (after.startsWith('\n')?'\n':'\n\n') : '';
+  el.setRangeText(prefix+text+suffix, start, el.selectionEnd??start, 'end');
+  el.focus();
+  findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';
+}
+function markTitlePage(){wrapEditorSelection('［タイトルページ］','［／タイトルページ］','タイトルを入力');}
+function markSystemBox(){wrapEditorSelection('［システム枠］','［／システム枠］','ここにシステム枠にしたい文章');}
+function markInfoBox(){wrapEditorSelection('［情報枠］','［／情報枠］','ここに長文情報枠にしたい文章');}
+function insertRecallLine(){insertEditorBlock('————————————');}
+function insertTimeDots(){insertEditorBlock('・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・');}
 function applySpeakerSettingsToEditor(){
   const originalText=els.textEditor.value||'';
   if(!originalText.trim()){alert('編集テキストが空です');return}
@@ -249,12 +287,30 @@ function isScenarioEntry(e){if(e.isSystem)return false;if(!$('scenarioAsNarratio
 function filteredEntries(){let list=entries.filter(e=>{if($('skipEmpty').checked&&e.isEmpty)return false;if($('skipDice').checked&&e.isDice)return false;if($('skipSystem').checked&&e.isSystem)return false;if(isExcludedName(e.name))return false;return true});if($('mergeSameSpeaker').checked)list=mergeEntries(list);return list}
 function mergeEntries(list){const out=[];for(const e of list){const p=out[out.length-1];const same=p&&p.name===e.name&&p.isDice===e.isDice&&isScenarioEntry(p)===isScenarioEntry(e);if(same&&!e.isDice&&!e.isSystem){p.body=[p.body,e.body].filter(Boolean).join('\n')}else out.push({...e})}return out}
 function entryToText(e){const body=processBody(e.body);if(isBodyOnlyName(e.name))return body;const shown=normalizeSpeakerName(displayForSpeaker(e.name));if(isScenarioEntry(e))return `■ ${shown}\n${body}`;if(e.isSystem||e.isDice)return `【${shown||e.name||'system'}】${body}`;return `${shown}\n${body}`}
-function renderAll(keep=true){const list=filteredEntries();els.textEditor.value=normalizeStoryVerticalText(list.map(entryToText).join('\n\n')).trim();renderRaw(list);renderStats(list);updatePreview(keep)}
+function renderAll(keep=true){const list=filteredEntries();els.textEditor.value=normalizeStoryVerticalText(list.map(entryToText).join('\n\n')).trim();renderRaw(list);renderStats(list)}
 function renderStats(list){$('statTotal').textContent=entries.length;$('statShown').textContent=list.length;$('statDice').textContent=entries.filter(e=>e.isDice).length;$('statNames').textContent=new Set(entries.map(e=>e.name).filter(Boolean)).size}
-function renderRaw(list){els.rawPreview.innerHTML=list.map(e=>`<div class="raw-item"><div class="raw-meta"><span class="dot" style="--c:${escapeHtml(e.color)}"></span><span>[${escapeHtml(e.tab)}]</span><b>${escapeHtml(e.name)}</b>${e.isDice?' <span>🎲 dice</span>':''}</div><div class="raw-body">${escapeHtml(e.body)}</div></div>`).join('')}
+function renderRaw(list){els.rawPreview.innerHTML=`<div class="raw-item"><div class="raw-meta"><b>抽出ログ</b></div><div class="raw-body">軽量化のため、抽出ログの全件プレビューは表示していません。抽出件数：${list.length}件</div></div>`}
 function renderNameList(){const counts=new Map();const colors=new Map();for(const e of entries){if(!e.name)continue;counts.set(e.name,(counts.get(e.name)||0)+1);if(!colors.has(e.name))colors.set(e.name,e.color)}els.nameList.innerHTML='';[...counts.keys()].sort((a,b)=>a.localeCompare(b,'ja')).forEach(name=>{const role=excludedNames.has(name)?'off':bodyOnlyNames.has(name)?'body':pcNames.has(name)?'pc':'kp';const label=role==='pc'?'PC会話':role==='kp'?'KP/描写':role==='body'?'本文だけ':'非表示';const chip=document.createElement('div');chip.className='chip';chip.innerHTML=`<div><div class="chip-title"><span class="dot" style="--c:${escapeHtml(colors.get(name)||'#888')}"></span><b title="${escapeHtml(name)}">${escapeHtml(name)}</b></div><small>${counts.get(name)}件 / <span class="role ${role}">${label}</span></small><label class="display-name-label">表示名<input type="text" value="${escapeHtml(displayNames.get(name)||name)}" aria-label="PDF/編集表示名"></label></div><div class="role-buttons"><button class="secondary small" data-role="pc">PC</button><button class="secondary small" data-role="kp">KP</button><button class="secondary small" data-role="body">本文だけ</button><button class="secondary small" data-role="off">非表示</button></div>`;chip.querySelector('input').addEventListener('input',ev=>{rememberNameAlias(name,displayNames.get(name)||name);displayNames.set(name,ev.target.value||name);rememberNameAlias(name,ev.target.value||name);});chip.querySelectorAll('button[data-role]').forEach(btn=>btn.addEventListener('click',()=>setRole(name,btn.dataset.role)));els.nameList.appendChild(chip)})}
 function setRole(name,role){name=canonicalSpeakerName(name);pcNames.delete(name);excludedNames.delete(name);bodyOnlyNames.delete(name);if(role==='pc')pcNames.add(name);else if(role==='body')bodyOnlyNames.add(name);else if(role==='off')excludedNames.add(name);renderNameList();renderStats(filteredEntries())}
-function parseEditableBlocks(text){return String(text||'').split(/\n{2,}/).map(b=>b.trim()).filter(Boolean).map(block=>{const lines=block.split('\n');const first=lines[0]||'';if(first.startsWith('■ '))return {type:'heading',title:normalizeStoryVerticalText(first.replace(/^■\s*/,'')),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())};const callout=block.match(/^【([^】]+)】([\s\S]*)$/);if(callout)return {type:'callout',name:callout[1].trim(),body:normalizeStoryVerticalText(callout[2].trim())};return {type:'speech',name:first.trim(),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())}})}
+function parseEditableBlocks(text){return String(text||'').split(/\n{2,}/).map(b=>b.trim()).filter(Boolean).map(block=>{
+  const marked=block.match(/^［(タイトルページ|システム枠|情報枠)］\n?([\s\S]*?)\n?［[／\/](?:タイトルページ|システム枠|情報枠)］$/);
+  if(marked){
+    const kind=marked[1];
+    const body=normalizeStoryVerticalText(marked[2].trim());
+    if(kind==='タイトルページ')return {type:'titlepage',body};
+    if(kind==='システム枠')return {type:'dicebox',body};
+    return {type:'infobox',body};
+  }
+  const plain=block.replace(/[\s　\n]/g,'');
+  if(/^[-—―─━ー]+$/.test(plain))return {type:'divider',body:'————————————'};
+  if(/^(・+)+$/.test(plain) && block.includes('\n'))return {type:'dots',body:normalizeStoryVerticalText(block)};
+  const lines=block.split('\n');
+  const first=lines[0]||'';
+  if(first.startsWith('■ '))return {type:'heading',title:normalizeStoryVerticalText(first.replace(/^■\s*/,'')),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())};
+  const callout=block.match(/^【([^】]+)】([\s\S]*)$/);
+  if(callout)return {type:'callout',name:callout[1].trim(),body:normalizeStoryVerticalText(callout[2].trim())};
+  return {type:'speech',name:first.trim(),body:normalizeStoryVerticalText(lines.slice(1).join('\n').trim())}
+})}
 function isPcBlock(b){return b.type==='speech'&&isPcName(b.name)}
 function isNarrationBlock(b){return b.type==='heading'||(b.type==='speech'&&!isPcName(b.name))}
 function mergeEditableBlocks(blocks){
@@ -309,10 +365,15 @@ function renderNarrationBlock(b){
 }
 function applySettings(){const root=els.verticalPage;root.style.setProperty('--preview-font',$('fontSize').value);root.style.setProperty('--speaker-height',$('speakerHeight').value);root.style.setProperty('--speaker-font',$('speakerFont').value);const h=$('bodyHeight').value;root.style.setProperty('--body-height',h==='auto'?'auto':h);root.style.setProperty('--turn-gap',$('turnGap').value);root.classList.toggle('horizontal',isHorizontal)}
 function updatePreview(keep=true){const shell=els.previewShell;const nearStart=shell.scrollLeft>shell.scrollWidth-shell.clientWidth-120;previewBlocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));els.verticalPage.innerHTML=renderBlocks(previewBlocks);applySettings();if(!keep||nearStart)requestAnimationFrame(scrollStart)}
-function schedulePreview(){clearTimeout(updateTimer);updateTimer=setTimeout(()=>updatePreview(true),180)}
+function schedulePreview(){/* beta4: 入力中の自動縦書きプレビュー生成は重いため停止 */}
 function scrollStart(){els.previewShell.scrollTop=0;els.previewShell.scrollLeft=els.previewShell.scrollWidth;requestAnimationFrame(()=>{els.previewShell.scrollLeft=els.previewShell.scrollWidth})}
 function blockToEditableText(b){
   if(!b)return '';
+  if(b.type==='titlepage') return `［タイトルページ］\n${b.body||''}\n［／タイトルページ］`;
+  if(b.type==='dicebox') return `［システム枠］\n${b.body||''}\n［／システム枠］`;
+  if(b.type==='infobox') return `［情報枠］\n${b.body||''}\n［／情報枠］`;
+  if(b.type==='divider') return b.body||'————————————';
+  if(b.type==='dots') return b.body||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・';
   if(b.type==='heading') return [`■ ${b.title||''}`, b.body||''].filter(Boolean).join('\n');
   if(b.type==='callout'||b.type==='dice') return `【${b.name||'system'}】${b.body||''}`;
   return [b.name||'', b.body||''].filter(Boolean).join('\n');
@@ -347,7 +408,7 @@ els.verticalPage.addEventListener('keydown',e=>{
   }
 });
 els.verticalPage.addEventListener('blur',e=>{const el=e.target.closest&&e.target.closest('.preview-editable');if(el)applyPreviewEdit(el)},true);
-function showDemo(){entries=[];excludedNames=new Set();bodyOnlyNames=new Set();pcNames=new Set(['皇 政宗','烏丸 かがみ']);displayNames=new Map([['皇 政宗','皇 政宗'],['烏丸 かがみ','烏丸 かがみ'],['KP','KP']]);nameAliases=new Map([...displayNames.keys()].map(n=>[n,new Set([n])]));els.textEditor.value=`■ 使い方\n1. ココフォリアから書き出したHTMLログを選びます。\n2. 「読み込む」を押します。\n3. 話者設定でPC/KP/除外を選びます。\n4. 必要なら編集テキストを直します。\n5. 印刷/PDFで保存します。\n\n皇 政宗\n「これは発言の例です」\n\n烏丸 かがみ\nト書きや行動描写もそのまま入れられます。\n「セリフも混ぜられます」\n\n【system】SAN : 65 → 64`;renderNameList();renderStats([]);renderRaw([]);updatePreview(false)}
+function showDemo(){entries=[];excludedNames=new Set();bodyOnlyNames=new Set();pcNames=new Set(['皇 政宗','烏丸 かがみ']);displayNames=new Map([['皇 政宗','皇 政宗'],['烏丸 かがみ','烏丸 かがみ'],['KP','KP']]);nameAliases=new Map([...displayNames.keys()].map(n=>[n,new Set([n])]));els.textEditor.value=`■ 使い方\n1. ココフォリアから書き出したHTMLログを選びます。\n2. 「読み込む」を押します。\n3. 話者設定でPC/KP/除外を選びます。\n4. 必要なら編集テキストを直します。\n5. 印刷/PDFで保存します。\n\n皇 政宗\n「これは発言の例です」\n\n烏丸 かがみ\nト書きや行動描写もそのまま入れられます。\n「セリフも混ぜられます」\n\n【system】SAN : 65 → 64`;renderNameList();renderStats([]);renderRaw([])}
 function downloadBlob(content,filename,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url)}
 async function copyEditor(){await navigator.clipboard.writeText(els.textEditor.value);alert('コピーしました')}
 function downloadText(){downloadBlob(els.textEditor.value,'ccfolia_vertical_edit.txt','text/plain;charset=utf-8')}
@@ -835,7 +896,6 @@ function downloadPrintHtml(){
 }
 let currentPrintPreviewPage=1;
 function buildPrintPreview(){
-  updatePreview(true);
   const blocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));
   const spec=getPdfSpec();
   const pages=paginatePrintUnits(blocksToPrintUnits(blocks,spec),spec);
@@ -1027,6 +1087,7 @@ function getAbsSpec(){
   spec.narrChars=Math.max(12, Math.floor(spec.innerH/(charMm*narrSafety))-2);
   // v45: 枠付き表示は余裕を持って分割する。枠の上下余白・罫線ぶんを差し引く。
   spec.diceChars=Math.max(18, Math.floor(spec.innerH/(spec.dicePt*mmPerPt*1.48))-2);
+  spec.infoChars=Math.max(16, Math.floor(spec.innerH/(spec.dicePt*mmPerPt*1.36))-2);
   // v49: ダイス結果は「数値 ＞ 成功/失敗」を分離させないため、通常枠より小さめの文字で多めに入れる。
   const rollPt=Math.max(6.8, spec.dicePt-.9);
   spec.rollDiceChars=Math.max(96, spec.diceChars+18, Math.floor(spec.innerH/(rollPt*mmPerPt*1.05))-1);
@@ -1121,6 +1182,24 @@ function buildAbsColumns(blocks,spec){
   };
   for(let bi=0; bi<blocks.length; bi++){
     const b=blocks[bi];
+    if(b.type==='titlepage'){
+      cols.push({type:'titlepage',text:normalizeStoryVerticalText(b.body||'タイトル')});
+      continue;
+    }
+    if(b.type==='divider'){
+      cols.push({type:'divider',text:normalizeStoryVerticalText(b.body||'————————————')});
+      continue;
+    }
+    if(b.type==='dots'){
+      cols.push({type:'dots',text:normalizeStoryVerticalText(b.body||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・')});
+      continue;
+    }
+    if(b.type==='dicebox'||b.type==='infobox'){
+      const raw=normalizeVerticalText(b.body||'');
+      const chunks=splitDiceTextForColumns(raw, b.type==='infobox' ? spec.infoChars : spec.diceChars, false);
+      chunks.forEach((ch,i)=>cols.push({type:b.type==='infobox'?'info':'dice',text:ch,continued:i>0,roll:false,manual:true}));
+      continue;
+    }
     if(b.type==='heading'){
       const text=[b.title?`◆ ${normalizeStoryVerticalText(b.title)}`:'', normalizeStoryVerticalText(b.body)].filter(Boolean).join('\n');
       addNarr(text,true);
@@ -1163,7 +1242,9 @@ function buildAbsColumns(blocks,spec){
 }
 
 function absColWidth(c,spec){
-  return c.type==='dice' ? spec.diceW : spec.colW;
+  if(c.type==='dice'||c.type==='info') return spec.diceW;
+  if(c.type==='divider'||c.type==='dots') return spec.colW;
+  return spec.colW;
 }
 function absGapBefore(c,prev,spec){
   if(!prev) return 0;
@@ -1183,6 +1264,11 @@ function paginateAbsColumns(cols,spec){
   let used=0;
   const limit=spec.innerW;
   for(const c of cols){
+    if(c.type==='titlepage'){
+      if(cur.length){pages.push(cur);cur=[];used=0;}
+      pages.push([c]);
+      continue;
+    }
     const gap=absGapBefore(c,cur[cur.length-1],spec);
     const w=absColWidth(c,spec);
     if(cur.length && used + gap + w > limit){
@@ -1224,12 +1310,27 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .abs-dice{position:absolute;top:${spec.innerY}mm;width:${spec.diceW}mm;max-height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.dicePt}pt;line-height:1.38;font-weight:700;color:#4f463c;border:1.1px solid rgba(95,86,74,.75);border-radius:7px;background:#fff;padding:.34em .28em;overflow:hidden;overflow-wrap:anywhere;word-break:normal;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .abs-dice.roll{font-size:${Math.max(6.8,spec.dicePt-.9)}pt;line-height:1.20;letter-spacing:.01em;overflow-wrap:normal;word-break:keep-all;}
 .abs-dice.continued{border-color:rgba(95,86,74,.55);}
+.abs-dice.info{font-weight:600;border:1.25px solid rgba(65,58,50,.72);background:#fffdf7;}
+.abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;text-align:center;font-size:${Math.max(18,spec.pt*1.65)}pt;line-height:1.7;font-weight:900;letter-spacing:.08em;color:#171410;}
+.abs-titlepage .abs-title-inner{border-inline-start:1.4px solid rgba(35,31,27,.55);border-inline-end:1.4px solid rgba(35,31,27,.55);padding:8mm 3mm;max-height:150mm;}
+.abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;width:${spec.colW}mm;height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.pt}pt;line-height:1.7;font-weight:800;color:#4f463c;overflow:hidden;text-align:center;}
+.abs-divider{letter-spacing:.08em;color:#6a5b4b;}
+.abs-dots{letter-spacing:.03em;color:#6a5b4b;font-weight:700;}
 .page-mark{position:absolute;left:50%;bottom:5mm;transform:translateX(-50%);width:max-content;text-align:center;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb;}
 `;
 }
 function renderAbsCol(c,i,page,spec){
   const isPageStart=i===0;
+  if(c.type==='titlepage'){
+    return `<section class="abs-titlepage"><div class="abs-title-inner">${escapeHtml(c.text||'タイトル')}</div></section>`;
+  }
   const right=absRightMm(i,page,spec).toFixed(3);
+  if(c.type==='divider'){
+    return `<section class="abs-divider" style="right:${right}mm">${escapeHtml(c.text||'————————————')}</section>`;
+  }
+  if(c.type==='dots'){
+    return `<section class="abs-dots" style="right:${right}mm">${escapeHtml(c.text||'・・・・・・\n・・・・・\n・・・・\n・・・\n・・\n・')}</section>`;
+  }
   if(c.type==='pc'){
     const showSpeaker=c.first || isPageStart || (page[i-1]&&page[i-1].run!==c.run);
     const sameNext=page[i+1] && page[i+1].type==='pc' && page[i+1].run===c.run;
@@ -1237,10 +1338,11 @@ function renderAbsCol(c,i,page,spec){
     const join=sameNext ? ' same-next' : '';
     return `<section class="abs-pc${cont}${join}" style="right:${right}mm"><div class="abs-speaker">${showSpeaker?escapeHtml(c.speaker):'　'}</div><div class="abs-rule"></div><div class="abs-body">${escapeHtml(c.text||'　')}</div></section>`;
   }
-  if(c.type==='dice'){
+  if(c.type==='dice'||c.type==='info'){
     const cont=c.continued?' continued':'';
     const roll=c.roll?' roll':'';
-    return `<section class="abs-dice${cont}${roll}" style="right:${right}mm">${escapeHtml(c.text||'　')}</section>`;
+    const info=c.type==='info'?' info':'';
+    return `<section class="abs-dice${info}${cont}${roll}" style="right:${right}mm">${escapeHtml(c.text||'　')}</section>`;
   }
   const html=escapeHtml(c.text||'　').replace(/^◆\s*([^\n]+)/,'<span class="abs-mark">◆</span><strong>$1</strong>');
   const cont=c.continued?' continued':'';
@@ -1271,7 +1373,6 @@ function buildAbsPagesHtml(pages,spec){
   return pages.map((page,pi)=>`<section class="print-page" data-page="${pi+1}">${renderAbsRunRules(page,spec)}${page.map((c,i)=>renderAbsCol(c,i,page,spec)).join('')}<div class="page-mark">-${pi+1}P-</div></section>`).join('');
 }
 function makeAbsPages(){
-  updatePreview(true);
   const blocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));
   const spec=getAbsSpec();
   const cols=buildAbsColumns(blocks,spec);
@@ -1322,14 +1423,11 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta 1.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta5.html','text/html;charset=utf-8');
 }
 
 
 function on(id,event,fn){const el=$(id);if(el)el.addEventListener(event,fn)}
-on('loadBtn','click',parseSelectedFile);on('demoBtn','click',showDemo);on('findBtn','click',findInEditor);on('prevHitBtn','click',prevFindMatch);on('nextHitBtn','click',nextFindMatch);on('findText','input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';$('findResults').innerHTML='';$('findNote').textContent='検索ボタンかEnterで検索します。';});on('findText','keydown',e=>{if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(!findMatches.length)refreshFindResults(true);else e.shiftKey?prevFindMatch():nextFindMatch();}});on('replaceOneBtn','click',replaceNextInEditor);on('replaceAllBtn','click',()=>replaceAllInEditor(false));on('deleteAllBtn','click',()=>replaceAllInEditor(true));on('rerenderBtn','click',()=>renderAll(true));on('fromLogBtn','click',()=>{if(!entries.length){alert('先にHTMLログを読み込んでください');return}if(confirm('現在の編集テキストを、元ログから作り直します。手で直した内容は上書きされます。よろしいですか？'))renderAll(true)});on('previewBtn','click',()=>updatePreview(true));on('copyBtn','click',copyEditor);on('txtBtn','click',downloadText);on('htmlBtn','click',downloadHtml);on('printHtmlBtn','click',downloadPrintHtml);on('printBtn','click',printPdf);on('startBtn','click',scrollStart);on('directionBtn','click',e=>{isHorizontal=!isHorizontal;applySettings();e.target.textContent=isHorizontal?'縦書き確認':'横書き確認'});['skipEmpty','skipDice','skipSystem','mergeSameSpeaker','scenarioAsNarration','fullWidthPunctuation'].forEach(id=>on(id,'change',()=>renderAll(true)));['fontSize','speakerHeight','speakerFont','bodyHeight','turnGap'].forEach(id=>on(id,'change',()=>{applySettings();scrollStart()}));on('pdfSize','change',()=>{applySettings();});on('scenarioNames','input',()=>renderAll(true));els.textEditor.addEventListener('input',()=>{schedulePreview();findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';});on('printPreviewBtn','click',buildPrintPreview);on('applySpeakerSettingsBtn','click',applySpeakerSettingsToEditor);
-if($('prevPrintPageBtn')) $('prevPrintPageBtn').addEventListener('click',()=>scrollPrintPreviewPage(-1));
-if($('nextPrintPageBtn')) $('nextPrintPageBtn').addEventListener('click',()=>scrollPrintPreviewPage(1));
-['pdfSize','pdfLines','pdfPcChars','pdfMaxCols','pdfSafeLeft','pdfSafeRight','pdfSafeBottom'].forEach(id=>{ const el=$(id); if(el){ el.addEventListener('input',schedulePrintPreview); el.addEventListener('change',schedulePrintPreview); }});
+on('loadBtn','click',parseSelectedFile);on('demoBtn','click',showDemo);on('findBtn','click',findInEditor);on('prevHitBtn','click',prevFindMatch);on('nextHitBtn','click',nextFindMatch);on('findText','input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';$('findResults').innerHTML='';$('findNote').textContent='検索ボタンかEnterで検索します。';});on('findText','keydown',e=>{if(e.isComposing)return;if(e.key==='Enter'){e.preventDefault();if(!findMatches.length)refreshFindResults(true);else e.shiftKey?prevFindMatch():nextFindMatch();}});on('replaceOneBtn','click',replaceNextInEditor);on('replaceAllBtn','click',()=>replaceAllInEditor(false));on('deleteAllBtn','click',()=>replaceAllInEditor(true));on('rerenderBtn','click',()=>renderAll(true));on('fromLogBtn','click',()=>{if(!entries.length){alert('先にHTMLログを読み込んでください');return}if(confirm('現在の編集テキストを、元ログから作り直します。手で直した内容は上書きされます。よろしいですか？'))renderAll(true)});on('previewBtn','click',()=>updatePreview(true));on('copyBtn','click',copyEditor);on('txtBtn','click',downloadText);on('htmlBtn','click',downloadHtml);on('printHtmlBtn','click',downloadPrintHtml);on('printBtn','click',printPdf);on('startBtn','click',scrollStart);on('directionBtn','click',e=>{isHorizontal=!isHorizontal;applySettings();e.target.textContent=isHorizontal?'縦書き確認':'横書き確認'});['skipEmpty','skipDice','skipSystem','mergeSameSpeaker','scenarioAsNarration','fullWidthPunctuation'].forEach(id=>on(id,'change',()=>renderAll(true)));['fontSize','speakerHeight','speakerFont','bodyHeight','turnGap'].forEach(id=>on(id,'change',()=>{applySettings();scrollStart()}));on('pdfSize','change',()=>{applySettings();});on('scenarioNames','input',()=>renderAll(true));els.textEditor.addEventListener('input',()=>{findMatches=[];findIndex=-1;$('findCounter').textContent='0 / 0';});on('applySpeakerSettingsBtn','click',applySpeakerSettingsToEditor);on('markTitlePageBtn','click',markTitlePage);on('markSystemBoxBtn','click',markSystemBox);on('markInfoBoxBtn','click',markInfoBox);on('insertRecallLineBtn','click',insertRecallLine);on('insertTimeDotsBtn','click',insertTimeDots);
+
 showDemo();
-setTimeout(buildPrintPreview,250);
