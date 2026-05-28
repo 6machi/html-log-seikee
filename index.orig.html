@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ログジェネ LOGGENE beta 10 軽量版</title>
+<title>ログジェネ LOGGENE beta 9 軽量版</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -414,9 +414,9 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ LOGGENE beta 10</h1></div><span class="badge">A5固定＋軽量化 / LOGGENE beta 10</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ LOGGENE beta 9</h1></div><span class="badge">A5固定＋軽量化 / LOGGENE beta 9</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。LOGGENE beta 10では、入力中の自動プレビュー生成と抽出ログの全件描画を止め、編集テキスト中心の軽量構成にしています。</p></section>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。LOGGENE beta 9では、入力中の自動プレビュー生成と抽出ログの全件描画を止め、編集テキスト中心の軽量構成にしています。</p></section>
 <section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>話者設定</h2><div class="notice">話者設定や表示名を変えても、編集中のテキストは自動では書き換えません。表示名変更・本文だけ・非表示を編集テキストへ反映したい時は下のボタンを押してください。最初から作り直したい時だけ、編集テキスト欄の「元ログから再生成」を押してください。</div><div class="buttons" style="margin:10px 0"><button class="secondary" id="applySpeakerSettingsBtn" type="button">話者設定を編集テキストに反映</button></div><div class="mini-note">例：「かぐや（竹宮月子）」を「かぐや」にしたり、「ダイスロールの結果」を本文だけにした後、このボタンで編集テキストへ反映します。</div><div id="nameList" class="names"></div></div></div>
 <div class="hidden-settings" style="display:none">
   <label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label>
@@ -1688,7 +1688,6 @@ function isDiceTextForAbs(name,body){
 function buildAbsColumns(blocks,spec){
   const cols=[];
   let run=0;
-  let infoRun=0;
   const addNarr=(text,heading=false)=>{
     const chunks=splitTextForColumns(text,spec.narrChars);
     chunks.forEach((ch,i)=>cols.push({type:'narr',text:ch,heading:heading&&i===0,continued:i>0}));
@@ -1710,12 +1709,7 @@ function buildAbsColumns(blocks,spec){
     if(b.type==='dicebox'||b.type==='infobox'){
       const raw=normalizeVerticalText(b.body||'');
       const chunks=splitDiceTextForColumns(raw, b.type==='infobox' ? spec.infoChars : spec.diceChars, false);
-      if(b.type==='infobox'){
-        const group=++infoRun;
-        chunks.forEach((ch,i)=>cols.push({type:'info',text:ch,continued:i>0,roll:false,manual:true,infoGroup:group}));
-      }else{
-        chunks.forEach((ch,i)=>cols.push({type:'dice',text:ch,continued:i>0,roll:false,manual:true}));
-      }
+      chunks.forEach((ch,i)=>cols.push({type:b.type==='infobox'?'info':'dice',text:ch,continued:i>0,roll:false,manual:true}));
       continue;
     }
     if(b.type==='heading'){
@@ -1767,10 +1761,8 @@ function absColWidth(c,spec){
 }
 function absGapBefore(c,prev,spec){
   if(!prev) return 0;
-  if((c.type==='info' && prev.type==='info' && c.infoGroup && c.infoGroup===prev.infoGroup) || (c.type==='dice' && prev.type==='dice' && c.continued)){
-    return spec.continuedGap;
-  }
-  if(c.type==='dice' || prev.type==='dice' || c.type==='info' || prev.type==='info'){
+  if(c.type==='dice' || prev.type==='dice'){
+    if(c.continued && prev && prev.type==='dice') return spec.continuedGap;
     return spec.diceGap;
   }
   if(c.continued && prev && c.type===prev.type){
@@ -1831,15 +1823,14 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .abs-dice{position:absolute;top:${spec.innerY}mm;width:${spec.diceW}mm;max-height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.dicePt}pt;line-height:1.38;font-weight:700;color:#4f463c;border:1.1px solid rgba(95,86,74,.75);border-radius:7px;background:#fff;padding:.34em .28em;overflow:hidden;overflow-wrap:anywhere;word-break:normal;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .abs-dice.roll{font-size:${Math.max(6.8,spec.dicePt-.9)}pt;line-height:1.20;letter-spacing:.01em;overflow-wrap:normal;word-break:keep-all;}
 .abs-dice.continued{border-color:rgba(95,86,74,.55);}
-.abs-dice.info{font-weight:600;border:0;background:transparent;padding:.52em .36em;color:#332d26;z-index:2;}
-.abs-info-frame{position:absolute;top:${spec.innerY}mm;height:${spec.innerH}mm;box-sizing:border-box;border:1.25px solid rgba(65,58,50,.72);border-radius:7px;background:#fffdf7;z-index:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;text-align:center;font-size:${Math.max(12,spec.pt*1.18)}pt;line-height:1.72;font-weight:900;letter-spacing:.055em;color:#171410;}
-.abs-titlepage .abs-title-inner{border-inline-start:1.2px solid rgba(35,31,27,.50);border-inline-end:1.2px solid rgba(35,31,27,.50);padding:6mm 3mm;max-height:145mm;}
-.abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;box-sizing:border-box;color:#6a5b4b;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.abs-divider{height:6mm;display:flex;align-items:flex-start;justify-content:flex-start;writing-mode:horizontal-tb;}
-.abs-divider .divider-line{display:block;width:100%;height:0;border-top:1.2px solid rgba(106,91,75,.78);margin-top:0;}
-.abs-dots{height:${spec.innerH}mm;display:flex;align-items:flex-start;justify-content:flex-start;writing-mode:horizontal-tb;}
-.abs-dots-inner{display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;gap:1.15mm;padding-top:0;}
+.abs-dice.info{font-weight:600;border:1.25px solid rgba(65,58,50,.72);background:#fffdf7;}
+.abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;text-align:center;font-size:${Math.max(18,spec.pt*1.65)}pt;line-height:1.7;font-weight:900;letter-spacing:.08em;color:#171410;}
+.abs-titlepage .abs-title-inner{border-inline-start:1.4px solid rgba(35,31,27,.55);border-inline-end:1.4px solid rgba(35,31,27,.55);padding:8mm 3mm;max-height:150mm;}
+.abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;height:${spec.innerH}mm;box-sizing:border-box;color:#6a5b4b;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.abs-divider{display:flex;align-items:center;justify-content:center;writing-mode:horizontal-tb;}
+.abs-divider .divider-line{display:block;width:0;height:72%;border-left:1.2px solid rgba(106,91,75,.78);}
+.abs-dots{display:flex;align-items:center;justify-content:center;writing-mode:horizontal-tb;}
+.abs-dots-inner{display:flex;flex-direction:row-reverse;align-items:center;justify-content:center;gap:1.15mm;}
 .abs-dot-col{display:block;writing-mode:vertical-rl;text-orientation:upright;white-space:nowrap;font-size:${Math.max(9,spec.pt*.92)}pt;line-height:1;letter-spacing:.17em;font-weight:700;color:#6a5b4b;}
 .page-mark{position:absolute;left:50%;bottom:5mm;transform:translateX(-50%);width:max-content;text-align:center;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb;}
 `;
@@ -1878,24 +1869,6 @@ function renderAbsCol(c,i,page,spec){
   const cont=c.continued?' continued':'';
   return `<section class="abs-col${cont}" style="right:${right}mm">${html}</section>`;
 }
-
-function renderAbsInfoFrames(page,spec){
-  const frames=[];
-  let i=0;
-  while(i<page.length){
-    const c=page[i];
-    if(c.type!=='info' || !c.infoGroup){ i++; continue; }
-    const group=c.infoGroup;
-    let j=i;
-    while(j+1<page.length && page[j+1].type==='info' && page[j+1].infoGroup===group) j++;
-    const rightStart=absRightMm(i,page,spec)-0.55;
-    const rightEnd=absRightMm(j,page,spec);
-    const width=(rightEnd-rightStart+absColWidth(page[j],spec)+1.10);
-    frames.push(`<div class="abs-info-frame" style="right:${rightStart.toFixed(3)}mm;width:${width.toFixed(3)}mm"></div>`);
-    i=j+1;
-  }
-  return frames.join('');
-}
 function renderAbsRunRules(page,spec){
   const rules=[];
   let i=0;
@@ -1918,11 +1891,7 @@ function renderAbsRunRules(page,spec){
   return rules.join('');
 }
 function buildAbsPagesHtml(pages,spec){
-  return pages.map((page,pi)=>{
-    const titleOnly=page.length===1 && page[0].type==='titlepage';
-    const mark=titleOnly?'':`<div class="page-mark">-${pi+1}P-</div>`;
-    return `<section class="print-page" data-page="${pi+1}">${renderAbsInfoFrames(page,spec)}${renderAbsRunRules(page,spec)}${page.map((c,i)=>renderAbsCol(c,i,page,spec)).join('')}${mark}</section>`;
-  }).join('');
+  return pages.map((page,pi)=>`<section class="print-page" data-page="${pi+1}">${renderAbsRunRules(page,spec)}${page.map((c,i)=>renderAbsCol(c,i,page,spec)).join('')}<div class="page-mark">-${pi+1}P-</div></section>`).join('');
 }
 function makeAbsPages(){
   const blocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));
@@ -1975,7 +1944,7 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta10.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta7.html','text/html;charset=utf-8');
 }
 
 
