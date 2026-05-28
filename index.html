@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ログジェネ LOGGENE beta 8 軽量版</title>
+<title>ログジェネ LOGGENE beta 9 軽量版</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -414,9 +414,9 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ LOGGENE beta 8</h1></div><span class="badge">A5固定＋軽量化 / LOGGENE beta 8</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ LOGGENE beta 9</h1></div><span class="badge">A5固定＋軽量化 / LOGGENE beta 9</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。LOGGENE beta 8では、入力中の自動プレビュー生成と抽出ログの全件描画を止め、編集テキスト中心の軽量構成にしています。</p></section>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。LOGGENE beta 9では、入力中の自動プレビュー生成と抽出ログの全件描画を止め、編集テキスト中心の軽量構成にしています。</p></section>
 <section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>話者設定</h2><div class="notice">話者設定や表示名を変えても、編集中のテキストは自動では書き換えません。表示名変更・本文だけ・非表示を編集テキストへ反映したい時は下のボタンを押してください。最初から作り直したい時だけ、編集テキスト欄の「元ログから再生成」を押してください。</div><div class="buttons" style="margin:10px 0"><button class="secondary" id="applySpeakerSettingsBtn" type="button">話者設定を編集テキストに反映</button></div><div class="mini-note">例：「かぐや（竹宮月子）」を「かぐや」にしたり、「ダイスロールの結果」を本文だけにした後、このボタンで編集テキストへ反映します。</div><div id="nameList" class="names"></div></div></div>
 <div class="hidden-settings" style="display:none">
   <label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label>

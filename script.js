@@ -1258,8 +1258,15 @@ function buildAbsColumns(blocks,spec){
     }
     if(b.type==='dicebox'||b.type==='infobox'){
       const raw=normalizeVerticalText(b.body||'');
-      const chunks=splitDiceTextForColumns(raw, b.type==='infobox' ? spec.infoChars : spec.diceChars, false);
-      chunks.forEach((ch,i)=>cols.push({type:b.type==='infobox'?'info':'dice',text:ch,continued:i>0,roll:false,manual:true}));
+      if(b.type==='infobox'){
+        // beta9: 長文情報枠は、ダイスのように列ごとのカプセル枠にしない。
+        // 本文列として分割し、ページ上では連続列を1つの大きな情報枠で囲む。
+        const chunks=splitTextForColumns(raw, spec.narrChars);
+        chunks.forEach((ch,i)=>cols.push({type:'info',text:ch,continued:i>0,manual:true}));
+      }else{
+        const chunks=splitDiceTextForColumns(raw, spec.diceChars, false);
+        chunks.forEach((ch,i)=>cols.push({type:'dice',text:ch,continued:i>0,roll:false,manual:true}));
+      }
       continue;
     }
     if(b.type==='heading'){
@@ -1304,7 +1311,8 @@ function buildAbsColumns(blocks,spec){
 }
 
 function absColWidth(c,spec){
-  if(c.type==='dice'||c.type==='info') return spec.diceW;
+  if(c.type==='dice') return spec.diceW;
+  if(c.type==='info') return spec.colW;
   if(c.type==='divider') return Math.max(spec.colW*.85, 4.2);
   if(c.type==='dots') return Math.max(spec.colW*3.2, 18);
   return spec.colW;
@@ -1314,6 +1322,10 @@ function absGapBefore(c,prev,spec){
   if(c.type==='dice' || prev.type==='dice'){
     if(c.continued && prev && prev.type==='dice') return spec.continuedGap;
     return spec.diceGap;
+  }
+  if(c.type==='info' || prev.type==='info'){
+    if(c.continued && prev && prev.type==='info') return spec.continuedGap;
+    return spec.normalGap;
   }
   if(c.continued && prev && c.type===prev.type){
     if(c.type==='pc' && c.run===prev.run) return spec.continuedGap;
@@ -1374,13 +1386,15 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .abs-dice.roll{font-size:${Math.max(6.8,spec.dicePt-.9)}pt;line-height:1.20;letter-spacing:.01em;overflow-wrap:normal;word-break:keep-all;}
 .abs-dice.continued{border-color:rgba(95,86,74,.55);}
 .abs-dice.info{font-weight:600;border:1.25px solid rgba(65,58,50,.72);background:#fffdf7;}
-.abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;text-align:center;font-size:${Math.max(18,spec.pt*1.65)}pt;line-height:1.7;font-weight:900;letter-spacing:.08em;color:#171410;}
-.abs-titlepage .abs-title-inner{border-inline-start:1.4px solid rgba(35,31,27,.55);border-inline-end:1.4px solid rgba(35,31,27,.55);padding:8mm 3mm;max-height:150mm;}
+.abs-info-col{position:absolute;top:${spec.innerY+2.2}mm;width:${spec.colW}mm;height:${Math.max(30,spec.innerH-4.4)}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.pt}pt;line-height:${spec.line};letter-spacing:.015em;color:#171410;overflow:hidden;z-index:2;}
+.abs-info-frame{position:absolute;top:${spec.innerY}mm;height:${spec.innerH}mm;border:1.1px solid rgba(95,86,74,.70);border-radius:3.2mm;box-sizing:border-box;background:#fffdf7;z-index:1;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;text-orientation:mixed;text-align:center;font-size:${Math.max(13,spec.pt*1.12)}pt;line-height:1.55;font-weight:900;letter-spacing:.06em;color:#171410;}
+.abs-titlepage .abs-title-inner{border-inline-start:1.4px solid rgba(35,31,27,.55);border-inline-end:1.4px solid rgba(35,31,27,.55);padding:6mm 2.5mm;max-height:145mm;}
 .abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;height:${spec.innerH}mm;box-sizing:border-box;color:#6a5b4b;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.abs-divider{display:flex;align-items:center;justify-content:center;writing-mode:horizontal-tb;}
-.abs-divider .divider-line{display:block;width:0;height:72%;border-left:1.2px solid rgba(106,91,75,.78);}
-.abs-dots{display:flex;align-items:center;justify-content:center;writing-mode:horizontal-tb;}
-.abs-dots-inner{display:flex;flex-direction:row-reverse;align-items:center;justify-content:center;gap:1.15mm;}
+.abs-divider{display:flex;align-items:flex-start;justify-content:center;writing-mode:horizontal-tb;padding-top:0;}
+.abs-divider .divider-line{display:block;width:0;height:38mm;border-left:1.2px solid rgba(106,91,75,.78);}
+.abs-dots{display:flex;align-items:flex-start;justify-content:flex-start;writing-mode:horizontal-tb;padding-top:0;}
+.abs-dots-inner{display:flex;flex-direction:row-reverse;align-items:flex-start;justify-content:flex-start;gap:1.15mm;}
 .abs-dot-col{display:block;writing-mode:vertical-rl;text-orientation:upright;white-space:nowrap;font-size:${Math.max(9,spec.pt*.92)}pt;line-height:1;letter-spacing:.17em;font-weight:700;color:#6a5b4b;}
 .page-mark{position:absolute;left:50%;bottom:5mm;transform:translateX(-50%);width:max-content;text-align:center;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb;}
 `;
@@ -1409,11 +1423,14 @@ function renderAbsCol(c,i,page,spec){
     const join=sameNext ? ' same-next' : '';
     return `<section class="abs-pc${cont}${join}" style="right:${right}mm"><div class="abs-speaker">${showSpeaker?escapeHtml(c.speaker):'　'}</div><div class="abs-rule"></div><div class="abs-body">${escapeHtml(c.text||'　')}</div></section>`;
   }
-  if(c.type==='dice'||c.type==='info'){
+  if(c.type==='info'){
+    const cont=c.continued?' continued':'';
+    return `<section class="abs-info-col${cont}" style="right:${right}mm">${escapeHtml(c.text||'　')}</section>`;
+  }
+  if(c.type==='dice'){
     const cont=c.continued?' continued':'';
     const roll=c.roll?' roll':'';
-    const info=c.type==='info'?' info':'';
-    return `<section class="abs-dice${info}${cont}${roll}" style="right:${right}mm">${escapeHtml(c.text||'　')}</section>`;
+    return `<section class="abs-dice${cont}${roll}" style="right:${right}mm">${escapeHtml(c.text||'　')}</section>`;
   }
   const html=escapeHtml(c.text||'　').replace(/^◆\s*([^\n]+)/,'<span class="abs-mark">◆</span><strong>$1</strong>');
   const cont=c.continued?' continued':'';
@@ -1440,8 +1457,28 @@ function renderAbsRunRules(page,spec){
   }
   return rules.join('');
 }
+function renderAbsInfoFrames(page,spec){
+  const frames=[];
+  let i=0;
+  while(i<page.length){
+    const c=page[i];
+    if(c.type!=='info'){ i++; continue; }
+    let j=i;
+    while(j+1<page.length && page[j+1].type==='info') j++;
+    const rightStart=absRightMm(i,page,spec)-1.0;
+    const rightEnd=absRightMm(j,page,spec);
+    const width=(rightEnd-rightStart+absColWidth(page[j],spec)+2.0);
+    frames.push(`<div class="abs-info-frame" style="right:${rightStart.toFixed(3)}mm;width:${width.toFixed(3)}mm"></div>`);
+    i=j+1;
+  }
+  return frames.join('');
+}
 function buildAbsPagesHtml(pages,spec){
-  return pages.map((page,pi)=>`<section class="print-page" data-page="${pi+1}">${renderAbsRunRules(page,spec)}${page.map((c,i)=>renderAbsCol(c,i,page,spec)).join('')}<div class="page-mark">-${pi+1}P-</div></section>`).join('');
+  return pages.map((page,pi)=>{
+    const isTitlePage=page.length===1 && page[0].type==='titlepage';
+    const mark=isTitlePage?'':`<div class="page-mark">-${pi+1}P-</div>`;
+    return `<section class="print-page" data-page="${pi+1}">${renderAbsInfoFrames(page,spec)}${renderAbsRunRules(page,spec)}${page.map((c,i)=>renderAbsCol(c,i,page,spec)).join('')}${mark}</section>`;
+  }).join('');
 }
 function makeAbsPages(){
   const blocks=mergeEditableBlocks(parseEditableBlocks(els.textEditor.value));
@@ -1494,7 +1531,7 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta7.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta9.html','text/html;charset=utf-8');
 }
 
 
