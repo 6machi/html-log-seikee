@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CoCログ縦書きメーカー 軽量版 GitHub ver19 話者名安定版</title>
+<title>ログジェネ GitHub ver20 ファビコン追加版</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#1900a8">
 <style>
 :root{
   --bg1:#fff8fb;
@@ -405,9 +411,9 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>CoCログ縦書きメーカー 軽量版 GitHub ver19</h1></div><span class="badge">A5固定＋話者名安定 / GitHub ver19</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ GitHub ver20</h1></div><span class="badge">A5固定＋話者名安定＋ファビコン / GitHub ver20</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver19ではA5固定の安定レイアウトを維持しつつ、長めの話者名が崩れにくいよう話者名エリアを自動調整します。</p></section>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。GitHub ver20ではA5固定の安定レイアウトと話者名安定版を維持しつつ、ログジェネのファビコンを追加しています。</p></section>
 <section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box settings-simple"><h2>整形設定</h2>
   <div class="preset-card">
     <b>A5固定プリセット</b>
