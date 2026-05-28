@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ログジェネ LOGGENE beta 12 軽量版</title>
+<title>ログジェネ LOGGENE beta 13 軽量版</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -414,9 +414,9 @@ main{max-width:1280px;margin:0 auto;padding:18px 18px 64px}.panel{background:var
 </style>
 </head>
 <body>
-<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ LOGGENE beta 12</h1></div><span class="badge">A5固定＋軽量化 / LOGGENE beta 12</span></div></header>
+<header><div class="header-inner"><div><div class="kicker">ココフォリアHTMLログ整形ツール</div><h1>ログジェネ LOGGENE beta 13</h1></div><span class="badge">A5固定＋軽量化 / LOGGENE beta 13</span></div></header>
 <main>
-<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。LOGGENE beta 12では、入力中の自動プレビュー生成と抽出ログの全件描画を止め、編集テキスト中心の軽量構成にしています。</p></section>
+<section class="panel intro"><h2>ココフォリアHTMLログを、縦書きログ本用に整形</h2><p class="lead">アップロードしたHTMLログから発言者・本文・色を抽出し、PC会話は話者名＋本文の上下段風、KP/描写は本文流しで表示します。前の試作で積み重なっていたCSS上書きを整理した軽量版です。LOGGENE beta 13では、入力中の自動プレビュー生成と抽出ログの全件描画を止め、編集テキスト中心の軽量構成にしています。</p></section>
 <section class="panel controls"><div class="grid"><div class="box"><label for="fileInput">ココフォリアHTMLログ</label><input id="fileInput" type="file" accept=".html,text/html"><div class="buttons"><button id="loadBtn">読み込む</button><button class="secondary" id="demoBtn">使い方を表示</button></div><div class="stats"><div class="stat"><b id="statTotal">0</b><span>抽出</span></div><div class="stat"><b id="statShown">0</b><span>表示</span></div><div class="stat"><b id="statDice">0</b><span>ダイス</span></div><div class="stat"><b id="statNames">0</b><span>発言者</span></div></div></div><div class="box"><h2>話者設定</h2><div class="notice">話者設定や表示名を変えても、編集中のテキストは自動では書き換えません。表示名変更・本文だけ・非表示を編集テキストへ反映したい時は下のボタンを押してください。最初から作り直したい時だけ、編集テキスト欄の「元ログから再生成」を押してください。</div><div class="buttons" style="margin:10px 0"><button class="secondary" id="applySpeakerSettingsBtn" type="button">話者設定を編集テキストに反映</button></div><div class="mini-note">例：「かぐや（竹宮月子）」を「かぐや」にしたり、「ダイスロールの結果」を本文だけにした後、このボタンで編集テキストへ反映します。</div><div id="nameList" class="names"></div></div></div>
 <div class="hidden-settings" style="display:none">
   <label class="check"><input id="skipEmpty" type="checkbox" checked>空の発言を除外</label>
@@ -1599,7 +1599,8 @@ function getAbsSpec(){
   spec.narrChars=Math.max(12, Math.floor(spec.innerH/(charMm*narrSafety))-2);
   // v45: 枠付き表示は余裕を持って分割する。枠の上下余白・罫線ぶんを差し引く。
   spec.diceChars=Math.max(18, Math.floor(spec.innerH/(spec.dicePt*mmPerPt*1.48))-2);
-  spec.infoChars=Math.max(20, Math.floor(spec.innerH/(spec.pt*mmPerPt*1.16))-2);
+  // beta13: 情報枠は枠に詰め込まず、本文に近い読み口を優先。改行ごとに列化するため少し安全側。
+  spec.infoChars=Math.max(18, Math.floor(spec.innerH/(spec.pt*mmPerPt*1.28))-2);
   // v49: ダイス結果は「数値 ＞ 成功/失敗」を分離させないため、通常枠より小さめの文字で多めに入れる。
   const rollPt=Math.max(6.8, spec.dicePt-.9);
   spec.rollDiceChars=Math.max(96, spec.diceChars+18, Math.floor(spec.innerH/(rollPt*mmPerPt*1.05))-1);
@@ -1709,11 +1710,14 @@ function buildAbsColumns(blocks,spec){
     }
     if(b.type==='dicebox'||b.type==='infobox'){
       const raw=normalizeVerticalText(b.body||'');
-      const chunks=splitDiceTextForColumns(raw, b.type==='infobox' ? spec.infoChars : spec.diceChars, false);
       if(b.type==='infobox'){
         const group=++infoRun;
+        // beta13: 情報枠は改行を潰さない。先頭に「情報」ラベルを置き、本文は読みやすい情報カラムとして流す。
+        cols.push({type:'infoLabel',text:'情報',infoGroup:group});
+        const chunks=splitTextForColumns(raw, spec.infoChars);
         chunks.forEach((ch,i)=>cols.push({type:'info',text:ch,continued:i>0,roll:false,manual:true,infoGroup:group}));
       }else{
+        const chunks=splitDiceTextForColumns(raw, spec.diceChars, false);
         chunks.forEach((ch,i)=>cols.push({type:'dice',text:ch,continued:i>0,roll:false,manual:true}));
       }
       continue;
@@ -1761,17 +1765,24 @@ function buildAbsColumns(blocks,spec){
 
 function absColWidth(c,spec){
   if(c.type==='dice') return spec.diceW;
+  if(c.type==='infoLabel') return Math.max(spec.colW*1.35, 6.0);
   if(c.type==='info') return Math.max(spec.colW*1.05, 4.4);
-  if(c.type==='divider') return Math.max(spec.colW*.85, 4.2);
-  if(c.type==='dots') return Math.max(spec.colW*3.2, 18);
+  if(c.type==='divider') return Math.max(spec.colW*1.2, 6.0);
+  if(c.type==='dots') return Math.max(spec.colW*1.7, 10.0);
   return spec.colW;
 }
 function absGapBefore(c,prev,spec){
   if(!prev) return 0;
-  if((c.type==='info' && prev.type==='info' && c.infoGroup && c.infoGroup===prev.infoGroup) || (c.type==='dice' && prev.type==='dice' && c.continued)){
+  if(c.type==='info' && (prev.type==='info'||prev.type==='infoLabel') && c.infoGroup && c.infoGroup===prev.infoGroup){
     return spec.continuedGap;
   }
-  if(c.type==='dice' || prev.type==='dice' || c.type==='info' || prev.type==='info'){
+  if(c.type==='infoLabel' && prev.type==='info' && c.infoGroup && prev.infoGroup===c.infoGroup){
+    return spec.continuedGap;
+  }
+  if(c.type==='dice' && prev.type==='dice' && c.continued){
+    return spec.continuedGap;
+  }
+  if(c.type==='dice' || prev.type==='dice' || c.type==='info' || prev.type==='info' || c.type==='infoLabel' || prev.type==='infoLabel'){
     return spec.diceGap;
   }
   if(c.continued && prev && c.type===prev.type){
@@ -1832,24 +1843,34 @@ body{font-family:"Yu Mincho","Hiragino Mincho ProN","YuMincho",serif;}
 .abs-dice{position:absolute;top:${spec.innerY}mm;width:${spec.diceW}mm;max-height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.dicePt}pt;line-height:1.38;font-weight:700;color:#4f463c;border:1.1px solid rgba(95,86,74,.75);border-radius:7px;background:#fff;padding:.34em .28em;overflow:hidden;overflow-wrap:anywhere;word-break:normal;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 .abs-dice.roll{font-size:${Math.max(6.8,spec.dicePt-.9)}pt;line-height:1.20;letter-spacing:.01em;overflow-wrap:normal;word-break:keep-all;}
 .abs-dice.continued{border-color:rgba(95,86,74,.55);}
-.abs-info-col{position:absolute;top:${spec.innerY}mm;width:${Math.max(spec.colW*1.05,4.4)}mm;height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${Math.max(8.6,spec.pt*.88)}pt;line-height:1.16;letter-spacing:.002em;color:#241f1a;overflow:hidden;z-index:2;}
+.abs-info-col{position:absolute;top:${spec.innerY}mm;width:${Math.max(spec.colW*1.05,4.4)}mm;height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${Math.max(8.7,spec.pt*.90)}pt;line-height:1.24;letter-spacing:.004em;color:#241f1a;overflow:hidden;z-index:2;}
 .abs-info-col.continued{opacity:.99;}
+.abs-info-label{position:absolute;top:${spec.innerY}mm;width:${Math.max(spec.colW*1.35,6.0)}mm;height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;font-size:${Math.max(8.2,spec.pt*.78)}pt;line-height:1.05;font-weight:800;letter-spacing:.04em;color:#6a5b4b;overflow:hidden;z-index:2;}
+.abs-info-label .dot{color:#8a7a69;font-weight:700;letter-spacing:.08em;}
+.abs-info-label .label{color:#2a241e;font-weight:900;}
 .abs-info-frame{display:none;}
-.abs-titlepage{position:absolute;inset:${spec.pad.t}mm ${spec.pad.r}mm ${spec.pad.b}mm ${spec.pad.l}mm;display:block;writing-mode:vertical-rl;text-orientation:mixed;text-align:start;font-size:${spec.pt}pt;line-height:${spec.line};font-weight:700;letter-spacing:.025em;color:#171410;padding-top:0;padding-right:0;box-sizing:border-box;}
-.abs-titlepage .abs-title-inner{border:0;padding:0;max-height:none;white-space:pre-wrap;}
-.abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;box-sizing:border-box;color:#6a5b4b;overflow:visible;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-.abs-divider{height:44mm;display:block;writing-mode:horizontal-tb;}
-.abs-divider .divider-line{display:block;width:0;height:38mm;border-right:1.2px dotted rgba(106,91,75,.78);margin:0 auto;}
-.abs-dots{height:22mm;display:block;writing-mode:horizontal-tb;}
-.abs-dots-inner{display:block;padding-top:0;text-align:left;line-height:1.25;}
-.abs-dot-row{display:block;font-size:${Math.max(8.8,spec.pt*.86)}pt;letter-spacing:.18em;font-weight:700;color:#6a5b4b;white-space:nowrap;}
+.abs-titlepage{position:absolute;inset:0;display:block;}
+.abs-title-col{position:absolute;top:${spec.innerY}mm;width:${spec.colW}mm;height:${spec.innerH}mm;box-sizing:border-box;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;font-size:${spec.pt}pt;line-height:${spec.line};font-weight:700;letter-spacing:.025em;color:#171410;overflow:hidden;}
+.abs-divider,.abs-dots{position:absolute;top:${spec.innerY}mm;box-sizing:border-box;color:#6a5b4b;overflow:hidden;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.abs-divider{height:${spec.innerH}mm;display:block;writing-mode:horizontal-tb;}
+.abs-divider .divider-line{display:block;width:0;height:72mm;max-height:60%;border-right:1.2px dotted rgba(106,91,75,.78);margin:0 auto;}
+.abs-dots{height:26mm;display:block;writing-mode:vertical-rl;text-orientation:mixed;white-space:pre-wrap;}
+.abs-dots-inner{display:block;padding-top:0;text-align:start;line-height:1.1;}
+.abs-dot-row{display:block;font-size:${Math.max(8.8,spec.pt*.86)}pt;letter-spacing:.04em;font-weight:700;color:#6a5b4b;white-space:nowrap;}
 .page-mark{position:absolute;left:50%;bottom:5mm;transform:translateX(-50%);width:max-content;text-align:center;font-size:9pt;letter-spacing:.08em;color:#171410;writing-mode:horizontal-tb;}
 `;
 }
 function renderAbsCol(c,i,page,spec){
   const isPageStart=i===0;
   if(c.type==='titlepage'){
-    return `<section class="abs-titlepage"><div class="abs-title-inner">${escapeHtml(c.text||'タイトル')}</div></section>`;
+    // beta13: タイトルページは中央寄せせず、通常本文と同じ縦組みの列で右上から置く。
+    const chunks=splitTextForColumns(c.text||'タイトル', spec.narrChars);
+    const parts=[];
+    for(let ti=0; ti<chunks.length; ti++){
+      const r=(spec.pad.r+spec.safeRight + ti*(spec.colW+spec.normalGap)).toFixed(3);
+      parts.push(`<div class="abs-title-col" style="right:${r}mm">${escapeHtml(chunks[ti]||'　')}</div>`);
+    }
+    return `<section class="abs-titlepage">${parts.join('')}</section>`;
   }
   const right=absRightMm(i,page,spec).toFixed(3);
   if(c.type==='divider'){
@@ -1869,6 +1890,10 @@ function renderAbsCol(c,i,page,spec){
     const cont=c.continued && !showSpeaker ? ' continued' : '';
     const join=sameNext ? ' same-next' : '';
     return `<section class="abs-pc${cont}${join}" style="right:${right}mm"><div class="abs-speaker">${showSpeaker?escapeHtml(c.speaker):'　'}</div><div class="abs-rule"></div><div class="abs-body">${escapeHtml(c.text||'　')}</div></section>`;
+  }
+  if(c.type==='infoLabel'){
+    const w=absColWidth(c,spec).toFixed(3);
+    return `<section class="abs-info-label" style="right:${right}mm;width:${w}mm"><span class="dot">･････</span><span class="label">［■情報］</span><span class="dot">････････</span></section>`;
   }
   if(c.type==='info'){
     const cont=c.continued?' continued':'';
@@ -1981,7 +2006,7 @@ function printPdf(){
 }
 function downloadPrintHtml(){
   const {pages,spec}=makeAbsPages();
-  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta12.html','text/html;charset=utf-8');
+  downloadBlob(makePrintDocument(pages,spec),'loggene_vertical_print_beta13.html','text/html;charset=utf-8');
 }
 
 
